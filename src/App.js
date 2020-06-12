@@ -1,12 +1,11 @@
-import React from 'react';
-import Login from "./components/authentication/login/login"
-
-function App() {
-  return (
-    <div className="App">
-    <Login></Login>
-    </div>
-  );
+/* eslint-disable react/prefer-stateless-function */
+import React, { Component } from 'react';
+import Router from './routes';
+import './App.scss';
+class App extends Component {
+  render() {
+    return <Router />;
+  }
 }
 
 export default App;
