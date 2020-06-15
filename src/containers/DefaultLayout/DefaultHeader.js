@@ -15,7 +15,6 @@ import PropTypes from 'prop-types';
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import logo from '../../assets/img/brand/logo_transparent.png';
 import sygnet from '../../assets/img/brand/user.png';
-
 const propTypes = {
   children: PropTypes.node,
 };
@@ -29,12 +28,16 @@ class DefaultHeader extends Component {
 
     return (
       <>
-        <AppSidebarToggler className="d-lg-none" display="md" mobile />
+        <div style={{ alignSelf: 'center' }}>
+          <AppSidebarToggler className="d-lg-none" display="md" mobile />
+        </div>
         <AppNavbarBrand
           full={{ src: logo, width: 160, height: 100, alt: 'CoreUI Logo' }}
           minimized={{ src: sygnet, width: 30, height: 30, alt: 'CoreUI Logo' }}
         />
-        <AppSidebarToggler className="d-md-down-none" display="lg" />
+        <div style={{ alignSelf: 'center' }}>
+          <AppSidebarToggler className="d-md-down-none" display="lg" />
+        </div>
         <Nav className="ml-auto" navbar>
           <UncontrolledDropdown nav direction="down">
             <DropdownToggle nav>
@@ -68,7 +71,7 @@ class DefaultHeader extends Component {
                   </div>
                 </div>
               </DropdownItem>
-              <DropdownItem onClick={(e) => console.log('notification')}>
+              <DropdownItem onClick={(e) => {}}>
                 <i className="fa fa-ellipsis-h" /> Xem thêm
               </DropdownItem>
             </DropdownMenu>
@@ -90,7 +93,7 @@ class DefaultHeader extends Component {
                   <i className="fa fa-user" /> Profile
                 </DropdownItem>
               </Link>
-              <DropdownItem onClick={(e) => console.log('logout')}>
+              <DropdownItem onClick={(e) => {}}>
                 <i className="fa fa-lock" /> Logout
               </DropdownItem>
             </DropdownMenu>

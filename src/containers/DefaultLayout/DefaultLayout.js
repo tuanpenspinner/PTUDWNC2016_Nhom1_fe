@@ -9,6 +9,7 @@ import {
   AppSidebarForm,
   AppSidebarHeader,
   AppSidebarNav2 as AppSidebarNav,
+// eslint-disable-next-line import/no-extraneous-dependencies
 } from '@coreui/react';
 
 class DefaultLayout extends Component {
@@ -18,7 +19,7 @@ class DefaultLayout extends Component {
     return (
       <AppSidebar fixed display="lg">
         <AppSidebarHeader />
-        <AppSidebarForm />
+            <AppSidebarForm />
         <Suspense>
           <AppSidebarNav {...this.props} router={router}>
             <NavItem>
@@ -119,7 +120,6 @@ class DefaultLayout extends Component {
             </NavItem>
           </AppSidebarNav>
         </Suspense>
-        <AppSidebarFooter />
       </AppSidebar>
     );
   }

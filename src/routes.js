@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Route, Switch,BrowserRouter } from 'react-router-dom';
+import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import { Container } from 'reactstrap';
 import * as router from 'react-router-dom';
 import {
@@ -11,7 +11,9 @@ import {
   AppBreadcrumb2 as AppBreadcrumb,
 } from '@coreui/react';
 import Transfer from './views/Customer/Transfer/Transfer';
-import Profile from './views/Customer/Profile/Profile';
+import ProfileCustomer from './views/Customer/Profile/Profile';
+import ProfileEmployee from './views/Employee/Profile/Profile';
+import ProfileAdministrator from './views/Administrator/Profile/Profile';
 import ListReceivers from './views/Customer/Receivers/ListReceivers';
 import DebtReminder from './views/Customer/Debt-reminder/DebtReminder';
 import EmployeeManage from './views/Administrator/Manage-Employee/EmployeeManage';
@@ -37,7 +39,7 @@ const routesCustomer = [
   {
     path: '/customer/profile',
     name: 'Thông tin tài khoản',
-    component: Profile,
+    component: ProfileCustomer,
   },
 ];
 const routesAdmnistrator = [
@@ -51,7 +53,7 @@ const routesAdmnistrator = [
     name: 'Thống kê giao dịch',
     component: Statistic,
   },
-  { path: '/administrator/profile', name: 'Profile', component: Profile },
+  { path: '/administrator/profile', name: 'Profile', component: ProfileAdministrator },
 ];
 const routesEmployee = [
   {
@@ -64,7 +66,7 @@ const routesEmployee = [
     name: 'Nạp tiền',
     component: MoneyRecharge,
   },
-  { path: '/employee/profile', name: 'Profile', component: Profile },
+  { path: '/employee/profile', name: 'Profile', component: ProfileEmployee },
 ];
 class App extends React.PureComponent {
   render() {
@@ -80,14 +82,7 @@ class App extends React.PureComponent {
               </Suspense>
             </AppHeader>
             <div className="app-body">
-              <AppSidebar fixed display="lg">
-                <AppSidebarHeader />
-                <AppSidebarForm />
-                <Suspense>
-                  <DefaultLayout />{' '}
-                </Suspense>
-                <AppSidebarFooter />
-              </AppSidebar>
+              <DefaultLayout />
               <main className="main">
                 <AppBreadcrumb appRoutes={routesCustomer} router={router} />
                 <Container fluid>
