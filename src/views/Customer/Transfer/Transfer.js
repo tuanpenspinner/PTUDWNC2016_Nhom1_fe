@@ -1,6 +1,6 @@
 /* eslint-disable lines-between-class-members */
 /* eslint-disable react/prefer-stateless-function */
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import {
@@ -8,10 +8,14 @@ import {
   Card,
   Label,
   CardBody,
-  ListGroup,
-  CardGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Col,
-  Container,
+  ListGroup,
+  ListGroupItem,
+  Tooltip,
   Form,
   Input,
   Table,
@@ -23,20 +27,21 @@ import {
   FormGroup,
   CardHeader,
   InputGroup,
+  Collapse,
+  CardFooter,
 } from 'reactstrap';
 import { rgbToHex } from '@coreui/coreui/dist/js/coreui-utilities';
 const accountData = [
-  { id: 0, accountNumber: 'John Doe', amount: '2018/01/01', role: 'Guest' },
   { id: 1, accountNumber: 'Samppa Nori', amount: '2018/01/01', role: 'Member' },
   {
     id: 2,
-    accountNumber: 'Estavan Lykos',
-    amount: '2018/02/01',
+    accountNumber: 'Estavan sfu sd isudfh usiudfh sudh sudh usd  Lykos',
+    amount: '2018 sahdu udhf dafsdf sd /02/01',
     role: 'Staff',
   },
   {
     id: 3,
-    accountNumber: 'Chetan Mohamed',
+    accountNumber: 'nguyeenx thij kim bich ngan',
     amount: '2018/02/01',
     role: 'Admin',
   },
@@ -287,24 +292,54 @@ const accountData = [
     role: 'Admin',
   },
 ];
+
 class Transfer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       switchBankCode: false,
+      collapse: false,
+      modal: false,
+      tooltipOpen: false,
     };
+    this.toggleSmall = this.toggleSmall.bind(this);
+    this.toggleTooltip = this.toggleTooltip.bind(this);
   }
+  //chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = async (ischecked) => {
     await this.setState({ switchBankCode: ischecked });
   };
-  handleCommitAccountNumber = (e) =>{
+  //get infor người nhận khi nhập stk thanh toán
+  handleCommitAccountNumber = (e) => {
+    this.setState({ collapse: !this.state.collapse });
     e.preventDefault();
-  }
+  };
+  //show tooltip input thêm người nhận
+  toggleTooltip = async (e) => {
+    console.log('hjih');
+    await this.setState({
+      tooltipOpen: !this.state.tooltipOpen,
+    });
+  };
+  //đóng modal
+  toggleSmall = async (e) => {
+    await this.setState({
+      modal: !this.state.modal,
+    });
+  };
+  //hàm khi click button Chuyển tiền
+  transfering = (e) => {
+    this.toggleSmall();
+  };
+  //hàm xác nhận chuyển khoản trên modal
+  comfirmTransfer = (e) => {
+    this.toggleSmall();
+  };
   render() {
     return (
       <div className="animated fadeIn">
         <Row>
-          <Col xs="12" xl="6">
+          <Col xs="12" xl="5">
             <Card>
               <CardHeader>
                 <i className="fa fa-location-arrow"></i>
@@ -351,10 +386,10 @@ class Transfer extends Component {
                   </FormGroup>
                   {/*số tài khoản thanh toán của bạn */}
                   <FormGroup row>
-                    <Col md="3" style={{ alignSelf: 'center' }}>
+                    <Col md="4" style={{ alignSelf: 'center' }}>
                       <Label htmlFor="checkingAccountNumber">STK của bạn</Label>
                     </Col>
-                    <Col xs="12" md="9">
+                    <Col xs="12" md="8">
                       <Input
                         type="text"
                         id="accountNumber"
@@ -366,26 +401,69 @@ class Transfer extends Component {
                   </FormGroup>
                   {/*số tài khoản thanh toán của người nhận */}
                   <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="contentTransfer">
-                        STK người nhận
-                      </Label>
+                    <Col md="4" style={{ alignSelf: 'center' }}>
+                      <Label htmlFor="contentTransfer">STK người nhận</Label>
                     </Col>
-                    <Col xs="12" md="9">
+                    <Col xs="12" md="8">
                       <InputGroup>
-                        <Input placeholder="Số tài khoản thanh toán của người nhận..."/>
+                        <Input placeholder="Số tài khoản của người nhận..." />
                         <InputGroupAddon addonType="append">
-                          <Button onClick={this.handleCommitAccountNumber}>hehe</Button>
+                          <Button
+                            onClick={this.handleCommitAccountNumber}
+                            color="primary"
+                          >
+                            <i
+                              className="fa fa-refresh"
+                              style={{ color: 'white' }}
+                            ></i>
+                          </Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
                   </FormGroup>
+                  {/*kết quả trả về khi nhập stk người nhận */}
+                  <Collapse isOpen={this.state.collapse}>
+                    <FormGroup row>
+                      <Col md="4" />
+                      <Col xs="12" md="8">
+                        <label style={{ color: 'red' }}>err nè he...</label>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row>
+                      <Col md="4" style={{ alignSelf: 'center' }}>
+                        <Label htmlFor="nameReceiver">Tên người nhận</Label>
+                      </Col>
+                      <Col xs="12" md="8">
+                        <Input
+                          type="text"
+                          id="nameReceiver"
+                          name="nameReceiver"
+                          value="nguyễn văn a"
+                          disabled
+                        />
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row>
+                      <Col md="4" style={{ alignSelf: 'center' }}>
+                        <Label htmlFor="emailReceiver">Email người nhận</Label>
+                      </Col>
+                      <Col xs="12" md="8">
+                        <Input
+                          type="text"
+                          id="emailReceiver"
+                          name="emailReceiver"
+                          value="nva@gmail.com"
+                          disabled
+                        />
+                      </Col>
+                    </FormGroup>
+                  </Collapse>
                   {/*số tiền cần chuyển */}
                   <FormGroup row>
-                    <Col md="3" style={{ alignSelf: 'center' }}>
-                      <Label htmlFor="disabled-input">Số tiền gửi</Label>
+                    <Col md="4" style={{ alignSelf: 'center' }}>
+                      <Label htmlFor="amount">Số tiền gửi</Label>
                     </Col>
-                    <Col xs="12" md="9">
+                    <Col xs="12" md="8">
                       <Input
                         type="number"
                         id="amount"
@@ -396,12 +474,12 @@ class Transfer extends Component {
                   </FormGroup>
                   {/*nội dung chuyển tiền */}
                   <FormGroup row>
-                    <Col md="3">
+                    <Col md="4">
                       <Label htmlFor="contentTransfer">
                         Nội dung chuyển tiền
                       </Label>
                     </Col>
-                    <Col xs="12" md="9">
+                    <Col xs="12" md="8">
                       <Input
                         type="textarea"
                         name="contentTransfer"
@@ -412,17 +490,172 @@ class Transfer extends Component {
                       />
                     </Col>
                   </FormGroup>
-               </Form>
+                  {/*hình thức trả phí */}
+                  <FormGroup row>
+                    <Col md="4" style={{ alignSelf: 'center' }}>
+                      <Label htmlFor="typePay">Hình thức trả phí</Label>
+                    </Col>
+                    <Col xs="12" md="8">
+                      <Input type="select" name="typePay" id="typePay">
+                        <option value="0">Chọn hình thức trả phí</option>
+                        <option value="1">Người gửi</option>
+                        <option value="2">Người nhận</option>
+                      </Input>
+                    </Col>
+                  </FormGroup>
+                </Form>
               </CardBody>
+              <CardFooter>
+                <Button
+                  color="primary"
+                  style={{ marginRight: '15px' }}
+                  type="submit"
+                  onClick={this.toggleSmall}
+                >
+                  Chuyển tiền
+                </Button>
+                <Button color="warning">Reset</Button>
+                <Modal
+                  isOpen={this.state.modal}
+                  toggle={this.toggleSmall}
+                  className="modal-sm"
+                >
+                  <ModalHeader toggle={this.toggleSmall}>Xác nhận</ModalHeader>
+                  <ModalBody>
+                    <Label>
+                      Vui lòng kiểm tra email và nhập mã code được gủi tại đây
+                      để hoàn tất chuyển khoản.
+                    </Label>
+                    <Input type="text" placeholder="Nhập mã code..."></Input>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="primary" onClick={this.comfirmTransfer}>
+                      Xác nhận
+                    </Button>{' '}
+                    <Button color="secondary" onClick={this.toggleSmall}>
+                      Cancel
+                    </Button>
+                  </ModalFooter>
+                </Modal>
+              </CardFooter>
             </Card>
           </Col>
-          <Col xs="12" xl="6">
+          <Col xs="12" xl="7">
             <Card>
               <CardHeader>
                 <i className="fa fa-address-card-o"></i>
                 <strong>Danh sách người nhận</strong>
               </CardHeader>
-              <CardBody></CardBody>
+              <CardBody>
+                <Form>
+                  <FormGroup row>
+                    <Col md="3" style={{ alignSelf: 'center' }}>
+                      <Label htmlFor="nameReceiverOfList">Tên người nhận</Label>
+                    </Col>
+                    <Col xs="12" md="6">
+                      <Input
+                        type="text"
+                        id="nameReceiverOfList"
+                        name="nameReceiverOfList"
+                        placeholder="Nhập tên thay thế..."
+                        onChange={(e) => {}}
+                      />
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3" style={{ alignSelf: 'center' }}>
+                      <Label htmlFor="numberReceiverOfList">Số tài khoản</Label>
+                    </Col>
+                    <Col xs="12" md="6">
+                      <Input
+                        type="text"
+                        id="numberReceiverOfList"
+                        name="numberReceiverOfList"
+                        placeholder="Nhập số tài khoản..."
+                        onChange={(e) => {}}
+                      />
+                    </Col>
+                  </FormGroup>
+                  <Button
+                    color="primary"
+                    key="btnAdd"
+                    style={{ marginRight: '15px', width: ' 90px' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    Thêm
+                  </Button>
+                  <Button
+                    color="primary"
+                    key="btnSave"
+                    style={{ marginRight: '15px', width: ' 90px' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    Lưu
+                  </Button>
+                </Form>
+                <hr
+                  style={{
+                    color: 'grey',
+                    height: 2,
+                  }}
+                />
+                <Table
+                  hover
+                  responsive
+                  className="table-outline mb-0 d-sm-table"
+                >
+                  <thead className="thead-light">
+                    <tr>
+                      <th>#</th>
+                      <th style={{ width: '40%' }}>Họ và tên</th>
+                      <th style={{ width: '30%' }} >Số tài khoản</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {accountData.map((item, index) => (
+                      <tr key={item.id.toString()}>
+                        <td scope="row">
+                          <strong>{item.id}</strong>
+                        </td>
+                        <td>{item.accountNumber}</td>
+                        <td>{item.amount}</td>
+                        <td>
+                          <Row>
+                            <Button
+                              size="sm"
+                              color="danger"
+                              className="btn-pill"
+                              style={{ marginRight: '5px' }}
+                            >
+                              <i className="fa fa-trash-o"></i>
+                            </Button>
+                            <Button
+                              size="sm"
+                              color="success"
+                              className="btn-pill"
+                              style={{ marginRight: '5px' }}
+                            >
+                              <i className="fa fa-pencil"></i>
+                            </Button>
+                            <Button
+                              size="sm"
+                              color="primary"
+                              className="btn-pill"
+                            >
+                              <i className="fa fa-ticket"></i>
+                            </Button>
+                          </Row>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </CardBody>
             </Card>
           </Col>
         </Row>
