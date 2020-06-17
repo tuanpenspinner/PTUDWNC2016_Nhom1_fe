@@ -1,3 +1,6 @@
+/* eslint-disable react/no-unused-state */
+/* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable lines-between-class-members */
 /* eslint-disable react/prefer-stateless-function */
 import React, { Component, useState } from 'react';
@@ -13,7 +16,6 @@ import {
   ModalFooter,
   ModalHeader,
   Col,
-  ListGroup,
   ListGroupItem,
   Tooltip,
   Form,
@@ -30,7 +32,10 @@ import {
   Collapse,
   CardFooter,
 } from 'reactstrap';
-import { rgbToHex } from '@coreui/coreui/dist/js/coreui-utilities';
+
+import CDataTable from '../../components/table/CDataTable';
+import usersData from '../../components/table/UsersData';
+
 const accountData = [
   { id: 1, accountNumber: 'Samppa Nori', amount: '2018/01/01', role: 'Member' },
   {
@@ -293,61 +298,81 @@ const accountData = [
   },
 ];
 
+// const [items, setItems] = useState(usersData)
+
 class Transfer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      switchBankCode: false,
-      collapse: false,
-      modal: false,
+      switchBankCode: false, //state chọn gửi liên ngân hàng hoặc nội bộ
+      collapse: false, //state collapse open khi tồn tại số tài khoản người nhận
+      modal: false, //state modal open khi nhấn chuyển tiền, yêu cầu người dùng nhập code từ email
       tooltipOpen: false,
+      nameReceiver: '',
+      accountNumberReceiver: '',
+      details: [],
     };
     this.toggleSmall = this.toggleSmall.bind(this);
     this.toggleTooltip = this.toggleTooltip.bind(this);
   }
-  //chọn chuyển khoản nội bộ hay liên ngân hàng
+  //hàm xử lí hiện detail lịch sử giao diện
+  toggleDetails = (index) => {
+    const position = this.state.details.indexOf(index);
+    let newDetails = this.state.details.slice();
+    if (position !== -1) {
+      newDetails.splice(position, 1);
+    } else {
+      newDetails = [...this.state.details, index];
+    }
+    this.setState({ details: newDetails });
+  };
+  // chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = async (ischecked) => {
     await this.setState({ switchBankCode: ischecked });
   };
-  //get infor người nhận khi nhập stk thanh toán
+  // get infor người nhận khi nhập stk thanh toán
   handleCommitAccountNumber = (e) => {
     this.setState({ collapse: !this.state.collapse });
     e.preventDefault();
   };
-  //show tooltip input thêm người nhận
+  // show tooltip input thêm người nhận
   toggleTooltip = async (e) => {
     console.log('hjih');
     await this.setState({
       tooltipOpen: !this.state.tooltipOpen,
     });
   };
-  //đóng modal
+  // đóng modal
   toggleSmall = async (e) => {
     await this.setState({
       modal: !this.state.modal,
     });
   };
-  //hàm khi click button Chuyển tiền
+  // hàm khi click button Chuyển tiền
   transfering = (e) => {
     this.toggleSmall();
   };
-  //hàm xác nhận chuyển khoản trên modal
+  // hàm xác nhận chuyển khoản trên modal
   comfirmTransfer = (e) => {
     this.toggleSmall();
   };
+transInfor=async(person)=>{
+  await this.setState({nameReceiver:person.name});
+};
   render() {
+    const { nameReceiver, accountNumberReceiver } = this.state;
     return (
       <div className="animated fadeIn">
         <Row>
           <Col xs="12" xl="5">
             <Card>
               <CardHeader>
-                <i className="fa fa-location-arrow"></i>
+                <i className="fa fa-location-arrow" />
                 <strong>Chuyển khoản</strong>
               </CardHeader>
               <CardBody>
                 <Form>
-                  {/*xác nhận gửi liên ngân hàng hoặc nội bộ */}
+                  {/* xác nhận gửi liên ngân hàng hoặc nội bộ */}
                   <FormGroup className="">
                     <Row>
                       <Col xs="6" md="6">
@@ -384,7 +409,7 @@ class Transfer extends Component {
                       </Col>
                     </Row>
                   </FormGroup>
-                  {/*số tài khoản thanh toán của bạn */}
+                  {/* số tài khoản thanh toán của bạn */}
                   <FormGroup row>
                     <Col md="4" style={{ alignSelf: 'center' }}>
                       <Label htmlFor="checkingAccountNumber">STK của bạn</Label>
@@ -399,7 +424,7 @@ class Transfer extends Component {
                       />
                     </Col>
                   </FormGroup>
-                  {/*số tài khoản thanh toán của người nhận */}
+                  {/* số tài khoản thanh toán của người nhận */}
                   <FormGroup row>
                     <Col md="4" style={{ alignSelf: 'center' }}>
                       <Label htmlFor="contentTransfer">STK người nhận</Label>
@@ -415,13 +440,13 @@ class Transfer extends Component {
                             <i
                               className="fa fa-refresh"
                               style={{ color: 'white' }}
-                            ></i>
+                            />
                           </Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
                   </FormGroup>
-                  {/*kết quả trả về khi nhập stk người nhận */}
+                  {/* kết quả trả về khi nhập stk người nhận */}
                   <Collapse isOpen={this.state.collapse}>
                     <FormGroup row>
                       <Col md="4" />
@@ -458,7 +483,7 @@ class Transfer extends Component {
                       </Col>
                     </FormGroup>
                   </Collapse>
-                  {/*số tiền cần chuyển */}
+                  {/* số tiền cần chuyển */}
                   <FormGroup row>
                     <Col md="4" style={{ alignSelf: 'center' }}>
                       <Label htmlFor="amount">Số tiền gửi</Label>
@@ -472,7 +497,7 @@ class Transfer extends Component {
                       />
                     </Col>
                   </FormGroup>
-                  {/*nội dung chuyển tiền */}
+                  {/* nội dung chuyển tiền */}
                   <FormGroup row>
                     <Col md="4">
                       <Label htmlFor="contentTransfer">
@@ -490,7 +515,7 @@ class Transfer extends Component {
                       />
                     </Col>
                   </FormGroup>
-                  {/*hình thức trả phí */}
+                  {/* hình thức trả phí */}
                   <FormGroup row>
                     <Col md="4" style={{ alignSelf: 'center' }}>
                       <Label htmlFor="typePay">Hình thức trả phí</Label>
@@ -526,7 +551,7 @@ class Transfer extends Component {
                       Vui lòng kiểm tra email và nhập mã code được gủi tại đây
                       để hoàn tất chuyển khoản.
                     </Label>
-                    <Input type="text" placeholder="Nhập mã code..."></Input>
+                    <Input type="text" placeholder="Nhập mã code..." />
                   </ModalBody>
                   <ModalFooter>
                     <Button color="primary" onClick={this.comfirmTransfer}>
@@ -543,7 +568,7 @@ class Transfer extends Component {
           <Col xs="12" xl="7">
             <Card>
               <CardHeader>
-                <i className="fa fa-address-card-o"></i>
+                <i className="fa fa-address-card-o" />
                 <strong>Danh sách người nhận</strong>
               </CardHeader>
               <CardBody>
@@ -557,6 +582,7 @@ class Transfer extends Component {
                         type="text"
                         id="nameReceiverOfList"
                         name="nameReceiverOfList"
+                        value={nameReceiver}
                         placeholder="Nhập tên thay thế..."
                         onChange={(e) => {}}
                       />
@@ -571,6 +597,7 @@ class Transfer extends Component {
                         type="text"
                         id="numberReceiverOfList"
                         name="numberReceiverOfList"
+                        value={accountNumberReceiver}
                         placeholder="Nhập số tài khoản..."
                         onChange={(e) => {}}
                       />
@@ -584,7 +611,7 @@ class Transfer extends Component {
                       e.preventDefault();
                     }}
                   >
-                    Thêm
+                    <i className="fa fa-plus" /> Thêm
                   </Button>
                   <Button
                     color="primary"
@@ -594,7 +621,7 @@ class Transfer extends Component {
                       e.preventDefault();
                     }}
                   >
-                    Lưu
+                    <i className="fa fa-save" /> Lưu
                   </Button>
                 </Form>
                 <hr
@@ -603,58 +630,73 @@ class Transfer extends Component {
                     height: 2,
                   }}
                 />
-                <Table
+                <CDataTable
+                  items={usersData}
+                  tableFilter
+                  itemsPerPage={8}
                   hover
-                  responsive
-                  className="table-outline mb-0 d-sm-table"
-                >
-                  <thead className="thead-light">
-                    <tr>
-                      <th>#</th>
-                      <th style={{ width: '40%' }}>Họ và tên</th>
-                      <th style={{ width: '30%' }} >Số tài khoản</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {accountData.map((item, index) => (
-                      <tr key={item.id.toString()}>
-                        <td scope="row">
-                          <strong>{item.id}</strong>
-                        </td>
-                        <td>{item.accountNumber}</td>
-                        <td>{item.amount}</td>
+                  sorter
+                  pagination
+                  fields={[
+                    { key: 'id', _style: { width: '3%' } },
+                    {
+                      key: 'name',
+                      _style: { width: '35%' },
+                      label: 'Họ và tên',
+                    },
+                    {
+                      key: 'accountNumber',
+                      _style: { width: '35%' },
+                      label: 'Số tài khoản',
+                    },
+                    {
+                      key: 'action',
+                      label: '',
+                      sorter: false,
+                      filter: false,
+                    },
+                  ]}
+                  scopedSlots={{
+                    action: (item, index) => {
+                      return (
                         <td>
-                          <Row>
+                          <Row
+                            className="text-center"
+                            style={{ width: '100px' }}
+                          >
                             <Button
                               size="sm"
                               color="danger"
                               className="btn-pill"
                               style={{ marginRight: '5px' }}
                             >
-                              <i className="fa fa-trash-o"></i>
+                              <i className="fa fa-trash-o" />
                             </Button>
                             <Button
                               size="sm"
                               color="success"
                               className="btn-pill"
                               style={{ marginRight: '5px' }}
+                              onClick={(e)=>{
+                                this.setState({nameReceiver:item.name});
+                                this.setState({accountNumberReceiver:item.accountNumber});
+                              }}
                             >
-                              <i className="fa fa-pencil"></i>
+                              <i className="fa fa-pencil" />
                             </Button>
                             <Button
                               size="sm"
                               color="primary"
                               className="btn-pill"
                             >
-                              <i className="fa fa-ticket"></i>
+                              <i className="fa fa-ticket" />
                             </Button>
                           </Row>
                         </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                      );
+                    },
+                  }}
+                />
               </CardBody>
             </Card>
           </Col>
@@ -665,308 +707,74 @@ class Transfer extends Component {
             <Card>
               <CardHeader>Lịch sử giao dịch</CardHeader>
               <CardBody>
-                <Table
+                <CDataTable
+                  items={usersData}
+                  columnFilter
+                  tableFilter
+                  itemsPerPage={5}
                   hover
-                  responsive
-                  className="table-outline mb-0 d-sm-table"
-                >
-                  <thead className="thead-light">
-                    <tr>
-                      <th className="text-center">
-                        <i className="icon-people"></i>
-                      </th>
-                      <th>User</th>
-                      <th className="text-center">Country</th>
-                      <th>Usage</th>
-                      <th className="text-center">Payment Method</th>
-                      <th>Activity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="text-center">
-                        <div className="avatar">
-                          <img
-                            src="assets/img/avatars/1.jpg"
-                            className="img-avatar"
-                            alt="admin@bootstrapmaster.com"
-                          />
-                          <span className="avatar-status badge-success"></span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>Yiorgos Avraamu</div>
-                        <div className="small text-muted">
-                          <span>New</span> | Registered: Jan 1, 2015
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="flag-icon flag-icon-us h4 mb-0"
-                          title="us"
-                          id="us"
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="clearfix">
-                          <div className="float-left">
-                            <strong>50%</strong>
-                          </div>
-                          <div className="float-right">
-                            <small className="text-muted">
-                              Jun 11, 2015 - Jul 10, 2015
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="fa fa-cc-mastercard"
-                          style={{ fontSize: `${24}px` }}
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="small text-muted">Last login</div>
-                        <strong>10 sec ago</strong>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="text-center">
-                        <div className="avatar">
-                          <img
-                            src="assets/img/avatars/2.jpg"
-                            className="img-avatar"
-                            alt="admin@bootstrapmaster.com"
-                          />
-                          <span className="avatar-status badge-danger"></span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>Avram Tarasios</div>
-                        <div className="small text-muted">
-                          <span>Recurring</span> | Registered: Jan 1, 2015
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="flag-icon flag-icon-br h4 mb-0"
-                          title="br"
-                          id="br"
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="clearfix">
-                          <div className="float-left">
-                            <strong>10%</strong>
-                          </div>
-                          <div className="float-right">
-                            <small className="text-muted">
-                              Jun 11, 2015 - Jul 10, 2015
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="fa fa-cc-visa"
-                          style={{ fontSize: `${24}px` }}
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="small text-muted">Last login</div>
-                        <strong>5 minutes ago</strong>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="text-center">
-                        <div className="avatar">
-                          <img
-                            src="assets/img/avatars/3.jpg"
-                            className="img-avatar"
-                            alt="admin@bootstrapmaster.com"
-                          />
-                          <span className="avatar-status badge-warning"></span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>Quintin Ed</div>
-                        <div className="small text-muted">
-                          <span>New</span> | Registered: Jan 1, 2015
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="flag-icon flag-icon-in h4 mb-0"
-                          title="in"
-                          id="in"
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="clearfix">
-                          <div className="float-left">
-                            <strong>74%</strong>
-                          </div>
-                          <div className="float-right">
-                            <small className="text-muted">
-                              Jun 11, 2015 - Jul 10, 2015
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="fa fa-cc-stripe"
-                          style={{ fontSize: `${24}px` }}
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="small text-muted">Last login</div>
-                        <strong>1 hour ago</strong>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="text-center">
-                        <div className="avatar">
-                          <img
-                            src="assets/img/avatars/4.jpg"
-                            className="img-avatar"
-                            alt="admin@bootstrapmaster.com"
-                          />
-                          <span className="avatar-status badge-secondary"></span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>Enéas Kwadwo</div>
-                        <div className="small text-muted">
-                          <span>New</span> | Registered: Jan 1, 2015
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="flag-icon flag-icon-fr h4 mb-0"
-                          title="fr"
-                          id="fr"
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="clearfix">
-                          <div className="float-left">
-                            <strong>98%</strong>
-                          </div>
-                          <div className="float-right">
-                            <small className="text-muted">
-                              Jun 11, 2015 - Jul 10, 2015
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="fa fa-paypal"
-                          style={{ fontSize: `${24}px` }}
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="small text-muted">Last login</div>
-                        <strong>Last month</strong>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="text-center">
-                        <div className="avatar">
-                          <img
-                            src="assets/img/avatars/5.jpg"
-                            className="img-avatar"
-                            alt="admin@bootstrapmaster.com"
-                          />
-                          <span className="avatar-status badge-success"></span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>Agapetus Tadeáš</div>
-                        <div className="small text-muted">
-                          <span>New</span> | Registered: Jan 1, 2015
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="flag-icon flag-icon-es h4 mb-0"
-                          title="es"
-                          id="es"
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="clearfix">
-                          <div className="float-left">
-                            <strong>22%</strong>
-                          </div>
-                          <div className="float-right">
-                            <small className="text-muted">
-                              Jun 11, 2015 - Jul 10, 2015
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="fa fa-google-wallet"
-                          style={{ fontSize: `${24}px` }}
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="small text-muted">Last login</div>
-                        <strong>Last week</strong>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="text-center">
-                        <div className="avatar">
-                          <img
-                            src="assets/img/avatars/6.jpg"
-                            className="img-avatar"
-                            alt="admin@bootstrapmaster.com"
-                          />
-                          <span className="avatar-status badge-danger"></span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>Friderik Dávid</div>
-                        <div className="small text-muted">
-                          <span>New</span> | Registered: Jan 1, 2015
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="flag-icon flag-icon-pl h4 mb-0"
-                          title="pl"
-                          id="pl"
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="clearfix">
-                          <div className="float-left">
-                            <strong>43%</strong>
-                          </div>
-                          <div className="float-right">
-                            <small className="text-muted">
-                              Jun 11, 2015 - Jul 10, 2015
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <i
-                          className="fa fa-cc-amex"
-                          style={{ fontSize: `${24}px` }}
-                        ></i>
-                      </td>
-                      <td>
-                        <div className="small text-muted">Last login</div>
-                        <strong>Yesterday</strong>
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
+                  sorter
+                  pagination
+                  fields={[
+                    { key: 'id', _style: { width: '1%' } },
+                    { key: 'name', label: 'Tên người giao dịch' },
+                    { key: 'accountNumber', label: 'STK chuyển/ nhận' },
+                    { key: 'type', label: 'Loại giao dịch' },
+                    { key: 'date', label: 'Ngày giao dịch' },
+                    { key: 'typePay', label: 'Người trả phí' },
+                    {
+                      key: 'showdetail',
+                      label: '',
+                      _style: { width: '1%' },
+                      sorter: false,
+                      filter: false,
+                    },
+                  ]}
+                  scopedSlots={{
+                    showdetail: (item, index) => {
+                      return (
+                        <td className="py-2">
+                          <Button
+                            color="primary"
+                            variant="outline"
+                            shape="square"
+                            size="sm"
+                            onClick={() => {
+                              this.toggleDetails(index);
+                            }}
+                          >
+                            {this.state.details.includes(index)
+                              ? 'Hide'
+                              : 'Show'}
+                          </Button>
+                        </td>
+                      );
+                    },
+                    details: (item, index) => {
+                      return (
+                        <Collapse isOpen={this.state.details.includes(index)}>
+                          <CardBody>
+                            <p>
+                              Số tiền :{' '}
+                              {
+                                usersData.filter((i) => i.id === item.id)[0]
+                                  .amount
+                              }
+                            </p>
+
+                            <p>
+                              Nội dung chuyển tiền:{' '}
+                              {
+                                usersData.filter((i) => i.id === item.id)[0]
+                                  .content
+                              }
+                            </p>
+                          </CardBody>
+                        </Collapse>
+                      );
+                    },
+                  }}
+                />
               </CardBody>
             </Card>
           </Col>

@@ -1,15 +1,17 @@
+/* eslint-disable react/prefer-stateless-function */
+/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react';
 import { Card, CardBody, CardHeader, Col, Row, Table } from 'reactstrap';
 
-import usersData from './UsersData'
+import usersData from './UsersData';
 
 class User extends Component {
 
   render() {
 
-    const user = usersData.find( user => user.id.toString() === this.props.match.params.id)
+    const user = usersData.find( user => user.id.toString() === this.props.match.params.id);
 
-    const userDetails = user ? Object.entries(user) : [['id', (<span><i className="text-muted icon-ban"></i> Not found</span>)]]
+    const userDetails = user ? Object.entries(user) : [['id', (<span><i className="text-muted icon-ban" /> Not found</span>)]];
 
     return (
       <div className="animated fadeIn">
@@ -17,7 +19,7 @@ class User extends Component {
           <Col lg={6}>
             <Card>
               <CardHeader>
-                <strong><i className="icon-info pr-1"></i>User id: {this.props.match.params.id}</strong>
+                <strong><i className="icon-info pr-1" />User id: {this.props.match.params.id}</strong>
               </CardHeader>
               <CardBody>
                   <Table responsive striped hover>
@@ -29,7 +31,7 @@ class User extends Component {
                               <td>{`${key}:`}</td>
                               <td><strong>{value}</strong></td>
                             </tr>
-                          )
+                          );
                         })
                       }
                     </tbody>
@@ -39,7 +41,7 @@ class User extends Component {
           </Col>
         </Row>
       </div>
-    )
+    );
   }
 }
 

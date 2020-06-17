@@ -1,6 +1,5 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
 import {
   Button,
   Card,
@@ -19,6 +18,7 @@ class Profile extends Component {
     super(props);
     this.state = {
       name: 'Sierra Brooks',
+      // eslint-disable-next-line global-require
       avatar: require('../../../assets/img/brand/user.png'),
     };
   }
@@ -54,7 +54,7 @@ class Profile extends Component {
                 </div>
               </CardHeader>
               <CardBody>
-                {/*thông tin cá nhân*/}
+                {/* thông tin cá nhân */}
                 <Form onSubmit={this.handleUpdate}>
                   <ListGroup flush>
                     <ListGroupItem className="">
@@ -64,7 +64,7 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Họ và tên"
-                        //autoComplete="username"
+                        // autoComplete="username"
                         name="name"
                         autoFocus
                         onChange={(event) => {
@@ -78,7 +78,7 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Email"
-                        //autoComplete="username"
+                        // autoComplete="username"
                         name="email"
                         autoFocus
                         onChange={(event) => {
@@ -94,7 +94,7 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Số điện thoại"
-                        //autoComplete="username"
+                        // autoComplete="username"
                         name="phone"
                         autoFocus
                         onChange={(event) => {

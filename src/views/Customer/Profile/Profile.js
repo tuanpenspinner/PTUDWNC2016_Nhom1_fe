@@ -22,6 +22,7 @@ import {
   CardHeader,
   ListGroupItem,
 } from 'reactstrap';
+
 const accountData = [
   { id: 0, accountNumber: 'John Doe', amount: '2018/01/01', role: 'Guest' },
   { id: 1, accountNumber: 'Samppa Nori', amount: '2018/01/01', role: 'Member' },
@@ -309,6 +310,7 @@ class Profile extends Component {
   handleUpdate = (e) => {
     e.preventDefault();
   };
+  //hàm khi click phân trang
   handleClick = async (e, index) => {
     e.preventDefault();
     console.log(this.state.paginationDetail.pagesCount);

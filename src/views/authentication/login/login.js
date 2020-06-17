@@ -3,7 +3,6 @@
 /* eslint-disable lines-between-class-members */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -17,7 +16,6 @@ import {
   InputGroupAddon,
   InputGroupText,
   Row,
-  FormGroup,
 } from 'reactstrap';
 import { authenticationCustomerActions } from '../../../actions/customer/authentication';
 
@@ -145,51 +143,51 @@ class Login extends Component {
                     <div>
                       <h2 className="text-center">Sign in with role</h2>
                       <div
-                        class="custom-controls-stacked"
+                        className="custom-controls-stacked"
                         style={{ paddingLeft: '75px', paddingTop: '15px' }}
                       >
-                        <label class="custom-control custom-radio">
+                        <label className="custom-control custom-radio">
                           <input
                             id="radioStacked1"
                             name="radio-stacked"
                             value="customer"
                             type="radio"
-                            class="custom-control-input"
+                            className="custom-control-input"
                             checked={this.state.checkRole === 'customer'}
                             onChange={this.handleOptionChange}
                           />
-                          <span class="custom-control-indicator"></span>
-                          <span class="custom-control-description">
+                          <span className="custom-control-indicator" />
+                          <span className="custom-control-description">
                             Customer
                           </span>
                         </label>
-                        <label class="custom-control custom-radio">
+                        <label className="custom-control custom-radio">
                           <input
                             id="radioStacked2"
                             name="radio-stacked"
                             value="employee"
                             type="radio"
-                            class="custom-control-input"
+                            className="custom-control-input"
                             checked={this.state.checkRole === 'employee'}
                             onChange={this.handleOptionChange}
                           />
-                          <span class="custom-control-indicator"></span>
-                          <span class="custom-control-description">
+                          <span className="custom-control-indicator" />
+                          <span className="custom-control-description">
                             Employee
                           </span>
                         </label>
-                        <label class="custom-control custom-radio">
+                        <label className="custom-control custom-radio">
                           <input
                             id="radioStacked2"
                             name="radio-stacked"
                             value="administrator"
                             type="radio"
-                            class="custom-control-input"
+                            className="custom-control-input"
                             checked={this.state.checkRole === 'administrator'}
                             onChange={this.handleOptionChange}
                           />
-                          <span class="custom-control-indicator"></span>
-                          <span class="custom-control-description">
+                          <span className="custom-control-indicator" />
+                          <span className="custom-control-description">
                             Administrator
                           </span>
                         </label>
@@ -217,8 +215,8 @@ const mapStateToProps = (state) => {
 
 const actionCreators = {
   loginCustomer: authenticationCustomerActions.login,
-  //requestResetPassword: memberActions.requestResetPassword
+  // requestResetPassword: memberActions.requestResetPassword
 };
 
 export default connect(mapStateToProps, actionCreators)(Login);
-//export default Login;
+// export default Login;
