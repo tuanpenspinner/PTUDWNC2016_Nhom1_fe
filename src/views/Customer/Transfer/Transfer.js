@@ -3,9 +3,7 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable lines-between-class-members */
 /* eslint-disable react/prefer-stateless-function */
-import React, { Component, useState } from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import React, { Component } from 'react';
 import {
   Button,
   Card,
@@ -16,14 +14,9 @@ import {
   ModalFooter,
   ModalHeader,
   Col,
-  ListGroupItem,
   Tooltip,
   Form,
   Input,
-  Table,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
   InputGroupAddon,
   Row,
   FormGroup,
@@ -36,270 +29,6 @@ import {
 import CDataTable from '../../components/table/CDataTable';
 import usersData from '../../components/table/UsersData';
 
-const accountData = [
-  { id: 1, accountNumber: 'Samppa Nori', amount: '2018/01/01', role: 'Member' },
-  {
-    id: 2,
-    accountNumber: 'Estavan sfu sd isudfh usiudfh sudh sudh usd  Lykos',
-    amount: '2018 sahdu udhf dafsdf sd /02/01',
-    role: 'Staff',
-  },
-  {
-    id: 3,
-    accountNumber: 'nguyeenx thij kim bich ngan',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 4,
-    accountNumber: 'Derick Maximinus',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 5,
-    accountNumber: 'Friderik Dávid',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 6,
-    accountNumber: 'Yiorgos Avraamu',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  {
-    id: 7,
-    accountNumber: 'Avram Tarasios',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  { id: 8, accountNumber: 'Quintin Ed', amount: '2018/02/01', role: 'Admin' },
-  {
-    id: 9,
-    accountNumber: 'Enéas Kwadwo',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 10,
-    accountNumber: 'Agapetus Tadeáš',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 11,
-    accountNumber: 'Carwyn Fachtna',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  {
-    id: 12,
-    accountNumber: 'Nehemiah Tatius',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  {
-    id: 13,
-    accountNumber: 'Ebbe Gemariah',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 14,
-    accountNumber: 'Eustorgios Amulius',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 15,
-    accountNumber: 'Leopold Gáspár',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 16,
-    accountNumber: 'Pompeius René',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  { id: 17, accountNumber: 'Paĉjo Jadon', amount: '2018/02/01', role: 'Staff' },
-  {
-    id: 18,
-    accountNumber: 'Micheal Mercurius',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 19,
-    accountNumber: 'Ganesha Dubhghall',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 20,
-    accountNumber: 'Hiroto Šimun',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 21,
-    accountNumber: 'Vishnu Serghei',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  {
-    id: 22,
-    accountNumber: 'Zbyněk Phoibos',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  {
-    id: 23,
-    accountNumber: 'Einar Randall',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 24,
-    accountNumber: 'Félix Troels',
-    amount: '2018/03/21',
-    role: 'Staff',
-  },
-  {
-    id: 25,
-    accountNumber: 'Aulus Agmundr',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  { id: 0, accountNumber: 'John Doe', amount: '2018/01/01', role: 'Guest' },
-  { id: 1, accountNumber: 'Samppa Nori', amount: '2018/01/01', role: 'Member' },
-  {
-    id: 2,
-    accountNumber: 'Estavan Lykos',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  {
-    id: 3,
-    accountNumber: 'Chetan Mohamed',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 4,
-    accountNumber: 'Derick Maximinus',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 5,
-    accountNumber: 'Friderik Dávid',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 6,
-    accountNumber: 'Yiorgos Avraamu',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  {
-    id: 7,
-    accountNumber: 'Avram Tarasios',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  { id: 8, accountNumber: 'Quintin Ed', amount: '2018/02/01', role: 'Admin' },
-  {
-    id: 9,
-    accountNumber: 'Enéas Kwadwo',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 10,
-    accountNumber: 'Agapetus Tadeáš',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 11,
-    accountNumber: 'Carwyn Fachtna',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  {
-    id: 12,
-    accountNumber: 'Nehemiah Tatius',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  {
-    id: 13,
-    accountNumber: 'Ebbe Gemariah',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 14,
-    accountNumber: 'Eustorgios Amulius',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 15,
-    accountNumber: 'Leopold Gáspár',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 16,
-    accountNumber: 'Pompeius René',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  { id: 17, accountNumber: 'Paĉjo Jadon', amount: '2018/02/01', role: 'Staff' },
-  {
-    id: 18,
-    accountNumber: 'Micheal Mercurius',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-  {
-    id: 19,
-    accountNumber: 'Ganesha Dubhghall',
-    amount: '2018/03/01',
-    role: 'Member',
-  },
-  {
-    id: 20,
-    accountNumber: 'Hiroto Šimun',
-    amount: '2018/01/21',
-    role: 'Staff',
-  },
-  {
-    id: 21,
-    accountNumber: 'Vishnu Serghei',
-    amount: '2018/01/01',
-    role: 'Member',
-  },
-  {
-    id: 22,
-    accountNumber: 'Zbyněk Phoibos',
-    amount: '2018/02/01',
-    role: 'Staff',
-  },
-  {
-    id: 23,
-    accountNumber: 'Einar Randall',
-    amount: '2018/02/01',
-    role: 'Admin',
-  },
-];
-
-// const [items, setItems] = useState(usersData)
-
 class Transfer extends Component {
   constructor(props) {
     super(props);
@@ -307,25 +36,13 @@ class Transfer extends Component {
       switchBankCode: false, //state chọn gửi liên ngân hàng hoặc nội bộ
       collapse: false, //state collapse open khi tồn tại số tài khoản người nhận
       modal: false, //state modal open khi nhấn chuyển tiền, yêu cầu người dùng nhập code từ email
-      tooltipOpen: false,
+      tooltipOpen: [false, false],
       nameReceiver: '',
       accountNumberReceiver: '',
-      details: [],
     };
     this.toggleSmall = this.toggleSmall.bind(this);
-    this.toggleTooltip = this.toggleTooltip.bind(this);
+    this.toggle = this.toggle.bind(this);
   }
-  //hàm xử lí hiện detail lịch sử giao diện
-  toggleDetails = (index) => {
-    const position = this.state.details.indexOf(index);
-    let newDetails = this.state.details.slice();
-    if (position !== -1) {
-      newDetails.splice(position, 1);
-    } else {
-      newDetails = [...this.state.details, index];
-    }
-    this.setState({ details: newDetails });
-  };
   // chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = async (ischecked) => {
     await this.setState({ switchBankCode: ischecked });
@@ -335,13 +52,18 @@ class Transfer extends Component {
     this.setState({ collapse: !this.state.collapse });
     e.preventDefault();
   };
+
   // show tooltip input thêm người nhận
-  toggleTooltip = async (e) => {
-    console.log('hjih');
-    await this.setState({
-      tooltipOpen: !this.state.tooltipOpen,
+  // eslint-disable-next-line react/sort-comp
+  toggle(i) {
+    const newArray = this.state.tooltipOpen.map((element, index) => {
+      return index === i ? !element : false;
     });
-  };
+    this.setState({
+      tooltipOpen: newArray,
+    });
+  }
+  
   // đóng modal
   toggleSmall = async (e) => {
     await this.setState({
@@ -356,9 +78,7 @@ class Transfer extends Component {
   comfirmTransfer = (e) => {
     this.toggleSmall();
   };
-transInfor=async(person)=>{
-  await this.setState({nameReceiver:person.name});
-};
+
   render() {
     const { nameReceiver, accountNumberReceiver } = this.state;
     return (
@@ -427,7 +147,9 @@ transInfor=async(person)=>{
                   {/* số tài khoản thanh toán của người nhận */}
                   <FormGroup row>
                     <Col md="4" style={{ alignSelf: 'center' }}>
-                      <Label htmlFor="contentTransfer">STK người nhận</Label>
+                      <Label htmlFor="accountNumberReceiver">
+                        STK người nhận
+                      </Label>
                     </Col>
                     <Col xs="12" md="8">
                       <InputGroup>
@@ -510,7 +232,7 @@ transInfor=async(person)=>{
                         name="contentTransfer"
                         id="textarea-input"
                         rows="3"
-                        style={{ minHeight: '40px' }}
+                        style={{ minHeight: '40px', maxHeight: '100px' }}
                         placeholder="Nội dung..."
                       />
                     </Col>
@@ -558,7 +280,7 @@ transInfor=async(person)=>{
                       Xác nhận
                     </Button>{' '}
                     <Button color="secondary" onClick={this.toggleSmall}>
-                      Cancel
+                      Hủy
                     </Button>
                   </ModalFooter>
                 </Modal>
@@ -578,14 +300,26 @@ transInfor=async(person)=>{
                       <Label htmlFor="nameReceiverOfList">Tên người nhận</Label>
                     </Col>
                     <Col xs="12" md="6">
-                      <Input
-                        type="text"
-                        id="nameReceiverOfList"
-                        name="nameReceiverOfList"
-                        value={nameReceiver}
-                        placeholder="Nhập tên thay thế..."
-                        onChange={(e) => {}}
-                      />
+                      <span>
+                        <Input
+                          type="text"
+                          id="nameReceiverOfList"
+                          name="nameReceiverOfList"
+                          value={nameReceiver}
+                          placeholder="Nhập tên thay thế..."
+                          onChange={(e) => {}}
+                        />
+                        <Tooltip
+                          placement="top"
+                          isOpen={this.state.tooltipOpen[0]}
+                          target="nameReceiverOfList"
+                          toggle={() => {
+                            this.toggle(0);
+                          }}
+                        >
+                          Đặt tên thay thế hoặc để trống (mặc định là tên chủ tài khoản)!
+                        </Tooltip>
+                      </span>
                     </Col>
                   </FormGroup>
                   <FormGroup row>
@@ -677,9 +411,11 @@ transInfor=async(person)=>{
                               color="success"
                               className="btn-pill"
                               style={{ marginRight: '5px' }}
-                              onClick={(e)=>{
-                                this.setState({nameReceiver:item.name});
-                                this.setState({accountNumberReceiver:item.accountNumber});
+                              onClick={(e) => {
+                                this.setState({ nameReceiver: item.name });
+                                this.setState({
+                                  accountNumberReceiver: item.accountNumber,
+                                });
                               }}
                             >
                               <i className="fa fa-pencil" />
@@ -693,84 +429,6 @@ transInfor=async(person)=>{
                             </Button>
                           </Row>
                         </td>
-                      );
-                    },
-                  }}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <Card>
-              <CardHeader>Lịch sử giao dịch</CardHeader>
-              <CardBody>
-                <CDataTable
-                  items={usersData}
-                  columnFilter
-                  tableFilter
-                  itemsPerPage={5}
-                  hover
-                  sorter
-                  pagination
-                  fields={[
-                    { key: 'id', _style: { width: '1%' } },
-                    { key: 'name', label: 'Tên người giao dịch' },
-                    { key: 'accountNumber', label: 'STK chuyển/ nhận' },
-                    { key: 'type', label: 'Loại giao dịch' },
-                    { key: 'date', label: 'Ngày giao dịch' },
-                    { key: 'typePay', label: 'Người trả phí' },
-                    {
-                      key: 'showdetail',
-                      label: '',
-                      _style: { width: '1%' },
-                      sorter: false,
-                      filter: false,
-                    },
-                  ]}
-                  scopedSlots={{
-                    showdetail: (item, index) => {
-                      return (
-                        <td className="py-2">
-                          <Button
-                            color="primary"
-                            variant="outline"
-                            shape="square"
-                            size="sm"
-                            onClick={() => {
-                              this.toggleDetails(index);
-                            }}
-                          >
-                            {this.state.details.includes(index)
-                              ? 'Hide'
-                              : 'Show'}
-                          </Button>
-                        </td>
-                      );
-                    },
-                    details: (item, index) => {
-                      return (
-                        <Collapse isOpen={this.state.details.includes(index)}>
-                          <CardBody>
-                            <p>
-                              Số tiền :{' '}
-                              {
-                                usersData.filter((i) => i.id === item.id)[0]
-                                  .amount
-                              }
-                            </p>
-
-                            <p>
-                              Nội dung chuyển tiền:{' '}
-                              {
-                                usersData.filter((i) => i.id === item.id)[0]
-                                  .content
-                              }
-                            </p>
-                          </CardBody>
-                        </Collapse>
                       );
                     },
                   }}

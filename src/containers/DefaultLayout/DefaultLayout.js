@@ -43,13 +43,13 @@ class DefaultLayout extends Component {
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={RouteNavLink} to="/customer/list-receivers">
+              <NavLink tag={RouteNavLink} to="/customer/history">
                 <span>
                   <i
                     className="fa fa-address-book"
                     style={{ marginRight: 15 }}
                   />
-                  Danh sách người nhận
+                  Lịch sử giao dịch
                 </span>
               </NavLink>
             </NavItem>

@@ -14,7 +14,7 @@ import Transfer from './views/Customer/Transfer/Transfer';
 import ProfileCustomer from './views/Customer/Profile/Profile';
 import ProfileEmployee from './views/Employee/Profile/Profile';
 import ProfileAdministrator from './views/Administrator/Profile/Profile';
-import ListReceivers from './views/Customer/Receivers/ListReceivers';
+import History from './views/Customer/History/History';
 import DebtReminder from './views/Customer/Debt-reminder/DebtReminder';
 import EmployeeManage from './views/Administrator/Manage-Employee/EmployeeManage';
 import Statistic from './views/Administrator/Statistic/Statistic';
@@ -32,9 +32,9 @@ const routesCustomer = [
     component: DebtReminder,
   },
   {
-    path: '/customer/list-receivers',
-    name: 'Danh sách người nhận',
-    component: ListReceivers,
+    path: '/customer/history',
+    name: 'Lịch sử giao dịch',
+    component: History,
   },
   {
     path: '/customer/profile',
