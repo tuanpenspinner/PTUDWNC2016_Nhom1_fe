@@ -18,6 +18,7 @@ import {
   Row,
 } from 'reactstrap';
 import { authenticationCustomerActions } from '../../../actions/customer/authentication';
+import { Link } from 'react-router-dom';
 
 class Login extends Component {
   constructor(props) {
@@ -38,7 +39,11 @@ class Login extends Component {
       const { loginCustomer } = this.props;
       switch (this.state.checkRole) {
         case 'customer': {
-          await loginCustomer(this.state.username, this.state.password, this.state.checkRole);
+          await loginCustomer(
+            this.state.username,
+            this.state.password,
+            this.state.checkRole
+          );
           const st = this.props;
           console.log(st);
           if (st.accesstoken === 'err') {
@@ -127,9 +132,11 @@ class Login extends Component {
                           </Button>
                         </Col>
                         <Col xs="6" className="text-right">
-                          <Button onClick={()=>{}} color="link" className="px-0">
-                            Forgot password?
-                          </Button>
+                          <Link to="/reset-password">
+                            <Button color="link" className="px-0">
+                              Forgot password?
+                            </Button>
+                          </Link>
                         </Col>
                       </Row>
                     </Form>

@@ -2,8 +2,7 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable lines-between-class-members */
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import { Link } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -122,9 +121,11 @@ class Profile extends Component {
                       />
                     </ListGroupItem>
                     <Col xs="6" className="text-left">
-                      <Button onClick={() => {}} color="link" className="px-1">
-                        Reset mật khẩu
-                      </Button>
+                      <Link to='/change-password'>
+                        <Button color="link" className="px-1">
+                          Đổi mật khẩu
+                        </Button>
+                      </Link>
                     </Col>
                     <Button
                       style={{ marginTop: '10px' }}

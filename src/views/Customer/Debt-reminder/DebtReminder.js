@@ -72,7 +72,6 @@ class DebtReminder extends Component {
     this.setState({ details: newDetails });
   };
 
-  
   //hàm xử lí hiện detail trong list nhắc nợ chưa thanh toán
   toggleDetailsPayDebt = (index) => {
     const position1 = this.state.detailsPayDebt.indexOf(index);
@@ -173,7 +172,7 @@ class DebtReminder extends Component {
                     {
                       key: 'showdetail',
                       label: '',
-                      _style: { width: '100px' },
+                      _style: {  },
                       sorter: false,
                       filter: false,
                     },
@@ -182,35 +181,34 @@ class DebtReminder extends Component {
                     showdetail: (item, index) => {
                       return (
                         <td>
-                          <p className="text-center">
-                            <Row>
-                              <Button
-                                color="primary"
-                                variant="outline"
-                                shape="square"
-                                size="sm"
-                                style={{ marginRight: 5 }}
-                                onClick={() => {
-                                  this.toggleDetails(index);
-                                }}
-                              >
-                                {this.state.details.includes(index)
-                                  ? 'Hide'
-                                  : 'Show'}
-                              </Button>
-                              <Button
-                                color="danger"
-                                variant="outline"
-                                shape="square"
-                                size="sm"
-                                onClick={() => {
-                                  //hủy nhắc nợ
-                                }}
-                              >
-                                Hủy
-                              </Button>
-                            </Row>
-                          </p>
+                          <Row className="text-center" 
+                            style={{ width: '100px' }}>
+                            <Button
+                              color="primary"
+                              variant="outline"
+                              shape="square"
+                              size="sm"
+                              style={{ marginRight: 5 }}
+                              onClick={() => {
+                                this.toggleDetails(index);
+                              }}
+                            >
+                              {this.state.details.includes(index)
+                                ? 'Hide'
+                                : 'Show'}
+                            </Button>
+                            <Button
+                              color="danger"
+                              variant="outline"
+                              shape="square"
+                              size="sm"
+                              onClick={() => {
+                                //hủy nhắc nợ
+                              }}
+                            >
+                              Hủy
+                            </Button>
+                          </Row>
                         </td>
                       );
                     },
@@ -432,7 +430,7 @@ class DebtReminder extends Component {
                             {
                               key: 'action',
                               label: '',
-                              _style: { width: '5%' },
+                              _style: { width: '3%' },
                               sorter: false,
                               filter: false,
                             },
@@ -612,10 +610,9 @@ class DebtReminder extends Component {
                           sorter
                           pagination
                           fields={[
-                            { key: 'id', _style: { width: '3%' } },
+                            { key: 'id', _style: { width: '1%' } },
                             {
                               key: 'name',
-                              _style: { width: '30%' },
                               label: 'Họ và tên',
                             },
                             {
@@ -624,14 +621,13 @@ class DebtReminder extends Component {
                               label: 'Số tài khoản',
                             },
                             {
-                              key: 'amount',
+                              key: 'date',
                               _style: { width: '20%' },
-                              label: 'Số nợ',
+                              label: 'Ngày tạo',
                             },
                             {
                               key: 'action',
                               label: '',
-                              _style: { width: '15%' },
                               sorter: false,
                               filter: false,
                             },
@@ -640,41 +636,44 @@ class DebtReminder extends Component {
                             action: (item, index) => {
                               return (
                                 <td>
-                                  <p className="text-center">
-                                    <Row>
-                                      <Button
-                                        size="sm"
-                                        color="primary"
-                                        className="btn-pill"
-                                        style={{ marginRight: 5 }}
-                                      >
-                                        <i className="fa fa-send" />
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        color="warning"
-                                        className="btn-pill"
-                                        onClick={(e)=>{
-                                          this.toggleDetailsPayDebt(index);
+                                  <Row
+                                    className="text-center"
+                                    style={{ width: '100px', justifySelf:'center', justifyContent: 'center' }}
+                                  >
+                                    <Button
+                                      size="sm"
+                                      color="primary"
+                                      className="btn-pill"
+                                      style={{ marginRight: 5 }}
+                                    >
+                                      <i className="fa fa-send" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      color="warning"
+                                      className="btn-pill"
+                                      onClick={(e) => {
+                                        this.toggleDetailsPayDebt(index);
+                                      }}
+                                    >
+                                      <i
+                                        className="fa fa-info"
+                                        style={{
+                                          paddingRight: 3,
+                                          paddingLeft: 3,
                                         }}
-                                      >
-                                        <i
-                                          className="fa fa-info"
-                                          style={{
-                                            paddingRight: 3,
-                                            paddingLeft: 3,
-                                          }}
-                                        />
-                                      </Button>
-                                    </Row>
-                                  </p>
+                                      />
+                                    </Button>
+                                  </Row>
                                 </td>
                               );
                             },
                             details: (item, index) => {
                               return (
                                 <Collapse
-                                  isOpen={this.state.detailsPayDebt.includes(index)}
+                                  isOpen={this.state.detailsPayDebt.includes(
+                                    index
+                                  )}
                                 >
                                   <CardBody>
                                     <p>

@@ -21,6 +21,8 @@ import Statistic from './views/Administrator/Statistic/Statistic';
 import MoneyRecharge from './views/Employee/Money-recharge/MoneyRecharge';
 import CustomerManage from './views/Employee/Manage-Customer/CustomerManage';
 import Login from './views/authentication/login/login';
+import ChangePassword from './views/authentication/changePassword/changePassword';
+import ResetPassword from './views/authentication/resetPassword/resetPassword';
 import DefaultLayout from './containers/DefaultLayout/DefaultLayout';
 import DefaultHeader from './containers/DefaultLayout/DefaultHeader';
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
@@ -74,6 +76,8 @@ class App extends React.PureComponent {
       <BrowserRouter>
         <Route exact path="/" component={Login} />
         <Route path="/login" component={Login} />
+        <Route path="/change-password" component={ChangePassword} />
+        <Route path="/reset-password" component={ResetPassword} />
         <Route path="/customer">
           <div className="app">
             <AppHeader fixed>

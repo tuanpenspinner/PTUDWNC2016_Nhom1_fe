@@ -67,7 +67,7 @@ class History extends Component {
                   scopedSlots={{
                     showdetail: (item, index) => {
                       return (
-                        <td className="py-2">
+                        <td   className="text-center">
                           <Button
                             color="primary"
                             variant="outline"

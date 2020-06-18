@@ -12,6 +12,7 @@ import {
   CardHeader,
   ListGroupItem,
 } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 class Profile extends Component {
   constructor(props) {
@@ -104,9 +105,15 @@ class Profile extends Component {
                       />
                     </ListGroupItem>
                     <Col xs="6" className="text-left">
-                      <Button onClick={() => {}} color="link" className="px-1">
-                        Reset mật khẩu
-                      </Button>
+                      <Link to="/change-password">
+                        <Button
+                          onClick={() => {}}
+                          color="link"
+                          className="px-1"
+                        >
+                          Đổi mật khẩu
+                        </Button>
+                      </Link>
                     </Col>
                     <Button
                       style={{ marginTop: '10px' }}
