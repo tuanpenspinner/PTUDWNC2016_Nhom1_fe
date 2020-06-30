@@ -19,6 +19,7 @@ import {
 } from 'reactstrap';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { authenticationCustomerActions } from '../../../actions/customer/authentication';
+import { authenticationEmployeeActions } from '../../../actions/employee/authentication';
 import { Link } from 'react-router-dom';
 
 class Login extends Component {
@@ -50,7 +51,7 @@ class Login extends Component {
       this.setState({
         err: '',
       });
-      const { loginCustomer } = this.props;
+      const { loginCustomer, loginEmployee } = this.props;
       switch (this.state.checkRole) {
         case 'customer': {
           await loginCustomer(
@@ -67,15 +68,32 @@ class Login extends Component {
             });
           }
           if (st.isLogin === true) {
-            console.log(st)
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
             window.location.href = './customer/transfer';
           }
           break;
         }
-        case 'employee':
+        case 'employee': {
+          await loginEmployee(
+            this.state.username,
+            this.state.password,
+            this.state.checkRole
+          );
+          const stEmp = this.props;
+          if (stEmp.accessToken === 'err') {
+            this.setState({ err: 'Email hoặc mật khẩu không chính xác !' });
+            window.grecaptcha.reset();
+            this.setState({
+              reCaptcha: null,
+            });
+          }
+          if (stEmp.isLogin === true) {
+            localStorage.setItem('accessToken', stEmp.accessToken);
+            window.location.href = './employee/manage-customer';
+          }
           break;
+        }
         case 'administrator':
           break;
         default:
@@ -237,18 +255,28 @@ class Login extends Component {
   }
 }
 const mapStateToProps = (state) => {
-  return {
-    username: state.authenticationCustomer.username,
-    name: state.authenticationCustomer.name,
-    email: state.authenticationCustomer.email,
-    isLogin: state.authenticationCustomer.isLogin,
-    accessToken: state.authenticationCustomer.accessToken,
-    refreshToken: state.authenticationCustomer.refreshToken,
-  };
+  if (state.authenticationCustomer.role === 'customer')
+    return {
+      username: state.authenticationCustomer.username,
+      name: state.authenticationCustomer.name,
+      email: state.authenticationCustomer.email,
+      isLogin: state.authenticationCustomer.isLogin,
+      accessToken: state.authenticationCustomer.accessToken,
+      refreshToken: state.authenticationCustomer.refreshToken,
+    };
+  if (state.authenticationEmployee.role === 'employee')
+    return {
+      username: state.authenticationEmployee.username,
+      name: state.authenticationEmployee.name,
+      email: state.authenticationEmployee.email,
+      isLogin: state.authenticationEmployee.isLogin,
+      accessToken: state.authenticationEmployee.accessToken,
+    };
 };
 
 const actionCreators = {
   loginCustomer: authenticationCustomerActions.login,
+  loginEmployee: authenticationEmployeeActions.login,
   // requestResetPassword: memberActions.requestResetPassword
 };
 

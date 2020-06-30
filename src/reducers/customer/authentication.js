@@ -5,8 +5,9 @@ export const initialState = {
   email: '',
   name: '',
   accessToken: '',
-  refreshToken:'',
+  refreshToken: '',
   isLogin: false,
+  role: '',
 };
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
 // const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };
@@ -15,7 +16,8 @@ function authentication(state = initialState, action) {
   switch (action.type) {
     case customerConstants.authentication.LOGIN: {
       const st = { ...state };
-      // console.log(action.data);
+
+      st.role = action.role;
       if (action.data.status === 'fail') {
         st.accessToken = 'err';
         //console.log(st);
@@ -30,7 +32,7 @@ function authentication(state = initialState, action) {
         } catch (err) {
           st.accessToken = 'err';
         }
-        console.log(st);
+        //console.log(st);
       }
       return st;
     }

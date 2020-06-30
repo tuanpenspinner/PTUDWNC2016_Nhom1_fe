@@ -1,24 +1,48 @@
-// import { memberConstants } from "../constants/member.constants";
+import { employeeConstants } from '../../constants/employee';
 
+export const initialState = {
+  username: '',
+  email: '',
+  name: '',
+  accessToken: '',
+  isLogin: false,
+  role: '',
+};
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
-// const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { token: 'null' } };
+// const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };
 
-// function authentication(state = initiateState, action) {
-//     switch (action.type) {
-//         case memberConstants.LOGIN_REQUEST: {
-//             return { ...state, loggingIn: true }
-//         }
-//         case memberConstants.LOGIN_SUCCESS: {
-//             return { ...state, loggedIn: true, inforLogin: action.inforLogin }
-//         }
-//         case memberConstants.LOGIN_FAILURE: {
-//             return { loggingIn: false, inforLogin: { token: 'null' } };
-//         }
-//         case memberConstants.LOGOUT: {
-//             return { loggingIn: false, inforLogin: { token: 'null' } };
-//         }
-//         default: return state;
-//     }
-// }
+function authentication(state = initialState, action) {
+  switch (action.type) {
+    case employeeConstants.authentication.LOGIN_EMP: {
+      const st = { ...state };
+      console.log(action.data);
 
-// export default authentication;
+      st.role = action.role;
+      if (action.data.status === 'fail') {
+        st.accessToken = 'err';
+        return st;
+        // eslint-disable-next-line no-else-return
+      } else {
+        st.username = action.data.user.username;
+        st.name = action.data.user.name;
+        st.email = action.data.user.email;
+        try {
+          st.accessToken = action.data.accessToken;
+          st.isLogin = true;
+        } catch (err) {
+          st.accessToken = 'err';
+        }
+        console.log(st);
+        return st;
+      }
+    }
+
+    case employeeConstants.authentication.LOGOUT_EMP: {
+      return initialState;
+    }
+    default:
+      return state;
+  }
+}
+
+export default authentication;
