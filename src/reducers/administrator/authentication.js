@@ -6,10 +6,10 @@ const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn:
 function authentication(state = initiateState, action) {
     switch (action.type) {
         case administratorConstants.authentication.LOGIN_REQUEST: {
-            return { ...state, loggingIn: true }
+            return { ...state, loggingIn: true };
         }
         case administratorConstants.authentication.LOGIN_SUCCESS: {
-            return { ...state, loggedIn: true, inforLogin: action.inforLogin }
+            return { ...state, loggedIn: true, inforLogin: action.inforLogin };
         }
         case administratorConstants.authentication.LOGIN_FAILURE: {
             return { loggingIn: false, inforLogin: { accesstoken: 'null' } };

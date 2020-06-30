@@ -1,8 +1,7 @@
-/* eslint-disable react/destructuring-assignment */
-/* eslint-disable react/no-unused-state */
-/* eslint-disable lines-between-class-members */
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import {
   Button,
   Card,
@@ -23,8 +22,7 @@ import {
 } from 'reactstrap';
 
 import CDataTable from '../../components/table/CDataTable';
-import usersData from '../../components/table/UsersData';
-
+import { profileCustomerActions } from '../../../actions/customer/profile.action';
 class Profile extends Component {
   constructor(props) {
     super(props);
@@ -41,12 +39,43 @@ class Profile extends Component {
       },
     };
   }
+  componentWillMount() {
+    const accessToken = localStorage.getItem('accessToken');
+    const { saveProfile } = this.props;
+    saveProfile(accessToken);
+  }
   handleUpdate = (e) => {
     e.preventDefault();
   };
 
   render() {
     const { userDetails } = this.state;
+    const {
+      username,
+      name,
+      phone,
+      email,
+      checkingAccount,
+      savingsAccount,
+    } = this.props;
+    var usersData = [];
+    var checkingAcc = {
+      id: 0,
+      accountNumber: checkingAccount.accountNumber,
+      amount: checkingAccount.amount,
+      type: 'Tài khoản thanh toán',
+    };
+    usersData.push(checkingAcc);
+    if (savingsAccount.length > 0)
+      for (let i = 0; i < savingsAccount.length; i++) {
+        usersData.push({
+          id: i + 1,
+          accountNumber: savingsAccount[i].accountNumber,
+          amount: savingsAccount[i].amount,
+          type: 'Tài khoản tiết kiệm',
+        });
+      }
+
     return (
       <div className="animated fadeIn">
         <Row>
@@ -66,7 +95,7 @@ class Profile extends Component {
                 </div>
                 <div style={{}}>
                   <strong className="text-muted" style={{}}>
-                    username
+                    {username}
                   </strong>
                 </div>
               </CardHeader>
@@ -81,6 +110,7 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Họ và tên"
+                        value={name}
                         // autoComplete="username"
                         name="name"
                         autoFocus
@@ -95,6 +125,7 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Email"
+                        value={email}
                         // autoComplete="username"
                         name="email"
                         autoFocus
@@ -110,6 +141,7 @@ class Profile extends Component {
                       </strong>
                       <Input
                         type="text"
+                        value={phone}
                         placeholder="Số điện thoại"
                         // autoComplete="username"
                         name="phone"
@@ -121,7 +153,7 @@ class Profile extends Component {
                       />
                     </ListGroupItem>
                     <Col xs="6" className="text-left">
-                      <Link to='/change-password'>
+                      <Link to="/change-password">
                         <Button color="link" className="px-1">
                           Đổi mật khẩu
                         </Button>
@@ -176,4 +208,21 @@ class Profile extends Component {
   }
 }
 
-export default Profile;
+const mapStateToProps = (state) => {
+  return {
+    username: state.profileCustomer.username,
+    name: state.profileCustomer.name,
+    email: state.profileCustomer.email,
+    phone: state.profileCustomer.phone,
+    checkingAccount: state.profileCustomer.checkingAccount,
+    savingsAccount: state.profileCustomer.savingsAccount,
+  };
+};
+
+const actionCreators = {
+  saveProfile: profileCustomerActions.saveProfile,
+  // requestResetPassword: memberActions.requestResetPassword
+};
+
+export default connect(mapStateToProps, actionCreators)(Profile);
+// export default Login;
