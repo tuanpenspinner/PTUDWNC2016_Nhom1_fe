@@ -6,7 +6,11 @@ const authentication = {
 const info = {
   SAVE_PROFILE: 'SAVE_PROFILE',
 };
+const debtReminder = {
+  GET_ALL_DEBT_REMINDERS: 'GET_ALL_DEBT_REMINDERS',
+};
 export const customerConstants = {
-    authentication,
-    info
+  authentication,
+  info,
+  debtReminder,
 };
