@@ -22,14 +22,40 @@ const propTypes = {
 const defaultProps = {};
 
 class DefaultHeader extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      urlProfile: '',
+    };
+  }
+  componentWillMount() {
+    const role = localStorage.getItem('role');
+    if (role === 'customer') {
+      this.setState({ urlProfile: '/customer/profile' });
+    } else if (role === 'employee') {
+      this.setState({ urlProfile: '/employee/profile' });
+    }
+  }
   logOut = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     window.location.href = '/';
   };
+ 
+  handleClickProfile = () => {
+    // const role = localStorage.getItem('role');
+    // if(role==='customer')
+    // {
+    //   return <Link to="/customer/profile"/>;
+    // }
+    // else if(role==='employee')
+    // {
+    //   return <Link to="/employee/profile"/>;
+    // }
+  };
   render() {
     // eslint-disable-next-line
-    const { children } = this.props;
+    const { urlProfile } = this.state;
 
     return (
       <>
@@ -93,11 +119,14 @@ class DefaultHeader extends Component {
               <DropdownItem header tag="div" className="text-center">
                 <strong>Account</strong>
               </DropdownItem>
-              <Link to="/customer/profile">
+              <Link to={urlProfile}>
                 <DropdownItem onClick={(e) => {}}>
                   <i className="fa fa-user" /> Profile
                 </DropdownItem>
               </Link>
+              {/* <DropdownItem onClick={(e) => this.handleClickProfile}>
+                <i className="fa fa-user" /> Profile
+              </DropdownItem> */}
               <DropdownItem onClick={this.logOut}>
                 <i className="fa fa-lock" /> Logout
               </DropdownItem>

@@ -70,6 +70,7 @@ class Login extends Component {
           if (st.isLogin === true) {
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
+            localStorage.setItem('role',st.role);
             window.location.href = './customer/transfer';
           }
           break;
@@ -90,6 +91,7 @@ class Login extends Component {
           }
           if (stEmp.isLogin === true) {
             localStorage.setItem('accessToken', stEmp.accessToken);
+            localStorage.setItem('role',stEmp.role);
             window.location.href = './employee/manage-customer';
           }
           break;
@@ -263,6 +265,7 @@ const mapStateToProps = (state) => {
       isLogin: state.authenticationCustomer.isLogin,
       accessToken: state.authenticationCustomer.accessToken,
       refreshToken: state.authenticationCustomer.refreshToken,
+      role: state.authenticationCustomer.role,
     };
   if (state.authenticationEmployee.role === 'employee')
     return {
@@ -271,6 +274,7 @@ const mapStateToProps = (state) => {
       email: state.authenticationEmployee.email,
       isLogin: state.authenticationEmployee.isLogin,
       accessToken: state.authenticationEmployee.accessToken,
+      role: state.authenticationEmployee.role,
     };
 };
 
