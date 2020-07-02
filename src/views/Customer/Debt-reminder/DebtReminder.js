@@ -30,6 +30,8 @@ import {
 
 import CDataTable from '../../components/table/CDataTable';
 import usersData from '../../components/table/UsersData';
+import { connect } from 'react-redux';
+import { manageDebtRemindersActions } from '../../../actions/customer/manageDebtReminders';
 
 class DebtReminder extends Component {
   constructor(props) {
@@ -45,7 +47,13 @@ class DebtReminder extends Component {
       modalPayDebt: false, //modal xác nhận thanh toán nợ
     };
   }
-
+  componentWillMount(){
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('++++'+accessToken);
+    const {getAllDebtReminders}=this.props;//test lấy tất cả nhắc nợ, f12 để xem kết quả
+    getAllDebtReminders(accessToken);
+    console.log('11111111111111'+JSON.stringify(this.props.listOfOthers));
+  };
   // đóng modal tạo nhắc nợ
   toggleSmall = async (e) => {
     await this.setState({
@@ -711,5 +719,16 @@ class DebtReminder extends Component {
     );
   }
 }
+const mapStateToProps = (state) => {
+  return {
+    listOfMe: state.manageDebtReminders.allDebtReminders.listOfMe,
+    listOfOthers: state.manageDebtReminders.allDebtReminders.listOfOthers,
+  };
+};
 
-export default DebtReminder;
+const actionCreators = {
+  getAllDebtReminders: manageDebtRemindersActions.getAllDebtReminders,
+  // requestResetPassword: memberActions.requestResetPassword
+};
+
+export default connect(mapStateToProps, actionCreators)(DebtReminder);
