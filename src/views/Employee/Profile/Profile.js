@@ -34,14 +34,12 @@ class Profile extends Component {
       err: '',
     };
   }
-  componentWillMount() {
+  componentWillMount=async ()=> {
     const accessToken = localStorage.getItem('accessToken');
     console.log('-----------' + accessToken);
     const { saveProfile } = this.props;
-    saveProfile(accessToken);
-  }
-  componentWillReceiveProps(nextProps) {
-    const { username, name, phone, email } = nextProps;
+    await saveProfile(accessToken);
+    const { username, name, phone, email } = this.props;
     this.setState({
       username: username,
       name: name,
@@ -49,6 +47,15 @@ class Profile extends Component {
       phone: phone,
     });
   }
+  // componentWillReceiveProps(nextProps) {
+  //   const { username, name, phone, email } = nextProps;
+  //   this.setState({
+  //     username: username,
+  //     name: name,
+  //     email: email,
+  //     phone: phone,
+  //   });
+  // }
 
   onShowAlert = () => {
     this.setState({ visible: true }, () => {
