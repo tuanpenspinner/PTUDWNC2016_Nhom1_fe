@@ -5,6 +5,7 @@ const authentication = {
 };
 const info = {
   SAVE_PROFILE_EMP: 'SAVE_PROFILE_EMP',
+  UPDATE_PROFILE_EMP: 'UPDATE_PROFILE_EMP',
 };
 const moneyRecharge = {
   GET_LIST_ACCOUNTS: 'GET_LIST_ACCOUNTS',

@@ -11,6 +11,9 @@ import {
   Input,
   CardHeader,
   ListGroupItem,
+  Toast,
+  ToastBody,
+  ToastHeader,
 } from 'reactstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -20,27 +23,75 @@ class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: 'Sierra Brooks',
-      // username: '',
-      // phone: '',
-      // email: '',
-      // eslint-disable-next-line global-require
+      name: '',
+      username: '',
+      phone: '',
+      email: '',
+      contentAlertAfterRecharge: '',
+      colorAlert: '',
+      visible: false,
       avatar: require('../../../assets/img/brand/user.png'),
+      err: '',
     };
   }
-  componentWillMount() {
+  componentWillMount=async ()=> {
     const accessToken = localStorage.getItem('accessToken');
-    console.log("-----------"+accessToken);
+    console.log('-----------' + accessToken);
     const { saveProfile } = this.props;
-    saveProfile(accessToken);
+    await saveProfile(accessToken);
+    const { username, name, phone, email } = this.props;
+    this.setState({
+      username: username,
+      name: name,
+      email: email,
+      phone: phone,
+    });
   }
-  handleUpdate = (e) => {
-    e.preventDefault();
+  // componentWillReceiveProps(nextProps) {
+  //   const { username, name, phone, email } = nextProps;
+  //   this.setState({
+  //     username: username,
+  //     name: name,
+  //     email: email,
+  //     phone: phone,
+  //   });
+  // }
+
+  onShowAlert = () => {
+    this.setState({ visible: true }, () => {
+      window.setTimeout(() => {
+        this.setState({ visible: false });
+      }, 3000);
+    });
+  };
+
+  handleUpdate = async (e) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const { updateProfile } = this.props;
+    await updateProfile(
+      accessToken,
+      this.state.name,
+      this.state.email,
+      this.state.phone
+    );
+    const { resultUpdate } = this.props;
+    if (resultUpdate === 'success') {
+      this.setState({
+        colorAlert: '#dff2e3',
+        contentAlertAfterRecharge: 'Cập nhật thông tin thành công!',
+      });
+    } else {
+      this.setState({
+        colorAlert: '#fae1e3',
+        contentAlertAfterRecharge: 'Có lỗi xảy ra. Vui lòng thực hiện lại!',
+      });
+    }
+    this.onShowAlert();
   };
 
   render() {
     const { avatar } = this.state;
-    const { username, name, phone, email } = this.props;
+    const { username, name, phone, email } = this.state;
     return (
       <div className="animated fadeIn">
         <Row style={{ justifyContent: 'center' }}>
@@ -66,7 +117,7 @@ class Profile extends Component {
               </CardHeader>
               <CardBody>
                 {/* thông tin cá nhân */}
-                <Form onSubmit={this.handleUpdate}>
+                <Form>
                   <ListGroup flush>
                     <ListGroupItem className="">
                       <strong className="text-muted d-block mb-2">
@@ -81,7 +132,7 @@ class Profile extends Component {
                         value={name}
                         onChange={(event) => {
                           this.setState({ err: '' });
-                          //this.setState({ name: event.target.value });
+                          this.setState({ name: event.target.value });
                         }}
                       />
                     </ListGroupItem>
@@ -96,7 +147,7 @@ class Profile extends Component {
                         autoFocus
                         onChange={(event) => {
                           this.setState({ err: '' });
-                          //this.setState({ email: event.target.value });
+                          this.setState({ email: event.target.value });
                         }}
                       />
                     </ListGroupItem>
@@ -112,11 +163,13 @@ class Profile extends Component {
                         autoFocus
                         value={phone}
                         onChange={(event) => {
+                          console.log(event.target.value);
                           this.setState({ err: '' });
-                          //this.setState({ phone: event.target.value });
+                          this.setState({ phone: event.target.value });
                         }}
                       />
                     </ListGroupItem>
+
                     <Col xs="6" className="text-left">
                       <Link to="/change-password">
                         <Button
@@ -128,10 +181,25 @@ class Profile extends Component {
                         </Button>
                       </Link>
                     </Col>
+                    <div>
+                      <p style={{ color: 'red', marginLeft: '20px' }}>
+                        {this.state.err}
+                      </p>
+                    </div>
                     <Button
                       style={{ marginTop: '10px' }}
                       type="submit"
                       color="primary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (email === '' || name === '' || phone === '') {
+                          this.setState({
+                            err: 'Các trường không được để trống!',
+                          });
+                        } else {
+                          this.handleUpdate(e);
+                        }
+                      }}
                     >
                       Update Account
                     </Button>
@@ -141,6 +209,25 @@ class Profile extends Component {
             </Card>
           </Col>
         </Row>
+        <div style={{ position: '', marginTop: 0 }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: '5px',
+              width: '300px',
+            }}
+          >
+            <Toast isOpen={this.state.visible}>
+              <ToastHeader toggle={(e) => this.setState({ visible: false })}>
+                Thông báo
+              </ToastHeader>
+              <ToastBody style={{ backgroundColor: this.state.colorAlert }}>
+                {this.state.contentAlertAfterRecharge}
+              </ToastBody>
+            </Toast>
+          </div>
+        </div>
       </div>
     );
   }
@@ -152,11 +239,13 @@ const mapStateToProps = (state) => {
     name: state.profileEmployee.name,
     email: state.profileEmployee.email,
     phone: state.profileEmployee.phone,
+    resultUpdate: state.profileEmployee.resultUpdate,
   };
 };
 
 const actionCreators = {
   saveProfile: profileEmployeeActions.saveProfile,
+  updateProfile: profileEmployeeActions.updateProfile,
 };
 
 export default connect(mapStateToProps, actionCreators)(Profile);
