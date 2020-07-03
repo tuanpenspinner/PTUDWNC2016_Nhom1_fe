@@ -1,33 +1,22 @@
 import React, { Component } from 'react';
 import {
   Button,
-  Card,
-  Label,
   Nav,
   NavItem,
   NavLink,
   TabPane,
-  CardFooter,
   CardBody,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   Col,
-  Tooltip,
-  Form,
-  Input,
-  InputGroupAddon,
   Row,
-  InputGroup,
-  FormGroup,
-  CardHeader,
-  ListGroup,
-  ListGroupItem,
   TabContent,
   Collapse,
 } from 'reactstrap';
 
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { manageCustomersActions } from '../../../actions/employee/manageCustomers';
+import FormAddCustomer from './AddCustomer';
+import HistoryOfCustomer from './HistoryOfCustomer';
 import CDataTable from '../../components/table/CDataTable';
 import usersData1 from '../../components/table/UsersData';
 const usersData = [
@@ -55,25 +44,17 @@ class CustomerManage extends Component {
     super(props);
 
     this.toggle = this.toggle.bind(this);
-    this.toggleHistory = this.toggleHistory.bind(this);
     this.state = {
       activeTab: new Array(4).fill('1'),
-      activeTabHistory: 0,
       details: [],
-      detailsHistory: [],
     };
   }
-
-  //xử lí click tab trong lịchh sử giao dịch
-  // eslint-disable-next-line react/sort-comp
-  toggleHistory(tab) {
-    if (this.state.activeTabHistory !== tab) {
-      this.setState({ detailsHistory: [] });
-      this.setState({
-        activeTabHistory: tab,
-      });
-    }
+  UNSAFE_componentWillMount() {
+    const accessToken = localStorage.getItem('accessToken');
+    const { getAllAccounts } = this.props;
+    getAllAccounts(accessToken);
   }
+  
 
   //hàm xử lí hiện detail trong list customer
   toggleDetails = (index) => {
@@ -85,18 +66,6 @@ class CustomerManage extends Component {
       newDetails = [...this.state.details, index];
     }
     this.setState({ details: newDetails });
-  };
-
-  //hàm xử lí hiện detail trong history
-  toggleDetailsHistory = (index) => {
-    const position = this.state.detailsHistory.indexOf(index);
-    let newDetails = this.state.detailsHistory.slice();
-    if (position !== -1) {
-      newDetails.splice(position, 1);
-    } else {
-      newDetails = [...this.state.detailsHistory, index];
-    }
-    this.setState({ detailsHistory: newDetails });
   };
 
   // click chọn tab
@@ -149,7 +118,7 @@ class CustomerManage extends Component {
               {/*tab content danh sách tài khoản */}
               <TabPane tabId="1">
                 <CDataTable
-                  items={usersData}
+                  items={this.props.allAccounts}
                   tableFilter
                   itemsPerPage={10}
                   hover
@@ -183,6 +152,9 @@ class CustomerManage extends Component {
                     },
                   ]}
                   scopedSlots={{
+                    id: (item, index) => {
+                      return <td className="text-center">{index+1}</td>;
+                      },
                     action: (item, index) => {
                       return (
                         <td>
@@ -242,347 +214,11 @@ class CustomerManage extends Component {
               </TabPane>
               {/*tab content lịch sử giao dịch của 1 tài khoản */}
               <TabPane tabId="2">
-                <div className="d-flex flex-row">
-                  <Col md="3">
-                    <ListGroup id="list-tab" role="tablist">
-                      <ListGroupItem
-                        onClick={() => this.toggleHistory(0)}
-                        action
-                        active={this.state.activeTabHistory === 0}
-                      >
-                        Nhận tiền
-                      </ListGroupItem>
-                      <ListGroupItem
-                        onClick={() => this.toggleHistory(1)}
-                        action
-                        active={this.state.activeTabHistory === 1}
-                      >
-                        Chuyển khoản
-                      </ListGroupItem>
-                      <ListGroupItem
-                        onClick={() => this.toggleHistory(2)}
-                        action
-                        active={this.state.activeTabHistory === 2}
-                      >
-                        Thanh toán nợ
-                      </ListGroupItem>
-                    </ListGroup>
-                  </Col>
-                  <Col>
-                    <TabContent activeTab={this.state.activeTabHistory}>
-                      <TabPane tabId={0}>
-                        <CDataTable
-                          items={usersData1}
-                          columnFilter
-                          itemsPerPage={5}
-                          hover
-                          sorter
-                          pagination
-                          fields={[
-                            { key: 'id', _style: { width: '1%' } },
-                            { key: 'name', label: 'Tên người gửi' },
-                            { key: 'accountNumber', label: 'STK người gửi' },
-                            { key: 'amount', label: 'Số tiền gửi' },
-                            { key: 'date', label: 'Ngày giao dịch' },
-                            {
-                              key: 'typePay',
-                              label: 'Người trả phí',
-                              filter: false,
-                            },
-                            {
-                              key: 'showdetail',
-                              label: '',
-                              _style: { width: '1%' },
-                              sorter: false,
-                              filter: false,
-                            },
-                          ]}
-                          scopedSlots={{
-                            showdetail: (item, index) => {
-                              return (
-                                <td className="text-center">
-                                  <Button
-                                    color="primary"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={() => {
-                                      this.toggleDetailsHistory(index);
-                                    }}
-                                  >
-                                    {this.state.detailsHistory.includes(index)
-                                      ? 'Hide'
-                                      : 'Show'}
-                                  </Button>
-                                </td>
-                              );
-                            },
-                            details: (item, index) => {
-                              return (
-                                <Collapse
-                                  isOpen={this.state.detailsHistory.includes(
-                                    index
-                                  )}
-                                >
-                                  <CardBody>
-                                    <p>Nội dung chuyển tiền: hiện ở đây</p>
-                                  </CardBody>
-                                </Collapse>
-                              );
-                            },
-                          }}
-                        />
-                      </TabPane>
-                      <TabPane tabId={1}>
-                        <CDataTable
-                          items={usersData1}
-                          columnFilter
-                          itemsPerPage={5}
-                          hover
-                          sorter
-                          pagination
-                          fields={[
-                            { key: 'id', _style: { width: '1%' } },
-                            { key: 'name', label: 'Tên người nhận' },
-                            { key: 'accountNumber', label: 'STK người nhận' },
-                            { key: 'amount', label: 'Số tiền gửi' },
-                            { key: 'date', label: 'Ngày giao dịch' },
-                            {
-                              key: 'typePay',
-                              label: 'Người trả phí',
-                              filter: false,
-                            },
-                            {
-                              key: 'showdetail',
-                              label: '',
-                              _style: { width: '1%' },
-                              sorter: false,
-                              filter: false,
-                            },
-                          ]}
-                          scopedSlots={{
-                            showdetail: (item, index) => {
-                              return (
-                                <td className="text-center">
-                                  <Button
-                                    color="primary"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={() => {
-                                      this.toggleDetailsHistory(index);
-                                    }}
-                                  >
-                                    {this.state.detailsHistory.includes(index)
-                                      ? 'Hide'
-                                      : 'Show'}
-                                  </Button>
-                                </td>
-                              );
-                            },
-                            details: (item, index) => {
-                              return (
-                                <Collapse
-                                  isOpen={this.state.detailsHistory.includes(
-                                    index
-                                  )}
-                                >
-                                  <CardBody>
-                                    <p>Nội dung chuyển tiền: hiện ở đây</p>
-                                  </CardBody>
-                                </Collapse>
-                              );
-                            },
-                          }}
-                        />
-                      </TabPane>
-                      <TabPane tabId={2}>
-                        <CDataTable
-                          items={usersData1}
-                          columnFilter
-                          itemsPerPage={5}
-                          hover
-                          sorter
-                          pagination
-                          fields={[
-                            { key: 'id', _style: { width: '1%' } },
-                            { key: 'name', label: 'Tên người trả/ được trả' },
-                            { key: 'accountNumber', label: 'STK người trả/ được trả' },
-                            { key: 'amount', label: 'Số tiền nợ' },
-                            { key: 'date', label: 'Ngày thanh toán' },
-                            {key: 'type', label: 'Nhắc nợ tạo bởi'}, //'chủ tài khoản' or 'người khác' 
-                            {
-                              key: 'showdetail',
-                              label: '',
-                              _style: { width: '1%' },
-                              sorter: false,
-                              filter: false,
-                            },
-                          ]}
-                          scopedSlots={{
-                            showdetail: (item, index) => {
-                              return (
-                                <td className="text-center">
-                                  <Button
-                                    color="primary"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={() => {
-                                      this.toggleDetailsHistory(index);
-                                    }}
-                                  >
-                                    {this.state.detailsHistory.includes(index)
-                                      ? 'Hide'
-                                      : 'Show'}
-                                  </Button>
-                                </td>
-                              );
-                            },
-                            details: (item, index) => {
-                              return (
-                                <Collapse
-                                  isOpen={this.state.detailsHistory.includes(
-                                    index
-                                  )}
-                                >
-                                  <CardBody>
-                                    <p>Nội dung chuyển tiền: hiện ở đây</p>
-                                  </CardBody>
-                                </Collapse>
-                              );
-                            },
-                          }}
-                        />{' '}
-                      </TabPane>
-                    </TabContent>
-                  </Col>
-                </div>
+                <HistoryOfCustomer></HistoryOfCustomer>
               </TabPane>
               {/*tab content tạo tài khoản */}
               <TabPane tabId="3">
-                <Row style={{ justifyContent: 'center' }}>
-                  <Col xs="12" xl="8">
-                    <Card>
-                      <CardBody>
-                        <Form>
-                          {/* họ và tên tài khoản */}
-                          <FormGroup row>
-                            <Col md="4" style={{ alignSelf: 'center' }}>
-                              <Label htmlFor="name">Họ và tên khách hàng</Label>
-                            </Col>
-                            <Col xs="12" md="8">
-                              <Input
-                                type="text"
-                                id="name"
-                                name="name"
-                                placeholder="Nhập họ và tên..."
-                              />
-                            </Col>
-                          </FormGroup>
-                          {/*email tài khoản */}
-                          <FormGroup row>
-                            <Col md="4" style={{ alignSelf: 'center' }}>
-                              <Label htmlFor="email">Email</Label>
-                            </Col>
-                            <Col xs="12" md="8">
-                              <Input
-                                type="text"
-                                id="email"
-                                name="email"
-                                placeholder="Nhập email..."
-                              />
-                            </Col>
-                          </FormGroup>
-                          {/* số điện thoại tài khoản */}
-                          <FormGroup row>
-                            <Col md="4" style={{ alignSelf: 'center' }}>
-                              <Label htmlFor="phone">Số điện thoại</Label>
-                            </Col>
-                            <Col xs="12" md="8">
-                              <Input
-                                type="text"
-                                id="phone"
-                                name="phone"
-                                placeholder="Nhập số điện thoại..."
-                              />
-                            </Col>
-                          </FormGroup>
-
-                          {/* phát sinh username */}
-                          <FormGroup row>
-                            <Col md="4" style={{ alignSelf: 'center' }}>
-                              <Label htmlFor="username">
-                                Phát sinh tên đăng nhập
-                              </Label>
-                            </Col>
-                            <Col xs="12" md="8">
-                              <InputGroup>
-                                <Input
-                                  placeholder="Tên đăng nhập..."
-                                  readOnly
-                                />
-                                <InputGroupAddon addonType="append">
-                                  <Button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                    }}
-                                    color="primary"
-                                  >
-                                    <i
-                                      className="fa fa-refresh"
-                                      style={{ color: 'white' }}
-                                    />
-                                  </Button>
-                                </InputGroupAddon>
-                              </InputGroup>
-                            </Col>
-                          </FormGroup>
-                          {/* số tài khoản thanh toán */}
-                          <FormGroup row>
-                            <Col md="4" style={{ alignSelf: 'center' }}>
-                              <Label htmlFor="accountNumber">
-                                Phát sinh STK thanh toán
-                              </Label>
-                            </Col>
-                            <Col xs="12" md="8">
-                              <InputGroup>
-                                <Input
-                                  placeholder="Số tài khoản thanh toán..."
-                                  readOnly
-                                />
-                                <InputGroupAddon addonType="append">
-                                  <Button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                    }}
-                                    color="primary"
-                                  >
-                                    <i
-                                      className="fa fa-refresh"
-                                      style={{ color: 'white' }}
-                                    />
-                                  </Button>
-                                </InputGroupAddon>
-                              </InputGroup>
-                            </Col>
-                          </FormGroup>
-                        </Form>
-                      </CardBody>
-                      <CardFooter>
-                        <Button
-                          color="primary"
-                          style={{ marginRight: '15px' }}
-                          type="submit"
-                          onClick={{}}
-                        >
-                          Tạo tài khoản
-                        </Button>
-                        <Button color="warning">Reset</Button>
-                      </CardFooter>
-                    </Card>
-                  </Col>
-                </Row>
+                <FormAddCustomer></FormAddCustomer>
               </TabPane>
             </TabContent>
           </Col>
@@ -591,5 +227,14 @@ class CustomerManage extends Component {
     );
   }
 }
+const mapStateToProps = (state) => {
+  return {
+    allAccounts: state.manageCustomers.allAccounts,
+  };
+};
 
-export default CustomerManage;
+const actionCreators = {
+  getAllAccounts: manageCustomersActions.getListAccounts,
+};
+
+export default connect(mapStateToProps, actionCreators)(CustomerManage);
