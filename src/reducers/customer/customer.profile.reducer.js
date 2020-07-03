@@ -28,7 +28,6 @@ function profile(state = initialState, action) {
     }
 
     default:
-      console.log(state);
       return state;
   }
 }

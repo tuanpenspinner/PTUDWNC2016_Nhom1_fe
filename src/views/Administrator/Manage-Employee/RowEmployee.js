@@ -28,6 +28,7 @@ class RowEmployee extends Component {
     );
     const { loadListEmployee } = this.props;
     loadListEmployee();
+    alert(`Xóa tài khoản nhân viên ${item.username} thành công!`)
   };
   render() {
     const { index } = this.props;

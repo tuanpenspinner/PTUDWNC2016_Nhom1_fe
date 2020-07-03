@@ -55,7 +55,7 @@ class FormAddEmployee extends Component {
             username: '',
           });
           const { loadListEmployee } = this.props;
-
+         alert(`Thêm tài khoản nhân viên ${newEmployee.username} thành công!`);
           loadListEmployee();
         });
     }

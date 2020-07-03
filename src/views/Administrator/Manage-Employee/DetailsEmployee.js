@@ -44,7 +44,7 @@ class RowEmployee extends Component {
       'http://localhost:3001/administrator/update-employee',
       { name, phone, email, username }
     );
-    alert(result.data.message);
+    alert(` Cập nhật thông tin nhân viên ${username} thành công!`);
   };
   changeInfoEmployee = (e) => {
     const name = e.target.name;
