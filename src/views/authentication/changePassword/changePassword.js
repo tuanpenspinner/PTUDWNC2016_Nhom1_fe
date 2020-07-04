@@ -44,6 +44,7 @@ class ChangePassword extends Component {
         password,
         newPassword,
       };
+      console.log(entity)
       const result = await axios.post(
         'http://localhost:3001/customers/changePassword',
         entity,

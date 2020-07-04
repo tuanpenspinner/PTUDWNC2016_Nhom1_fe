@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
 import {
   Button,
@@ -27,16 +28,8 @@ class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userDetails: {
-        name: 'Sierra Brooks',
-        avatar: require('../../../assets/img/brand/user.png'),
-        jobTitle: 'Project Manager',
-        performanceReportTitle: 'Workload',
-        performanceReportValue: 74,
-        metaTitle: 'Description',
-        metaValue:
-          'Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio eaque, quidem, commodi soluta qui quae minima obcaecati quod dolorum sint alias, possimus illum assumenda eligendi cumque?',
-      },
+      avatar: require('../../../assets/img/brand/user.png'),
+      nameCustomer: '',
     };
   }
   componentWillMount() {
@@ -47,9 +40,24 @@ class Profile extends Component {
   handleUpdate = (e) => {
     e.preventDefault();
   };
+  changeNameCustomer = async () => {
+    const { nameCustomer } = this.state;
+
+    const { username } = this.props;
+    const ret = await axios.post(
+      'http://localhost:3001/customers/updateNameCustomer',
+      {
+        username,
+        name: nameCustomer,
+      }
+    );
+    if (ret.data.status) alert('Đổi tên thành công');
+    else alert('Đổi tên thất bại');
+  };
 
   render() {
-    const { userDetails } = this.state;
+    const { avatar, nameCustomer } = this.state;
+
     const {
       username,
       name,
@@ -86,12 +94,7 @@ class Profile extends Component {
                 style={{ backgroundColor: '#ffffff' }}
               >
                 <div>
-                  <img
-                    className="rounded-circle"
-                    src={userDetails.avatar}
-                    alt={userDetails.name}
-                    width="100"
-                  />
+                  <img className="rounded-circle" src={avatar} width="100" />
                 </div>
                 <div style={{}}>
                   <strong className="text-muted" style={{}}>
@@ -110,13 +113,13 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Họ và tên"
-                        value={name}
+                        defaultValue={name}
                         // autoComplete="username"
-                        name="name"
+                        name="nameCustomer"
                         autoFocus
                         onChange={(event) => {
                           // this.setState({ err: '' });
-                          // this.setState({ username: event.target.value });
+                          this.setState({ nameCustomer: event.target.value });
                         }}
                       />
                     </ListGroupItem>
@@ -125,9 +128,10 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Email"
-                        value={email}
+                        defaultValue={email}
                         // autoComplete="username"
                         name="email"
+                        disabled
                         autoFocus
                         onChange={(event) => {
                           // this.setState({ err: '' });
@@ -141,7 +145,8 @@ class Profile extends Component {
                       </strong>
                       <Input
                         type="text"
-                        value={phone}
+                        defaultValue={phone}
+                        disabled
                         placeholder="Số điện thoại"
                         // autoComplete="username"
                         name="phone"
@@ -163,6 +168,7 @@ class Profile extends Component {
                       style={{ marginTop: '10px' }}
                       type="submit"
                       color="primary"
+                      onClick={this.changeNameCustomer}
                     >
                       Update Account
                     </Button>
