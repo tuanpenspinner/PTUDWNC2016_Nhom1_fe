@@ -51,8 +51,10 @@ class Profile extends Component {
         name: nameCustomer,
       }
     );
-    if (ret.data.status) alert('Đổi tên thành công');
-    else alert('Đổi tên thất bại');
+    if (ret.data.status) {
+      alert('Đổi tên thành công');
+    } else alert('Đổi tên thất bại');
+  
   };
 
   render() {

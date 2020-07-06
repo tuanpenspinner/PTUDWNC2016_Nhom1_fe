@@ -5,6 +5,7 @@ export const initialState = {
   email: '',
   name: '',
   accessToken: '',
+  refreshToken:'',
   isLogin: false,
   role: '',
 };
@@ -28,11 +29,12 @@ function authentication(state = initialState, action) {
         st.email = action.data.user.email;
         try {
           st.accessToken = action.data.accessToken;
+          st.refreshToken = action.data.refreshToken;
           st.isLogin = true;
         } catch (err) {
           st.accessToken = 'err';
         }
-        console.log(st);
+        //console.log(st);
         return st;
       }
     }

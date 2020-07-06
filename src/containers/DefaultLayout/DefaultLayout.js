@@ -1,5 +1,6 @@
 /* eslint-disable react/prefer-stateless-function */
 import React, { Component, Suspense } from 'react';
+import { connect } from 'react-redux';
 import * as router from 'react-router-dom';
 import { NavLink, NavItem } from 'reactstrap';
 import { NavLink as RouteNavLink } from 'react-router-dom';
@@ -9,23 +10,34 @@ import {
   AppSidebarForm,
   AppSidebarHeader,
   AppSidebarNav2 as AppSidebarNav,
-// eslint-disable-next-line import/no-extraneous-dependencies
+  // eslint-disable-next-line import/no-extraneous-dependencies
 } from '@coreui/react';
 
 class DefaultLayout extends Component {
-  // loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
+  // loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>=
   render() {
+    const role = localStorage.getItem('role');
+    var loginCustomer = 'none';
+    var loginEmployee = 'none';
+    var loginAdmin = 'none';
+    if (role === 'customer') loginCustomer = '';
+    else if (role === 'employee') loginEmployee = '';
+    else if (role === 'administrator') loginAdmin = '';
+
     return (
       <AppSidebar fixed display="lg">
         <AppSidebarHeader />
-            <AppSidebarForm />
+        <AppSidebarForm />
         <Suspense>
           <AppSidebarNav {...this.props} router={router}>
-            <NavItem>
+            <NavItem style={{ display: loginCustomer }}>
               <NavLink tag={RouteNavLink} to="/customer/transfer">
                 <span>
-                  {' '}
                   <i
                     className="fa fa-location-arrow"
                     style={{ marginRight: 15 }}
@@ -34,7 +46,7 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginCustomer }}>
               <NavLink tag={RouteNavLink} to="/customer/debt-reminder">
                 <span>
                   <i className="fa fa-book" style={{ marginRight: 15 }} />
@@ -42,7 +54,7 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginCustomer }}>
               <NavLink tag={RouteNavLink} to="/customer/history">
                 <span>
                   <i
@@ -53,7 +65,7 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginCustomer }}>
               <NavLink tag={RouteNavLink} to="/customer/profile">
                 <span>
                   <i className="fa fa-user-o" style={{ marginRight: 15 }} />
@@ -61,18 +73,15 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginCustomer }}>
               <NavLink tag={RouteNavLink} to="/employee/manage-customer">
                 <span>
-                  <i
-                    className="cui-people icons"
-                    style={{ marginRight: 15 }}
-                   />
+                  <i className="cui-people icons" style={{ marginRight: 15 }} />
                   Quản lí tài khoản khách hàng
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginEmployee }}>
               <NavLink tag={RouteNavLink} to="/employee/money-recharge">
                 <span>
                   <i
@@ -83,7 +92,7 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginEmployee }}>
               <NavLink tag={RouteNavLink} to="/employee/profile">
                 <span>
                   <i className="fa fa-user-o" style={{ marginRight: 15 }} />
@@ -91,18 +100,15 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginAdmin }}>
               <NavLink tag={RouteNavLink} to="/administrator/manage-employee">
                 <span>
-                  <i
-                    className="cui-people icons"
-                    style={{ marginRight: 15 }}
-                   />
+                  <i className="cui-people icons" style={{ marginRight: 15 }} />
                   Quản lí nhân viên
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginAdmin }}>
               <NavLink tag={RouteNavLink} to="/administrator/statistic">
                 <span>
                   <i className="fa fa-bar-chart" style={{ marginRight: 15 }} />
@@ -110,7 +116,7 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem style={{ display: loginAdmin }}>
               <NavLink tag={RouteNavLink} to="/administrator/profile">
                 <span>
                   <i className="fa fa-user-o" style={{ marginRight: 15 }} />
@@ -125,4 +131,10 @@ class DefaultLayout extends Component {
   }
 }
 
-export default DefaultLayout;
+const mapStateToProps = (state) => {
+  return {};
+};
+
+const actionCreators = {};
+
+export default connect(mapStateToProps, actionCreators)(DefaultLayout);

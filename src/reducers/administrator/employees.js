@@ -2,6 +2,7 @@ import { administratorConstants } from '../../constants/administrator';
 import { act } from 'react-test-renderer';
 
 export const initialState = {
+  username:'',
   details: [],
   collapse: false,
   listEmployee: [],

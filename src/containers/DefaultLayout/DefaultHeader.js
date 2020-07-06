@@ -39,9 +39,10 @@ class DefaultHeader extends Component {
   logOut = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
     window.location.href = '/';
   };
- 
+
   handleClickProfile = () => {
     // const role = localStorage.getItem('role');
     // if(role==='customer')

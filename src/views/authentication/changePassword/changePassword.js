@@ -38,26 +38,37 @@ class ChangePassword extends Component {
     const accessToken = localStorage.getItem('accessToken');
     const { newPassword, confirmPassword, password } = this.state;
     const { username } = this.props;
-    if (newPassword === confirmPassword) {
-      const entity = {
-        username,
-        password,
-        newPassword,
-      };
-      console.log(entity)
-      const result = await axios.post(
-        'http://localhost:3001/customers/changePassword',
-        entity,
-        {
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Access-Control-Allow-Origin': '*',
-            'access-token': accessToken,
-          },
-        }
-      );
-      this.setState({ err: '' });
-      alert(result.data.message);
+    if (newPassword === '' || confirmPassword === '' || password === '')
+      this.setState({
+        err: 'Không được để trống các thông tin',
+      });
+    else if (newPassword === confirmPassword) {
+      if (newPassword.length < 6)
+        this.setState({
+          err: 'Mật khẩu mới phải lớn hơn 6 kí tự',
+        });
+      else {
+        const entity = {
+          username,
+          password,
+          newPassword,
+        };
+        const result = await axios.post(
+          'http://localhost:3001/customers/changePassword',
+          entity,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': accessToken,
+            },
+          }
+        );
+        this.setState({ err: '' });
+
+        alert(result.data.message);
+        if (result.data.status) window.location.href = 'customer/profile';
+      }
     } else {
       this.setState({ err: 'Mật khẩu xác nhận chưa khớp!' });
     }

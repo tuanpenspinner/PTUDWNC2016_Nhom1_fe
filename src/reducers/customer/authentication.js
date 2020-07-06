@@ -25,6 +25,7 @@ function authentication(state = initialState, action) {
         st.username = action.data.customer.username;
         st.name = action.data.customer.name;
         st.email = action.data.customer.email;
+  
         try {
           st.accessToken = action.data.accessToken;
           st.refreshToken = action.data.refreshToken;

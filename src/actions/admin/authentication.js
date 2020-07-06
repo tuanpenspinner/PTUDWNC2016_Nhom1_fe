@@ -1,8 +1,8 @@
-import { employeeConstants } from '../../constants/employee';
+import { administratorConstants } from '../../constants/administrator';
 
 const login = (username, password, role) => {
   return (dispatch) => {
-    return fetch('http://localhost:3001/employees/login', {
+    return fetch('http://localhost:3001/administrator/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -11,14 +11,17 @@ const login = (username, password, role) => {
       body: JSON.stringify({ username, password }),
     }).then((response) =>
       response.json().then((data) => {
-  
-        dispatch({ type: employeeConstants.authentication.LOGIN_EMP, data ,role});
+        dispatch({
+          type: administratorConstants.authentication.LOGIN_ADMIN,
+          data,
+          role,
+        });
       })
     );
   };
 };
 
-export const authenticationEmployeeActions = {
+export const authenticationAdminActions = {
   login,
   //logout,
   //changePassword,

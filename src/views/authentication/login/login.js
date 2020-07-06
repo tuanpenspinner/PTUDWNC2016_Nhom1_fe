@@ -20,6 +20,7 @@ import {
 import ReCAPTCHA from 'react-google-recaptcha';
 import { authenticationCustomerActions } from '../../../actions/customer/authentication';
 import { authenticationEmployeeActions } from '../../../actions/employee/authentication';
+import { authenticationAdminActions } from '../../../actions/admin/authentication';
 import { Link } from 'react-router-dom';
 
 class Login extends Component {
@@ -30,7 +31,7 @@ class Login extends Component {
       password: '',
       checkRole: 'customer',
       err: '',
-      reCaptcha: false,
+      reCaptcha: true,
     };
   }
   onChange = (value) => {
@@ -51,7 +52,7 @@ class Login extends Component {
       this.setState({
         err: '',
       });
-      const { loginCustomer, loginEmployee } = this.props;
+      const { loginCustomer, loginEmployee, loginAdmin } = this.props;
       switch (this.state.checkRole) {
         case 'customer': {
           await loginCustomer(
@@ -70,7 +71,7 @@ class Login extends Component {
           if (st.isLogin === true) {
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
-            localStorage.setItem('role',st.role);
+            localStorage.setItem('role', st.role);
             window.location.href = './customer/transfer';
           }
           break;
@@ -91,12 +92,33 @@ class Login extends Component {
           }
           if (stEmp.isLogin === true) {
             localStorage.setItem('accessToken', stEmp.accessToken);
-            localStorage.setItem('role',stEmp.role);
+            localStorage.setItem('refreshToken', stEmp.refreshToken);
+            localStorage.setItem('role', stEmp.role);
             window.location.href = './employee/manage-customer';
           }
           break;
         }
         case 'administrator':
+          await loginAdmin(
+            this.state.username,
+            this.state.password,
+            this.state.checkRole
+          );
+          const st = this.props;
+          console.log(st)
+          if (st.accessToken === 'err') {
+            this.setState({ err: 'Email hoặc mật khẩu không chính xác !' });
+            window.grecaptcha.reset();
+            this.setState({
+              reCaptcha: null,
+            });
+          }
+          if (st.isLogin === true) {
+            localStorage.setItem('accessToken', st.accessToken);
+            localStorage.setItem('refreshToken', st.refreshToken);
+            localStorage.setItem('role', st.role);
+            window.location.href = './customer/transfer';
+          }
           break;
         default:
           break;
@@ -274,13 +296,25 @@ const mapStateToProps = (state) => {
       email: state.authenticationEmployee.email,
       isLogin: state.authenticationEmployee.isLogin,
       accessToken: state.authenticationEmployee.accessToken,
+      refreshToken: state.authenticationEmployee.refreshToken,
       role: state.authenticationEmployee.role,
+    };
+  if (state.authenticationAdmin.role === 'administrator')
+    return {
+      username: state.authenticationAdmin.username,
+      name: state.authenticationAdmin.name,
+      email: state.authenticationAdmin.email,
+      isLogin: state.authenticationAdmin.isLogin,
+      accessToken: state.authenticationAdmin.accessToken,
+      refreshToken: state.authenticationAdmin.refreshToken,
+      role: state.authenticationAdmin.role,
     };
 };
 
 const actionCreators = {
   loginCustomer: authenticationCustomerActions.login,
   loginEmployee: authenticationEmployeeActions.login,
+  loginAdmin: authenticationAdminActions.login,
   // requestResetPassword: memberActions.requestResetPassword
 };
 
