@@ -43,6 +43,7 @@ class Transfer extends Component {
         name: '',
         accountNumber: '',
       },
+      index: '',
     };
     this.toggleSmall = this.toggleSmall.bind(this);
     this.toggle = this.toggle.bind(this);
@@ -125,16 +126,34 @@ class Transfer extends Component {
     }
   };
 
-  editReceiver = () => {
-    var { listReceivers } = this.props;
+  editReceiver = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const { index } = this.state;
+    let { listReceivers } = this.props;
     var newReceiver = this.state.newReceiver;
-    const index = listReceivers.findIndex(
+    const { updateListReceivers } = this.props;
+    const i = listReceivers.findIndex(
       (receiver) => receiver.accountNumber === newReceiver.accountNumber
     );
-    if (index >= 0) listReceivers[index] = newReceiver;
-    console.log(index);
-    console.log(newReceiver);
-    console.log(listReceivers);
+    const ret = await axios.get(
+      `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`
+    );
+    if (i >= 0) {
+      if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+      listReceivers[i] = newReceiver;
+      updateListReceivers(listReceivers, accessToken);
+      alert('Sửa người gửi thành công vào danh sách!');
+    } else {
+      if (ret.data.status) {
+        if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+
+        listReceivers.push(newReceiver);
+        updateListReceivers(listReceivers, accessToken);
+        alert('Sửa người gửi thành công vào danh sách!');
+      } else {
+        alert('Số tài khoản không tồn tại trong hệ thống!');
+      }
+    }
   };
   render() {
     const { newReceiver } = this.state;
@@ -489,6 +508,7 @@ class Transfer extends Component {
                                     name: item.name,
                                     accountNumber: item.accountNumber,
                                   },
+                                  index: index,
                                 });
                               }}
                             >
