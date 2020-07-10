@@ -117,7 +117,7 @@ class Login extends Component {
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
             localStorage.setItem('role', st.role);
-            window.location.href = './customer/transfer';
+            window.location.href = './administrator/manage-employee';
           }
           break;
         default:

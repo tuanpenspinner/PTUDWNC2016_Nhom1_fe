@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import authenticationCustomer from './customer/authentication';
+import transferCustomer from './customer/transfer';
 import authenticationEmployee from './employee/authentication';
 import authenticationAdmin from './administrator/authentication';
 import profileCustomer from "./customer/customer.profile.reducer";
@@ -16,5 +17,6 @@ const rootReducer = combineReducers({
   manageCustomers,
   manageDebtReminders,
   employeeManage,
+  transferCustomer,
 });
 export default rootReducer;

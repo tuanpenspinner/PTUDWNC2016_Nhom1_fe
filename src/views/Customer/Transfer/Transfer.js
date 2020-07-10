@@ -25,10 +25,10 @@ import {
   Collapse,
   CardFooter,
 } from 'reactstrap';
-
+import { connect } from 'react-redux';
 import CDataTable from '../../components/table/CDataTable';
-import usersData from '../../components/table/UsersData';
-
+import { transferCustomerActions } from '../../../actions/customer/transfer';
+import axios from 'axios';
 class Transfer extends Component {
   constructor(props) {
     super(props);
@@ -39,9 +39,18 @@ class Transfer extends Component {
       tooltipOpen: [false, false],
       nameReceiver: '',
       accountNumberReceiver: '',
+      newReceiver: {
+        name: '',
+        accountNumber: '',
+      },
     };
     this.toggleSmall = this.toggleSmall.bind(this);
     this.toggle = this.toggle.bind(this);
+  }
+  componentWillMount() {
+    const accessToken = localStorage.getItem('accessToken');
+    const { getListReceivers } = this.props;
+    getListReceivers(accessToken);
   }
   // chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = async (ischecked) => {
@@ -51,6 +60,17 @@ class Transfer extends Component {
   handleCommitAccountNumber = (e) => {
     this.setState({ collapse: !this.state.collapse });
     e.preventDefault();
+  };
+  onChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    const r = this.state.newReceiver;
+    this.setState({
+      newReceiver: {
+        ...r,
+        [name]: value,
+      },
+    });
   };
 
   // show tooltip input thêm người nhận
@@ -63,7 +83,7 @@ class Transfer extends Component {
       tooltipOpen: newArray,
     });
   }
-  
+
   // đóng modal
   toggleSmall = async (e) => {
     await this.setState({
@@ -78,9 +98,46 @@ class Transfer extends Component {
   comfirmTransfer = (e) => {
     this.toggleSmall();
   };
+  addReceiver = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    var newReceiver = this.state.newReceiver;
+    if (newReceiver.accountNumber === '')
+      alert('Không được để trống số tài khoản!');
+    var { listReceivers } = this.props;
+    const found = listReceivers.find(
+      (receiver) => receiver.accountNumber === newReceiver.accountNumber
+    );
 
+    if (found) alert('Số tài khoản đã được thêm trước đó');
+    else {
+      const ret = await axios.get(
+        `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`
+      );
+      if (ret.data.status) {
+        if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+        const { updateListReceivers } = this.props;
+        listReceivers.push(newReceiver);
+        updateListReceivers(listReceivers, accessToken);
+        alert('Thêm người gửi thành công vào danh sách!');
+      } else {
+        alert('Số tài khoản không tồn tại trong hệ thống!');
+      }
+    }
+  };
+
+  editReceiver = () => {
+    var { listReceivers } = this.props;
+    var newReceiver = this.state.newReceiver;
+    const index = listReceivers.findIndex(
+      (receiver) => receiver.accountNumber === newReceiver.accountNumber
+    );
+    if (index >= 0) listReceivers[index] = newReceiver;
+    console.log(index);
+    console.log(newReceiver);
+    console.log(listReceivers);
+  };
   render() {
-    const { nameReceiver, accountNumberReceiver } = this.state;
+    const { newReceiver } = this.state;
     return (
       <div className="animated fadeIn">
         <Row>
@@ -139,7 +196,7 @@ class Transfer extends Component {
                         type="text"
                         id="accountNumber"
                         name="checkingAccountNumber"
-                        value="adfwetfwegggggggwagr"
+                        value={this.props.checkingAccountNumber}
                         disabled
                       />
                     </Col>
@@ -153,7 +210,15 @@ class Transfer extends Component {
                     </Col>
                     <Col xs="12" md="8">
                       <InputGroup>
-                        <Input placeholder="Số tài khoản của người nhận..." />
+                        <Input
+                          placeholder="Số tài khoản của người nhận..."
+                          value={this.state.accountNumberReceiver}
+                          onChange={(e) => {
+                            this.setState({
+                              accountNumberReceiver: e.target.value,
+                            });
+                          }}
+                        />
                         <InputGroupAddon addonType="append">
                           <Button
                             onClick={this.handleCommitAccountNumber}
@@ -185,12 +250,12 @@ class Transfer extends Component {
                           type="text"
                           id="nameReceiver"
                           name="nameReceiver"
-                          value="nguyễn văn a"
+                          value={this.state.nameReceiver}
                           disabled
                         />
                       </Col>
                     </FormGroup>
-                    <FormGroup row>
+                    {/* <FormGroup row>
                       <Col md="4" style={{ alignSelf: 'center' }}>
                         <Label htmlFor="emailReceiver">Email người nhận</Label>
                       </Col>
@@ -203,7 +268,7 @@ class Transfer extends Component {
                           disabled
                         />
                       </Col>
-                    </FormGroup>
+                    </FormGroup> */}
                   </Collapse>
                   {/* số tiền cần chuyển */}
                   <FormGroup row>
@@ -304,10 +369,10 @@ class Transfer extends Component {
                         <Input
                           type="text"
                           id="nameReceiverOfList"
-                          name="nameReceiverOfList"
-                          value={nameReceiver}
+                          name="name"
+                          value={newReceiver.name}
                           placeholder="Nhập tên thay thế..."
-                          onChange={(e) => {}}
+                          onChange={this.onChange}
                         />
                         <Tooltip
                           placement="top"
@@ -317,7 +382,8 @@ class Transfer extends Component {
                             this.toggle(0);
                           }}
                         >
-                          Đặt tên thay thế hoặc để trống (mặc định là tên chủ tài khoản)!
+                          Đặt tên thay thế hoặc để trống (mặc định là tên chủ
+                          tài khoản)!
                         </Tooltip>
                       </span>
                     </Col>
@@ -330,10 +396,10 @@ class Transfer extends Component {
                       <Input
                         type="text"
                         id="numberReceiverOfList"
-                        name="numberReceiverOfList"
-                        value={accountNumberReceiver}
+                        name="accountNumber"
+                        value={newReceiver.accountNumber}
                         placeholder="Nhập số tài khoản..."
-                        onChange={(e) => {}}
+                        onChange={this.onChange}
                       />
                     </Col>
                   </FormGroup>
@@ -341,9 +407,7 @@ class Transfer extends Component {
                     color="primary"
                     key="btnAdd"
                     style={{ marginRight: '15px', width: ' 90px' }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                    }}
+                    onClick={this.addReceiver}
                   >
                     <i className="fa fa-plus" /> Thêm
                   </Button>
@@ -351,9 +415,7 @@ class Transfer extends Component {
                     color="primary"
                     key="btnSave"
                     style={{ marginRight: '15px', width: ' 90px' }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                    }}
+                    onClick={this.editReceiver}
                   >
                     <i className="fa fa-save" /> Lưu
                   </Button>
@@ -365,7 +427,7 @@ class Transfer extends Component {
                   }}
                 />
                 <CDataTable
-                  items={usersData}
+                  items={this.props.listReceivers}
                   tableFilter
                   itemsPerPage={8}
                   hover
@@ -403,6 +465,16 @@ class Transfer extends Component {
                               color="danger"
                               className="btn-pill"
                               style={{ marginRight: '5px' }}
+                              onClick={(e) => {
+                                const accessToken = localStorage.getItem(
+                                  'accessToken'
+                                );
+                                var { listReceivers } = this.props;
+                                listReceivers.splice(index, 1);
+                                const { updateListReceivers } = this.props;
+                                alert('Xóa thành công');
+                                updateListReceivers(listReceivers, accessToken);
+                              }}
                             >
                               <i className="fa fa-trash-o" />
                             </Button>
@@ -412,9 +484,11 @@ class Transfer extends Component {
                               className="btn-pill"
                               style={{ marginRight: '5px' }}
                               onClick={(e) => {
-                                this.setState({ nameReceiver: item.name });
                                 this.setState({
-                                  accountNumberReceiver: item.accountNumber,
+                                  newReceiver: {
+                                    name: item.name,
+                                    accountNumber: item.accountNumber,
+                                  },
                                 });
                               }}
                             >
@@ -424,6 +498,12 @@ class Transfer extends Component {
                               size="sm"
                               color="primary"
                               className="btn-pill"
+                              onClick={(e) => {
+                                this.setState({
+                                  nameReceiver: item.name,
+                                  accountNumberReceiver: item.accountNumber,
+                                });
+                              }}
                             >
                               <i className="fa fa-ticket" />
                             </Button>
@@ -442,4 +522,17 @@ class Transfer extends Component {
   }
 }
 
-export default Transfer;
+const mapStateToProps = (state) => {
+  return {
+    listReceivers: state.transferCustomer.listReceivers,
+    checkingAccountNumber: state.transferCustomer.checkingAccountNumber,
+  };
+};
+
+const actionCreators = {
+  getListReceivers: transferCustomerActions.getListReceivers,
+  updateListReceivers: transferCustomerActions.updateListReceivers,
+  // requestResetPassword: memberActions.requestResetPassword
+};
+
+export default connect(mapStateToProps, actionCreators)(Transfer);

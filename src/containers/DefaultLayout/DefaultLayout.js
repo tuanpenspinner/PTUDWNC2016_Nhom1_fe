@@ -73,7 +73,7 @@ class DefaultLayout extends Component {
                 </span>
               </NavLink>
             </NavItem>
-            <NavItem style={{ display: loginCustomer }}>
+            <NavItem style={{ display: loginEmployee }}>
               <NavLink tag={RouteNavLink} to="/employee/manage-customer">
                 <span>
                   <i className="cui-people icons" style={{ marginRight: 15 }} />
