@@ -48,11 +48,12 @@ class Transfer extends Component {
     this.toggleSmall = this.toggleSmall.bind(this);
     this.toggle = this.toggle.bind(this);
   }
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const accessToken = localStorage.getItem('accessToken');
     const { getListReceivers } = this.props;
     getListReceivers(accessToken);
   }
+
   // chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = async (ischecked) => {
     await this.setState({ switchBankCode: ischecked });
@@ -112,7 +113,14 @@ class Transfer extends Component {
     if (found) alert('Số tài khoản đã được thêm trước đó');
     else {
       const ret = await axios.get(
-        `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`
+        `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
       );
       if (ret.data.status) {
         if (!newReceiver.name) newReceiver.name = ret.data.customer.name;

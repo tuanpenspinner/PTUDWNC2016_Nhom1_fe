@@ -12,6 +12,7 @@ const getListAccounts = (accessToken) => {
       })
       .then((data) => {
         const result = data.data;
+        console.log(result);
         return dispatch({
           type: employeeConstants.moneyRecharge.GET_LIST_ACCOUNTS,
           data: result,

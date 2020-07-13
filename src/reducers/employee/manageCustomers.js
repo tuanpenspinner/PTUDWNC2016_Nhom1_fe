@@ -3,6 +3,7 @@ import { employeeConstants } from '../../constants/employee';
 export const initialState = {
   allAccounts: [],
   resultRechargeMoney: '',
+  
 };
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
 // const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };

@@ -11,7 +11,8 @@ const getListReceivers = (accessToken) => {
         },
       })
       .then((data) => {
-        var data = data.data.customer;
+        var data = data.data;
+       
         return dispatch({
           type: customerConstants.transfer.GET_LIST_RECEIVERS,
           data,

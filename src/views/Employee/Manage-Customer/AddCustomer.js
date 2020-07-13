@@ -33,6 +33,74 @@ class AddCustomer extends Component {
       [name]: value,
     });
   };
+  generateName = () => {
+    const { allAccounts } = this.props;
+    const username = 'customer' + (allAccounts.length + 1);
+    this.setState({
+      username,
+    });
+  };
+  generateCheckingAccountNumber = () => {
+    let newDate = new Date();
+    const checkingAccountNumber = '11' + Math.floor(newDate.getTime() / 1000);
+    this.setState({
+      checkingAccountNumber,
+    });
+  };
+  addCustomer = async () => {
+    const { name, phone, email, username, checkingAccountNumber } = this.state;
+    if (
+      name === '' ||
+      phone === '' ||
+      email === '' ||
+      username === '' ||
+      checkingAccountNumber === ''
+    )
+      alert('Phải điền đầy đủ thông tin!');
+    else {
+      const accessToken = localStorage.getItem('accessToken');
+      const newCustomer = {
+        name,
+        phone,
+        email,
+        username,
+        password: '123456',
+        checkingAccount: {
+          accountNumber: checkingAccountNumber,
+          amount: 0,
+        },
+        savingsAccount: [],
+        listReceivers: [],
+        historyMoneyRecharge: [],
+        mailOtp: null,
+        refreshToken: null,
+      };
+      const ret = await axios.post(
+        'http://localhost:3001/customers/register',
+        newCustomer,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+      if (ret.data.status) {
+        alert(`Tạo tài khoản ${username} thành công!`);
+        const accessToken = localStorage.getItem('accessToken');
+        const { getAllAccounts } = this.props;
+        getAllAccounts(accessToken);
+        this.setState({
+          name: '',
+          username: '',
+          phone: '',
+          email: '',
+          checkingAccountNumber: '',
+        });
+      }
+    }
+  };
   render() {
     const { name, phone, email, username, checkingAccountNumber } = this.state;
     return (
@@ -104,12 +172,7 @@ class AddCustomer extends Component {
                         readOnly
                       />
                       <InputGroupAddon addonType="append">
-                        <Button
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
-                          color="primary"
-                        >
+                        <Button onClick={this.generateName} color="primary">
                           <i
                             className="fa fa-refresh"
                             style={{ color: 'white' }}
@@ -136,9 +199,7 @@ class AddCustomer extends Component {
                       />
                       <InputGroupAddon addonType="append">
                         <Button
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
+                          onClick={this.generateCheckingAccountNumber}
                           color="primary"
                         >
                           <i
@@ -157,11 +218,13 @@ class AddCustomer extends Component {
                 color="primary"
                 style={{ marginRight: '15px' }}
                 type="submit"
-                onClick={{}}
+                onClick={this.addCustomer}
               >
                 Tạo tài khoản
               </Button>
-              <Button color="warning">Reset</Button>
+              <Button color="warning" onClick={this.reset}>
+                Reset
+              </Button>
             </CardFooter>
           </Card>
         </Col>
@@ -170,9 +233,13 @@ class AddCustomer extends Component {
   }
 }
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    allAccounts: state.manageCustomers.allAccounts,
+  };
 };
 
-const actionCreators = {};
+const actionCreators = {
+  getAllAccounts: manageCustomersActions.getListAccounts,
+};
 
 export default connect(mapStateToProps, actionCreators)(AddCustomer);

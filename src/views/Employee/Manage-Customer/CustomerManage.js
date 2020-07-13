@@ -19,26 +19,7 @@ import FormAddCustomer from './AddCustomer';
 import HistoryOfCustomer from './HistoryOfCustomer';
 import CDataTable from '../../components/table/CDataTable';
 import usersData1 from '../../components/table/UsersData';
-const usersData = [
-  {
-    id: 1,
-    username: 'cus001',
-    name: 'hoàng thị cát uyên',
-    email: 'hoanguyen234@gmail.com',
-    phone: '02124324134234',
-    checkingAccount: { accountNumber: '23423432', amount: '23423' },
-    savingsAccount: [{ accountNumber: '14323', amount: '234234' }],
-  },
-  {
-    id: 2,
-    username: 'cus002',
-    name: 'hoàng thị cát uyên 2',
-    email: 'hoanguyen4@gmail.com',
-    phone: '12423523',
-    checkingAccount: { accountNumber: '11111', amount: '2222' },
-    savingsAccount: [{ accountNumber: '3333', amount: '44444' }],
-  },
-];
+
 class CustomerManage extends Component {
   constructor(props) {
     super(props);
@@ -54,7 +35,6 @@ class CustomerManage extends Component {
     const { getAllAccounts } = this.props;
     getAllAccounts(accessToken);
   }
-  
 
   //hàm xử lí hiện detail trong list customer
   toggleDetails = (index) => {
@@ -78,6 +58,29 @@ class CustomerManage extends Component {
   }
 
   render() {
+    const showDetailAccount = (item) => {
+      const savingsAccount = item.savingsAccount;
+      const checkingAccount = item.checkingAccount;
+      const showSavingAccount = savingsAccount.map((savingAccount) => {
+        return (
+          <p>
+            + Số tài khoản: {savingAccount.accountNumber}
+            &nbsp;&nbsp;&nbsp;&nbsp; Số dư: {savingAccount.amount} đồng
+          </p>
+        );
+      });
+      return (
+        <div>
+          <p>- Tài khoản thanh toán:</p>
+          <p>
+            + Số tài khoản: {checkingAccount.accountNumber}
+            &nbsp;&nbsp;&nbsp;&nbsp; Số dư: {checkingAccount.amount} đồng
+          </p>
+          <p>- Tài khoản tiết kiệm:</p>
+          {showSavingAccount}
+        </div>
+      );
+    };
     return (
       <div className="animated fadeIn">
         <Row>
@@ -153,8 +156,8 @@ class CustomerManage extends Component {
                   ]}
                   scopedSlots={{
                     id: (item, index) => {
-                      return <td className="text-center">{index+1}</td>;
-                      },
+                      return <td className="text-center">{index + 1}</td>;
+                    },
                     action: (item, index) => {
                       return (
                         <td>
@@ -199,13 +202,7 @@ class CustomerManage extends Component {
                     details: (item, index) => {
                       return (
                         <Collapse isOpen={this.state.details.includes(index)}>
-                          <CardBody>
-                            <p>
-                              chỗ này show chi tiết từng số tài khoản với số
-                              tiền (tài khoản tiết kieemk và tài khoản thanh
-                              toán)
-                            </p>
-                          </CardBody>
+                          <CardBody>{showDetailAccount(item)}</CardBody>
                         </Collapse>
                       );
                     },
