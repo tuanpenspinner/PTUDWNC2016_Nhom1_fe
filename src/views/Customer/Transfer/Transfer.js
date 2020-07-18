@@ -164,6 +164,19 @@ class Transfer extends Component {
     }
   };
   render() {
+    Number.prototype.format = function (n, x, s, c) {
+      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+
+      return (c ? num.replace('.', c) : num).replace(
+        new RegExp(re, 'g'),
+        '$&' + (s || ',')
+      );
+    };
+    
+    var { amountCheckingAccount } = this.props;
+    amountCheckingAccount=parseInt(amountCheckingAccount).format(0, 3, '.', ',');
+    
     const { newReceiver } = this.state;
     return (
       <div className="animated fadeIn">
@@ -224,6 +237,22 @@ class Transfer extends Component {
                         id="accountNumber"
                         name="checkingAccountNumber"
                         value={this.props.checkingAccountNumber}
+                        disabled
+                      />
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="4" style={{ alignSelf: 'center' }}>
+                      <Label htmlFor="checkingAccountNumber">
+                        Số dư hiện tại
+                      </Label>
+                    </Col>
+                    <Col xs="12" md="8">
+                      <Input
+                        type="text"
+                        id="accountNumber"
+                        name="checkingAccountNumber"
+                        value={amountCheckingAccount + ' đồng'}
                         disabled
                       />
                     </Col>
@@ -554,6 +583,7 @@ const mapStateToProps = (state) => {
   return {
     listReceivers: state.transferCustomer.listReceivers,
     checkingAccountNumber: state.transferCustomer.checkingAccountNumber,
+    amountCheckingAccount: state.transferCustomer.amountCheckingAccount,
   };
 };
 

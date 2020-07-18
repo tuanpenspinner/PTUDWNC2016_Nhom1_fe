@@ -58,6 +58,15 @@ class CustomerManage extends Component {
   }
 
   render() {
+    Number.prototype.format = function (n, x, s, c) {
+      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+
+      return (c ? num.replace('.', c) : num).replace(
+        new RegExp(re, 'g'),
+        '$&' + (s || ',')
+      );
+    };
     const showDetailAccount = (item) => {
       const savingsAccount = item.savingsAccount;
       const checkingAccount = item.checkingAccount;
@@ -65,7 +74,8 @@ class CustomerManage extends Component {
         return (
           <p>
             + Số tài khoản: {savingAccount.accountNumber}
-            &nbsp;&nbsp;&nbsp;&nbsp; Số dư: {savingAccount.amount} đồng
+          
+            &nbsp;&nbsp;&nbsp;&nbsp; Số dư: {  parseInt(savingAccount.amount).format(0, 3, '.', ',')} đồng
           </p>
         );
       });
@@ -74,7 +84,8 @@ class CustomerManage extends Component {
           <p>- Tài khoản thanh toán:</p>
           <p>
             + Số tài khoản: {checkingAccount.accountNumber}
-            &nbsp;&nbsp;&nbsp;&nbsp; Số dư: {checkingAccount.amount} đồng
+            &nbsp;&nbsp;&nbsp;&nbsp; Số dư:{' '}
+            {parseInt(checkingAccount.amount).format(0, 3, '.', ',')} đồng
           </p>
           <p>- Tài khoản tiết kiệm:</p>
           {showSavingAccount}

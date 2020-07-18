@@ -27,6 +27,7 @@ const updateListReceivers = (listReceivers, accessToken) => {
         'http://localhost:3001/customers/updateListReceivers',
         {
           listReceivers,
+          
         },
         {
           headers: {
