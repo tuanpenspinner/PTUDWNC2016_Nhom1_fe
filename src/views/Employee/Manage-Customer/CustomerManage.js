@@ -28,6 +28,7 @@ class CustomerManage extends Component {
     this.state = {
       activeTab: new Array(4).fill('1'),
       details: [],
+      customerChose: null,
     };
   }
   UNSAFE_componentWillMount() {
@@ -191,6 +192,11 @@ class CustomerManage extends Component {
                               size="sm"
                               onClick={() => {
                                 this.toggle(0, '2');
+                                this.setState({ customerChose: item });
+                                const accessToken = localStorage.getItem(
+                                  'accessToken'
+                                );
+                                this.props.getHistoryDeal(accessToken, item);
                               }}
                             >
                               Lịch sử giao dịch
@@ -211,7 +217,10 @@ class CustomerManage extends Component {
               </TabPane>
               {/*tab content lịch sử giao dịch của 1 tài khoản */}
               <TabPane tabId="2">
-                <HistoryOfCustomer></HistoryOfCustomer>
+                <HistoryOfCustomer
+                  customer={this.state.customerChose}
+                  listAllCustomer={this.props.allAccounts}
+                ></HistoryOfCustomer>
               </TabPane>
               {/*tab content tạo tài khoản */}
               <TabPane tabId="3">
@@ -227,11 +236,13 @@ class CustomerManage extends Component {
 const mapStateToProps = (state) => {
   return {
     allAccounts: state.manageCustomers.allAccounts,
+    resultHistoryDeal: state.manageCustomers.resultHistoryDeal,
   };
 };
 
 const actionCreators = {
   getAllAccounts: manageCustomersActions.getListAccounts,
+  getHistoryDeal: manageCustomersActions.getHistoryDeal,
 };
 
 export default connect(mapStateToProps, actionCreators)(CustomerManage);

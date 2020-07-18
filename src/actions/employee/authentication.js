@@ -11,7 +11,6 @@ const login = (username, password, role) => {
       body: JSON.stringify({ username, password }),
     }).then((response) =>
       response.json().then((data) => {
-  
         dispatch({ type: employeeConstants.authentication.LOGIN_EMP, data ,role});
       })
     );

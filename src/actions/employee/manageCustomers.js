@@ -46,7 +46,32 @@ const moneyRecharge = (accessToken, username, accountNumber, amount, type) => {
       });
   };
 };
+const getHistoryDeal = (accessToken, customer) => {
+  return (dispatch) => {
+    return axios
+      .get(
+        `http://localhost:3001/employees/historyDealOfCustomer/${customer.username}`,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      )
+      .then((data) => {
+        const result = data.data;
+        console.log(data);
+        return dispatch({
+          type: employeeConstants.getHistoryDeal.GET_HISTORY_DEAL,
+          data: result,
+          customerChose: customer,
+        });
+      });
+  };
+};
 export const manageCustomersActions = {
   getListAccounts,
   moneyRecharge,
+  getHistoryDeal,
 };
