@@ -17,7 +17,6 @@ import {
 } from 'reactstrap';
 import { connect } from 'react-redux';
 import { manageCustomersActions } from '../../../actions/employee/manageCustomers';
-
 import CDataTable from '../../components/table/CDataTable';
 import usersData1 from '../../components/table/UsersData';
 class HistoryOfCustomer extends Component {
@@ -28,7 +27,18 @@ class HistoryOfCustomer extends Component {
     this.state = {
       activeTabHistory: 0,
       detailsHistory: [],
+      usernameChose: '',
+      historyReceive: [],
+      historyTransfer: [],
+      historyPayDebt: [],
+      err: '',
     };
+  }
+  componentWillReceiveProps(next) {
+    if (next.customerChose)
+      this.setState({
+        usernameChose: next.customerChose.username, //truyền username dược chọn từ tab list customers
+      });
   }
   //xử lí click tab trong lịchh sử giao dịch
   // eslint-disable-next-line react/sort-comp
@@ -50,6 +60,16 @@ class HistoryOfCustomer extends Component {
       newDetails = [...this.state.detailsHistory, index];
     }
     this.setState({ detailsHistory: newDetails });
+  };
+  //hàm truy vấn lịch sử giao dịch
+  handleGetHistory = (username) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const { getHistoryDeal, listAllCustomer } = this.props;
+    const customer = listAllCustomer.filter(
+      (element) => element.username === username
+    )[0];
+    if (customer) getHistoryDeal(accessToken, customer);
+    else this.setState({ err: 'Tài khoản không tồn tại!' });
   };
   render() {
     return (
@@ -89,14 +109,21 @@ class HistoryOfCustomer extends Component {
               type="text"
               placeholder="Nhập username..."
               // autoComplete="username"
+              value={this.state.usernameChose}
               name="name"
-              autoFocus
-              onChange={(event) => {}}
+              onChange={(event) => {
+                this.setState({ err: '' });
+                this.setState({ usernameChose: event.target.value });
+                console.log(this.state.usernameChose);
+              }}
             />
             <InputGroupAddon addonType="append">
               <Button
                 onClick={(e) => {
                   e.preventDefault();
+                  if (this.state.usernameChose !== '')
+                    this.handleGetHistory(this.state.usernameChose);
+                  else this.setState({ err: 'Vui lòng nhập username!' });
                 }}
                 color="primary"
               >
@@ -104,12 +131,15 @@ class HistoryOfCustomer extends Component {
               </Button>
             </InputGroupAddon>
           </InputGroup>
+          <div>
+            <p style={{ color: 'red' }}>{this.state.err}</p>
+          </div>
         </Col>
         <Col>
           <TabContent activeTab={this.state.activeTabHistory}>
             <TabPane tabId={0}>
               <CDataTable
-                items={usersData1}
+                items={this.props.resultHistoryDeal.historyReceive}
                 columnFilter
                 itemsPerPage={5}
                 hover
@@ -118,11 +148,11 @@ class HistoryOfCustomer extends Component {
                 fields={[
                   { key: 'id', _style: { width: '1%' } },
                   { key: 'name', label: 'Tên người gửi' },
-                  { key: 'accountNumber', label: 'STK người gửi' },
+                  { key: 'transfererAccountNumber', label: 'STK người gửi' },
                   { key: 'amount', label: 'Số tiền gửi' },
-                  { key: 'date', label: 'Ngày giao dịch' },
+                  { key: 'time', label: 'Ngày giao dịch' },
                   {
-                    key: 'typePay',
+                    key: 'payFeeBy',
                     label: 'Người trả phí',
                     filter: false,
                   },
@@ -135,6 +165,13 @@ class HistoryOfCustomer extends Component {
                   },
                 ]}
                 scopedSlots={{
+                  id: (item, index) => {
+                    return <td className="text-center">{index + 1}</td>;
+                  },
+                  payFeeBy: (item, index) => {
+                    if (item.payFeeBy === 'transfer') return <td>người gửi</td>;
+                    else return <td>người nhận</td>;
+                  },
                   showdetail: (item, index) => {
                     return (
                       <td className="text-center">
@@ -160,7 +197,7 @@ class HistoryOfCustomer extends Component {
                         isOpen={this.state.detailsHistory.includes(index)}
                       >
                         <CardBody>
-                          <p>Nội dung chuyển tiền: hiện ở đây</p>
+                          <p>Nội dung chuyển tiền: {item.content}</p>
                         </CardBody>
                       </Collapse>
                     );
@@ -170,7 +207,7 @@ class HistoryOfCustomer extends Component {
             </TabPane>
             <TabPane tabId={1}>
               <CDataTable
-                items={usersData1}
+                items={this.props.resultHistoryDeal.historyTransfer}
                 columnFilter
                 itemsPerPage={5}
                 hover
@@ -179,11 +216,11 @@ class HistoryOfCustomer extends Component {
                 fields={[
                   { key: 'id', _style: { width: '1%' } },
                   { key: 'name', label: 'Tên người nhận' },
-                  { key: 'accountNumber', label: 'STK người nhận' },
+                  { key: 'receiverAccountNumber', label: 'STK người nhận' },
                   { key: 'amount', label: 'Số tiền gửi' },
-                  { key: 'date', label: 'Ngày giao dịch' },
+                  { key: 'time', label: 'Ngày giao dịch' },
                   {
-                    key: 'typePay',
+                    key: 'payFeeBy',
                     label: 'Người trả phí',
                     filter: false,
                   },
@@ -196,6 +233,13 @@ class HistoryOfCustomer extends Component {
                   },
                 ]}
                 scopedSlots={{
+                  id: (item, index) => {
+                    return <td className="text-center">{index + 1}</td>;
+                  },
+                  payFeeBy: (item, index) => {
+                    if (item.payFeeBy === 'transfer') return <td>người gửi</td>;
+                    else return <td>người nhận</td>;
+                  },
                   showdetail: (item, index) => {
                     return (
                       <td className="text-center">
@@ -221,7 +265,7 @@ class HistoryOfCustomer extends Component {
                         isOpen={this.state.detailsHistory.includes(index)}
                       >
                         <CardBody>
-                          <p>Nội dung chuyển tiền: hiện ở đây</p>
+                          <p>Nội dung chuyển tiền: {item.content}</p>
                         </CardBody>
                       </Collapse>
                     );
@@ -231,7 +275,7 @@ class HistoryOfCustomer extends Component {
             </TabPane>
             <TabPane tabId={2}>
               <CDataTable
-                items={usersData1}
+                items={this.props.resultHistoryDeal.historyPayDebt}
                 columnFilter
                 itemsPerPage={5}
                 hover
@@ -244,9 +288,9 @@ class HistoryOfCustomer extends Component {
                     key: 'accountNumber',
                     label: 'STK người trả/ được trả',
                   },
-                  { key: 'amount', label: 'Số tiền nợ' },
-                  { key: 'date', label: 'Ngày thanh toán' },
-                  { key: 'type', label: 'Nhắc nợ tạo bởi' }, //'chủ tài khoản' or 'người khác'
+                  { key: 'debt', label: 'Số tiền nợ' },
+                  { key: 'timePaid', label: 'Ngày thanh toán' },
+                  { key: 'creator', label: 'Nhắc nợ tạo bởi' }, //'chủ tài khoản' or 'người khác'
                   {
                     key: 'showdetail',
                     label: '',
@@ -256,6 +300,28 @@ class HistoryOfCustomer extends Component {
                   },
                 ]}
                 scopedSlots={{
+                  id: (item, index) => {
+                    return <td className="text-center">{index + 1}</td>;
+                  },
+                  accountNumber: (item, index) => {
+                    if (
+                      item.creator ===
+                      this.props.customerChose.checkingAccount.accountNumber
+                    )
+                      return <td>{item.debtor}</td>;
+                    else return <td>{item.creator}</td>;
+                  },
+                  timePaid: (item, index) => {
+                    return <td>{item.pay.timePay}</td>;
+                  },
+                  creator: (item, index) => {
+                    if (
+                      item.creator ===
+                      this.props.customerChose.checkingAccount.accountNumber
+                    )
+                      return <td>chủ tài khoản</td>;
+                    else return <td>đối tác</td>;
+                  },
                   showdetail: (item, index) => {
                     return (
                       <td className="text-center">
@@ -281,7 +347,7 @@ class HistoryOfCustomer extends Component {
                         isOpen={this.state.detailsHistory.includes(index)}
                       >
                         <CardBody>
-                          <p>Nội dung chuyển tiền: hiện ở đây</p>
+                          <p>Nội dung chuyển tiền: {item.content}</p>
                         </CardBody>
                       </Collapse>
                     );
@@ -296,9 +362,15 @@ class HistoryOfCustomer extends Component {
   }
 }
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    resultHistoryDeal: state.manageCustomers.resultHistoryDeal,
+    customerChose: state.manageCustomers.customerChose,
+    allAccounts: state.manageCustomers.allAccounts,
+  };
 };
 
-const actionCreators = {};
+const actionCreators = {
+  getHistoryDeal: manageCustomersActions.getHistoryDeal,
+};
 
 export default connect(mapStateToProps, actionCreators)(HistoryOfCustomer);

@@ -11,8 +11,12 @@ const moneyRecharge = {
   GET_LIST_ACCOUNTS: 'GET_LIST_ACCOUNTS',
   RECHARGE_MONEY: 'RECHARGE_MONEY', 
 };
+const getHistoryDeal={
+  GET_HISTORY_DEAL: 'GET_HISTORY_DEAL',
+};
 export const employeeConstants = {
   authentication,
   info,
-  moneyRecharge
+  moneyRecharge,
+  getHistoryDeal,
 };
