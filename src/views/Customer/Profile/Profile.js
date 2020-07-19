@@ -54,7 +54,6 @@ class Profile extends Component {
     if (ret.data.status) {
       alert('Đổi tên thành công');
     } else alert('Đổi tên thất bại');
-  
   };
 
   render() {
@@ -69,10 +68,21 @@ class Profile extends Component {
       savingsAccount,
     } = this.props;
     var usersData = [];
+    Number.prototype.format = function (n, x, s, c) {
+      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+
+      return (c ? num.replace('.', c) : num).replace(
+        new RegExp(re, 'g'),
+        '$&' + (s || ',')
+      );
+    };
+
+   
     var checkingAcc = {
       id: 0,
       accountNumber: checkingAccount.accountNumber,
-      amount: checkingAccount.amount,
+      amount: parseInt(checkingAccount.amount).format(0, 3, '.', ',')+" đồng",
       type: 'Tài khoản thanh toán',
     };
     usersData.push(checkingAcc);
@@ -81,7 +91,8 @@ class Profile extends Component {
         usersData.push({
           id: i + 1,
           accountNumber: savingsAccount[i].accountNumber,
-          amount: savingsAccount[i].amount,
+          amount:
+            parseInt(savingsAccount[i].amount).format(0, 3, '.', ',') + ' đồng',
           type: 'Tài khoản tiết kiệm',
         });
       }
