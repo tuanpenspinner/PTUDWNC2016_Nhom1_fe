@@ -37,14 +37,15 @@ class EmployeeManage extends Component {
 
   UNSAFE_componentWillMount() {
     const { loadListEmployee } = this.props;
-    loadListEmployee();
+    const accessToken = localStorage.getItem('accessToken');
+    console.log(accessToken);
+    loadListEmployee(accessToken);
   }
 
   //toggle thêm employee
   toggle() {
     this.setState({ collapse: !this.state.collapse });
   }
-
 
   render() {
     return (
@@ -117,10 +118,17 @@ class EmployeeManage extends Component {
                 ]}
                 scopedSlots={{
                   showdetail: (item, index) => {
-                    return <RowEmployee index={index} item={item}></RowEmployee>;
+                    return (
+                      <RowEmployee index={index} item={item}></RowEmployee>
+                    );
                   },
                   details: (item, index) => {
-                    return <DetailsEmployee item={item} index={index}></DetailsEmployee>;
+                    return (
+                      <DetailsEmployee
+                        item={item}
+                        index={index}
+                      ></DetailsEmployee>
+                    );
                   },
                 }}
               />

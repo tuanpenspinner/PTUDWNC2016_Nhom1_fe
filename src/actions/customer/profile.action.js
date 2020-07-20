@@ -13,6 +13,12 @@ const saveProfile = (accessToken) => {
       .then((data) => {
         const info = data.data.customer;
         return dispatch({ type: customerConstants.info.SAVE_PROFILE, info });
+      })
+      .catch((e) => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };

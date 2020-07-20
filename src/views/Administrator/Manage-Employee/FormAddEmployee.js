@@ -32,6 +32,7 @@ class FormAddEmployee extends Component {
   };
   createEmployee = () => {
     const { name, phone, email, username, password } = this.state;
+    const accessToken = localStorage.getItem('accessToken');
     const newEmployee = {
       name,
       phone,
@@ -45,7 +46,14 @@ class FormAddEmployee extends Component {
       axios
         .post(
           'http://localhost:3001/administrator/register-employee',
-          newEmployee
+          newEmployee,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': accessToken,
+            },
+          }
         )
         .then((data) => {
           this.setState({
@@ -55,14 +63,14 @@ class FormAddEmployee extends Component {
             username: '',
           });
           const { loadListEmployee } = this.props;
-         alert(`Thêm tài khoản nhân viên ${newEmployee.username} thành công!`);
+          alert(`Thêm tài khoản nhân viên ${newEmployee.username} thành công!`);
           loadListEmployee();
         });
     }
   };
 
   render() {
-     const { name, phone, email, username, password } = this.state;
+    const { name, phone, email, username, password } = this.state;
     return (
       <Form style={{ marginTop: '10px', marginBottom: '10px' }}>
         <FormGroup row>
@@ -158,7 +166,6 @@ class FormAddEmployee extends Component {
 const mapStateToProps = (state) => {
   return {
     listEmployee: state.employeeManage.listEmployee,
-  
   };
 };
 

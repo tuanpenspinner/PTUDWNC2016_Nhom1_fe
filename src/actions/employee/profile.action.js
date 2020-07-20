@@ -16,6 +16,12 @@ const saveProfile = (accessToken) => {
           type: employeeConstants.info.SAVE_PROFILE_EMP,
           data: info,
         });
+      })
+      .catch((e) => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };

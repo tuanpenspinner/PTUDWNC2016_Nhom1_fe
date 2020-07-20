@@ -12,11 +12,18 @@ const getListReceivers = (accessToken) => {
       })
       .then((data) => {
         var data = data.data;
-       
+
         return dispatch({
           type: customerConstants.transfer.GET_LIST_RECEIVERS,
           data,
         });
+      })
+      .catch((e) => {
+
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };
@@ -27,7 +34,6 @@ const updateListReceivers = (listReceivers, accessToken) => {
         'http://localhost:3001/customers/updateListReceivers',
         {
           listReceivers,
-          
         },
         {
           headers: {
@@ -40,8 +46,11 @@ const updateListReceivers = (listReceivers, accessToken) => {
       .then((data) => {
         return dispatch({
           type: customerConstants.transfer.UPDATE_LIST_RECEIVERS,
-          listReceivers
+          listReceivers,
         });
+      })
+      .catch((e) => {
+        console.log(e);
       });
   };
 };

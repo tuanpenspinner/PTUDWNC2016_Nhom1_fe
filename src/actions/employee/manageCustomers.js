@@ -17,6 +17,12 @@ const getListAccounts = (accessToken) => {
           type: employeeConstants.moneyRecharge.GET_LIST_ACCOUNTS,
           data: result,
         });
+      }).catch((e) => {
+
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };
@@ -43,6 +49,12 @@ const moneyRecharge = (accessToken, username, accountNumber, amount, type) => {
           type: employeeConstants.moneyRecharge.RECHARGE_MONEY,
           data: result,
         });
+      }).catch((e) => {
+
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };
@@ -67,6 +79,12 @@ const getHistoryDeal = (accessToken, customer) => {
           data: result,
           customerChose: customer,
         });
+      })
+      .catch((e) => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };

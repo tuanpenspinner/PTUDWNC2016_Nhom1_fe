@@ -40,9 +40,17 @@ class RowEmployee extends Component {
 
   saveEmployee = async () => {
     const { name, phone, email, username } = this.state;
+    const accessToken = localStorage.getItem('accessToken');
     const result = await axios.post(
       'http://localhost:3001/administrator/update-employee',
-      { name, phone, email, username }
+      { name, phone, email, username },
+      {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
+      }
     );
     alert(` Cập nhật thông tin nhân viên ${username} thành công!`);
   };
