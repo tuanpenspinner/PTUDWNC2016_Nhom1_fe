@@ -8,6 +8,7 @@ const info = {
 };
 const debtReminder = {
   GET_ALL_DEBT_REMINDERS: 'GET_ALL_DEBT_REMINDERS',
+  GET_LIST_RECEIVER: 'GET_LIST_RECEIVER',
 };
 const transfer = {
   GET_LIST_RECEIVERS: 'GET_LIST_RECEIVERS',

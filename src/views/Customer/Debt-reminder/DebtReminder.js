@@ -32,6 +32,7 @@ import CDataTable from '../../components/table/CDataTable';
 import usersData from '../../components/table/UsersData';
 import { connect } from 'react-redux';
 import { manageDebtRemindersActions } from '../../../actions/customer/manageDebtReminders';
+import axios from 'axios';
 
 class DebtReminder extends Component {
   constructor(props) {
@@ -45,15 +46,27 @@ class DebtReminder extends Component {
       collapse: false,
       modal: false, //modal xác nhận tạo nhắc nợ
       modalPayDebt: false, //modal xác nhận thanh toán nợ
+      listDebtNotPaid: [], //Danh sách nợ chưa thanh toán
+      newDebt: {
+        creator: null,
+        nameCreator: null,
+        debtor: null,
+        nameDebtor: null,
+        debt: null,
+        content: null,
+      },
+      payDebt: {},
+      err: '',
     };
   }
-  componentWillMount(){
+  UNSAFE_componentWillMount() {
     const accessToken = localStorage.getItem('accessToken');
-    console.log('++++'+accessToken);
-    const {getAllDebtReminders}=this.props;//test lấy tất cả nhắc nợ, f12 để xem kết quả
+    console.log('++++' + accessToken);
+    const { getAllDebtReminders, getListReceiver } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
     getAllDebtReminders(accessToken);
-    console.log('11111111111111'+JSON.stringify(this.props.listOfOthers));
-  };
+    getListReceiver(accessToken);
+  }
+
   // đóng modal tạo nhắc nợ
   toggleSmall = async (e) => {
     await this.setState({
@@ -117,13 +130,111 @@ class DebtReminder extends Component {
     });
   }
 
+  //Tìm tên người nhận theo SKT
+  findNameDebtor = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const ret = await axios.get(
+      `http://localhost:3001/customers/nameCustomer/${this.state.newDebt.debtor}`,
+      {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
+      }
+    );
+    if (ret.data.status) {
+      this.setState({
+        newDebt: {
+          ...this.state.newDebt,
+          nameDebtor: ret.data.customer.name,
+          err: '',
+        },
+      });
+    } else {
+      this.setState({
+        err: 'Không tìm thấy tài khoản!',
+      });
+    }
+  };
+
   // get infor người nhận khi nhập stk thanh toán
   handleCommitAccountNumber = (e) => {
     this.setState({ collapse: !this.state.collapse });
     e.preventDefault();
   };
-
+  creteDebt = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const newDebt = {
+      creator: this.props.accountNumber,
+      nameCreator: this.props.name,
+      nameDebtor: this.state.newDebt.nameDebtor,
+      debtor: this.state.newDebt.debtor,
+      debt: this.state.newDebt.debt,
+      content: this.state.newDebt.content,
+    };
+    try {
+      const ret = await axios.post(
+        `http://localhost:3001/api/debt-reminders`,
+        newDebt,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+      const { getAllDebtReminders, getListReceiver } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
+      getAllDebtReminders(accessToken);
+      getListReceiver(accessToken);
+      alert(ret.data.message);
+    } catch (e) {
+      alert('Thêm thất bại!');
+    }
+  };
+  onChangeNewDebt = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    if (name === 'debtor')
+      this.setState({
+        newDebt: {
+          ...this.state.newDebt,
+          [name]: value,
+          nameDebtor: '',
+        },
+      });
+    else {
+      this.setState({
+        newDebt: {
+          ...this.state.newDebt,
+          [name]: value,
+        },
+      });
+    }
+  };
   render() {
+    Number.prototype.format = function (n, x, s, c) {
+      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+
+      return (c ? num.replace('.', c) : num).replace(
+        new RegExp(re, 'g'),
+        '$&' + (s || ',')
+      );
+    };
+    // console.log('Mình tạo' + JSON.stringify(this.props.listOfMe));
+    // console.log('Danh sách người nhân', this.props.listOfOthers);
+    // console.log('Chua thanh toán', this.props.listDebtNotPaid);
+    Number.prototype.format = function (n, x, s, c) {
+      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+
+      return (c ? num.replace('.', c) : num).replace(
+        new RegExp(re, 'g'),
+        '$&' + (s || ',')
+      );
+    };
     return (
       <div className="animated fadeIn">
         <Row>
@@ -136,7 +247,7 @@ class DebtReminder extends Component {
                     this.toggle(0, '1');
                   }}
                 >
-                  Tất cả nhắc nợ
+                  Người khác nhắc nợ
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -146,7 +257,7 @@ class DebtReminder extends Component {
                     this.toggle(0, '2');
                   }}
                 >
-                  Tạo nhắc nợ
+                  Bản thân tạo nhắc nợ
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -156,6 +267,16 @@ class DebtReminder extends Component {
                     this.toggle(0, '3');
                   }}
                 >
+                  Tạo nhắc nợ
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  active={this.state.activeTab[0] === '4'}
+                  onClick={() => {
+                    this.toggle(0, '4');
+                  }}
+                >
                   Thanh toán nhắc nợ
                 </NavLink>
               </NavItem>
@@ -163,7 +284,7 @@ class DebtReminder extends Component {
             <TabContent activeTab={this.state.activeTab[0]}>
               <TabPane tabId="1">
                 <CDataTable
-                  items={usersData}
+                  items={this.props.listOfOthers}
                   columnFilter
                   tableFilter
                   itemsPerPage={5}
@@ -172,25 +293,37 @@ class DebtReminder extends Component {
                   pagination
                   fields={[
                     { key: 'id', _style: { width: '1%' } },
-                    { key: 'name', label: 'Người gửi/ nhận nhắc nợ' },
-                    { key: 'accountNumber', label: 'Số tài khoản' },
-                    { key: 'type', label: 'Loại nhắc nợ' }, //gửi nhắc nợ hoặc nhận nhắc nợ
-                    { key: 'date', label: 'Ngày tạo' },
+                    { key: 'nameCreator', label: 'Tên người nhắc nợ' },
+                    { key: 'creator', label: 'Số tài khoản' },
+                    { key: 'timeCreate', label: 'Ngày tạo' },
                     { key: 'typePay', label: 'Trạng thái' }, //đã thanh toán/ chưa thanh toán, sửa key sau
                     {
                       key: 'showdetail',
                       label: '',
-                      _style: {  },
+                      _style: {},
                       sorter: false,
                       filter: false,
                     },
                   ]}
                   scopedSlots={{
+                    id: (item, index) => {
+                      return <td className="text-center">{index + 1}</td>;
+                    },
+                    typePay: (item, index) => {
+                      return (
+                        <td>
+                          {item.pay.isPaid === true ? 'Đã trả' : 'Chưa trả'}
+                        </td>
+                      );
+                    },
+
                     showdetail: (item, index) => {
                       return (
                         <td>
-                          <Row className="text-center" 
-                            style={{ width: '100px' }}>
+                          <Row
+                            className="text-center"
+                            style={{ width: '100px' }}
+                          >
                             <Button
                               color="primary"
                               variant="outline"
@@ -225,20 +358,13 @@ class DebtReminder extends Component {
                         <Collapse isOpen={this.state.details.includes(index)}>
                           <CardBody>
                             <p>
-                              Số tiền :{' '}
-                              {
-                                usersData.filter((i) => i.id === item.id)[0]
-                                  .amount
-                              }
+                              Số tiền :
+                              {'  ' +
+                                parseInt(item.debt).format(0, 3, '.', ',')}
+                              đồng
                             </p>
 
-                            <p>
-                              Nội dung nhắc nợ:{' '}
-                              {
-                                usersData.filter((i) => i.id === item.id)[0]
-                                  .content
-                              }
-                            </p>
+                            <p>Nội dung nhắc nợ :{'  ' + item.content}</p>
                           </CardBody>
                         </Collapse>
                       );
@@ -247,12 +373,107 @@ class DebtReminder extends Component {
                 />
               </TabPane>
               <TabPane tabId="2">
+                <CDataTable
+                  items={this.props.listOfMe}
+                  columnFilter
+                  tableFilter
+                  itemsPerPage={5}
+                  hover
+                  sorter
+                  pagination
+                  fields={[
+                    { key: 'id', _style: { width: '1%' } },
+                    { key: 'nameDebtor', label: 'Tên người nhận nợ' },
+                    { key: 'debtor', label: 'Số tài khoản' },
+                    { key: 'timeCreate', label: 'Ngày tạo' },
+                    { key: 'typePay', label: 'Trạng thái' }, //đã thanh toán/ chưa thanh toán, sửa key sau
+                    {
+                      key: 'showdetail',
+                      label: '',
+                      _style: {},
+                      sorter: false,
+                      filter: false,
+                    },
+                  ]}
+                  scopedSlots={{
+                    id: (item, index) => {
+                      return <td className="text-center">{index + 1}</td>;
+                    },
+                    typePay: (item, index) => {
+                      return (
+                        <td>
+                          {item.pay.isPaid === true ? 'Đã trả' : 'Chưa trả'}
+                        </td>
+                      );
+                    },
+
+                    showdetail: (item, index) => {
+                      return (
+                        <td>
+                          <Row
+                            className="text-center"
+                            style={{ width: '100px' }}
+                          >
+                            <Button
+                              color="primary"
+                              variant="outline"
+                              shape="square"
+                              size="sm"
+                              style={{ marginRight: 5 }}
+                              onClick={() => {
+                                this.toggleDetails(index);
+                              }}
+                            >
+                              {this.state.details.includes(index)
+                                ? 'Hide'
+                                : 'Show'}
+                            </Button>
+                            <Button
+                              color="danger"
+                              variant="outline"
+                              shape="square"
+                              size="sm"
+                              onClick={() => {
+                                //hủy nhắc nợ
+                              }}
+                            >
+                              Hủy
+                            </Button>
+                          </Row>
+                        </td>
+                      );
+                    },
+                    details: (item, index) => {
+                      return (
+                        <Collapse isOpen={this.state.details.includes(index)}>
+                          <CardBody>
+                            <p>
+                              Số tiền :
+                              {'  ' +
+                                parseInt(item.debt).format(0, 3, '.', ',') +
+                                ' '}
+                              đồng
+                            </p>
+
+                            <p>Nội dung nhắc nợ :{'  ' + item.content}</p>
+                          </CardBody>
+                        </Collapse>
+                      );
+                    },
+                  }}
+                />
+              </TabPane>
+              <TabPane tabId="3">
                 <Row>
                   <Col xs="12" xl="5">
                     <Card>
+                      <CardHeader className="text-center">
+                        <strong className="text-center">Tạo nhắc nợ</strong>
+                      </CardHeader>
                       <CardBody>
                         <Form>
                           {/* số tài khoản thanh toán của bạn */}
+
                           <FormGroup row>
                             <Col md="4" style={{ alignSelf: 'center' }}>
                               <Label htmlFor="checkingAccountNumber">
@@ -264,7 +485,7 @@ class DebtReminder extends Component {
                                 type="text"
                                 id="accountNumber"
                                 name="checkingAccountNumber"
-                                value="adfwetfwegggggggwagr"
+                                value={this.props.accountNumber}
                                 disabled
                               />
                             </Col>
@@ -278,11 +499,17 @@ class DebtReminder extends Component {
                             </Col>
                             <Col xs="12" md="8">
                               <InputGroup>
-                                <Input placeholder="Số tài khoản của người nhận..." />
+                                <Input
+                                  placeholder="Số tài khoản của người nhận..."
+                                  name="debtor"
+                                  onChange={this.onChangeNewDebt}
+                                  value={this.state.newDebt.debtor}
+                                />
                                 <InputGroupAddon addonType="append">
                                   <Button
                                     onClick={this.handleCommitAccountNumber}
                                     color="primary"
+                                    onClick={this.findNameDebtor}
                                   >
                                     <i
                                       className="fa fa-refresh"
@@ -294,12 +521,12 @@ class DebtReminder extends Component {
                             </Col>
                           </FormGroup>
                           {/* kết quả trả về khi nhập stk người nhận */}
-                          <Collapse isOpen={this.state.collapse}>
+                          <Collapse isOpen={true}>
                             <FormGroup row>
                               <Col md="4" />
                               <Col xs="12" md="8">
                                 <label style={{ color: 'red' }}>
-                                  err nè he...
+                                  {this.state.err}
                                 </label>
                               </Col>
                             </FormGroup>
@@ -314,23 +541,7 @@ class DebtReminder extends Component {
                                   type="text"
                                   id="nameReceiver"
                                   name="nameReceiver"
-                                  value="nguyễn văn a"
-                                  disabled
-                                />
-                              </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                              <Col md="4" style={{ alignSelf: 'center' }}>
-                                <Label htmlFor="emailReceiver">
-                                  Email người nhận
-                                </Label>
-                              </Col>
-                              <Col xs="12" md="8">
-                                <Input
-                                  type="text"
-                                  id="emailReceiver"
-                                  name="emailReceiver"
-                                  value="nva@gmail.com"
+                                  value={this.state.newDebt.nameDebtor}
                                   disabled
                                 />
                               </Col>
@@ -345,8 +556,8 @@ class DebtReminder extends Component {
                               <Input
                                 type="number"
                                 id="amount"
-                                name="amount"
-                                value="1000000"
+                                name="debt"
+                                onChange={this.onChangeNewDebt}
                               />
                             </Col>
                           </FormGroup>
@@ -360,7 +571,8 @@ class DebtReminder extends Component {
                             <Col xs="12" md="8">
                               <Input
                                 type="textarea"
-                                name="contentTransfer"
+                                name="content"
+                                onChange={this.onChangeNewDebt}
                                 id="textarea-input"
                                 rows="3"
                                 style={{
@@ -378,7 +590,7 @@ class DebtReminder extends Component {
                           color="primary"
                           style={{ marginRight: '15px' }}
                           type="submit"
-                          onClick={this.toggleSmall}
+                          onClick={this.creteDebt}
                         >
                           Tạo nhắc nợ
                         </Button>
@@ -411,13 +623,13 @@ class DebtReminder extends Component {
                   </Col>
                   <Col xs="12" xl="7">
                     <Card>
-                      <CardHeader>
+                      <CardHeader className="text-center">
                         <i className="fa fa-address-card-o" />
                         <strong>Danh sách người nhận</strong>
                       </CardHeader>
                       <CardBody>
                         <CDataTable
-                          items={usersData}
+                          items={this.props.listReceiver}
                           tableFilter
                           itemsPerPage={5}
                           hover
@@ -444,6 +656,11 @@ class DebtReminder extends Component {
                             },
                           ]}
                           scopedSlots={{
+                            id: (item, index) => {
+                              return (
+                                <td className="text-center">{index + 1}</td>
+                              );
+                            },
                             action: (item, index) => {
                               return (
                                 <td>
@@ -452,6 +669,15 @@ class DebtReminder extends Component {
                                       size="sm"
                                       color="primary"
                                       className="btn-pill"
+                                      onClick={() => {
+                                        this.setState({
+                                          newDebt: {
+                                            ...this.state.newDebt,
+                                            debtor: item.accountNumber,
+                                            nameDebtor: item.name,
+                                          },
+                                        });
+                                      }}
                                     >
                                       <i className="fa fa-send" />
                                     </Button>
@@ -466,17 +692,16 @@ class DebtReminder extends Component {
                   </Col>
                 </Row>
               </TabPane>
-              <TabPane tabId="3">
-                {' '}
+              <TabPane tabId="4">
                 <Row>
                   <Col xs="12" xl="5">
                     <Card>
-                      <CardHeader>
-                        <strong>Thanh toán nợ</strong>
+                      <CardHeader className="text-center">
+                        <strong className="text-center">Thanh toán nợ</strong>
                       </CardHeader>
                       <CardBody>
                         <Form>
-                          {/* id phiếu nợ */}
+                          {/* id phiếu nợ
                           <FormGroup row>
                             <Col md="4" style={{ alignSelf: 'center' }}>
                               <Label htmlFor="idDebtReminder">
@@ -492,7 +717,7 @@ class DebtReminder extends Component {
                                 disabled
                               />
                             </Col>
-                          </FormGroup>
+                          </FormGroup> */}
 
                           {/* số tài khoản thanh toán của bạn */}
                           <FormGroup row>
@@ -506,7 +731,30 @@ class DebtReminder extends Component {
                                 type="text"
                                 id="accountNumberPayDebt"
                                 name="checkingAccountNumberPayDebt"
-                                value="adfwetfwegggggggwagr"
+                                value={this.props.accountNumber}
+                                disabled
+                              />
+                            </Col>
+                          </FormGroup>
+                          <FormGroup row>
+                            <Col md="4" style={{ alignSelf: 'center' }}>
+                              <Label htmlFor="checkingAccountNumberPayDebt">
+                                Số dư hiện tại
+                              </Label>
+                            </Col>
+                            <Col xs="12" md="8">
+                              <Input
+                                type="text"
+                                id="accountNumberPayDebt"
+                                name="checkingAccountNumberPayDebt"
+                                value={
+                                  parseInt(this.props.amount).format(
+                                    0,
+                                    3,
+                                    '.',
+                                    ','
+                                  ) + ' đồng'
+                                }
                                 disabled
                               />
                             </Col>
@@ -519,7 +767,23 @@ class DebtReminder extends Component {
                               </Label>
                             </Col>
                             <Col xs="12" md="8">
-                              <Input placeholder="Số tài khoản của người nhận..." />
+                              <Input
+                                placeholder="Số tài khoản của người nhận..."
+                                disabled
+                              />
+                            </Col>
+                          </FormGroup>
+                          <FormGroup row>
+                            <Col md="4" style={{ alignSelf: 'center' }}>
+                              <Label htmlFor="accountNumberReceiverPayDebt">
+                                Họ tên người nhận
+                              </Label>
+                            </Col>
+                            <Col xs="12" md="8">
+                              <Input
+                                placeholder="Họ tên của người nhận..."
+                                disabled
+                              />
                             </Col>
                           </FormGroup>
                           {/* số tiền thanh toán nợ */}
@@ -534,7 +798,7 @@ class DebtReminder extends Component {
                                 type="number"
                                 id="amountDebt"
                                 name="amountDebt"
-                                value="1000000"
+                                value={this.state.amountDebt}
                                 readOnly
                               />
                             </Col>
@@ -556,6 +820,7 @@ class DebtReminder extends Component {
                                   minHeight: '40px',
                                   maxHeight: '100px',
                                 }}
+                                readOnly
                                 placeholder="Nội dung..."
                               />
                             </Col>
@@ -605,13 +870,13 @@ class DebtReminder extends Component {
                   </Col>
                   <Col xs="12" xl="7">
                     <Card>
-                      <CardHeader>
+                      <CardHeader className="text-center">
                         <i className="fa fa-address-card-o" />
                         <strong>Danh sách nợ chưa thanh toán</strong>
                       </CardHeader>
                       <CardBody>
                         <CDataTable
-                          items={usersData}
+                          items={this.props.listDebtNotPaid}
                           tableFilter
                           itemsPerPage={5}
                           hover
@@ -624,12 +889,12 @@ class DebtReminder extends Component {
                               label: 'Họ và tên',
                             },
                             {
-                              key: 'accountNumber',
+                              key: 'creator',
                               _style: { width: '30%' },
                               label: 'Số tài khoản',
                             },
                             {
-                              key: 'date',
+                              key: 'timeCreate',
                               _style: { width: '20%' },
                               label: 'Ngày tạo',
                             },
@@ -641,12 +906,21 @@ class DebtReminder extends Component {
                             },
                           ]}
                           scopedSlots={{
+                            id: (item, index) => {
+                              return (
+                                <td className="text-center">{index + 1}</td>
+                              );
+                            },
                             action: (item, index) => {
                               return (
                                 <td>
                                   <Row
                                     className="text-center"
-                                    style={{ width: '100px', justifySelf:'center', justifyContent: 'center' }}
+                                    style={{
+                                      width: '100px',
+                                      justifySelf: 'center',
+                                      justifyContent: 'center',
+                                    }}
                                   >
                                     <Button
                                       size="sm"
@@ -685,22 +959,16 @@ class DebtReminder extends Component {
                                 >
                                   <CardBody>
                                     <p>
-                                      Số tiền :{' '}
-                                      {
-                                        usersData.filter(
-                                          (i) => i.id === item.id
-                                        )[0].amount
-                                      }
+                                      Số tiền :
+                                      {parseInt(item.debt).format(
+                                        0,
+                                        3,
+                                        '.',
+                                        ','
+                                      ) + ' đồng'}
                                     </p>
 
-                                    <p>
-                                      Nội dung nhắc nợ:{' '}
-                                      {
-                                        usersData.filter(
-                                          (i) => i.id === item.id
-                                        )[0].content
-                                      }
-                                    </p>
+                                    <p>Nội dung nhắc nợ: {item.content}</p>
                                   </CardBody>
                                 </Collapse>
                               );
@@ -723,11 +991,18 @@ const mapStateToProps = (state) => {
   return {
     listOfMe: state.manageDebtReminders.allDebtReminders.listOfMe,
     listOfOthers: state.manageDebtReminders.allDebtReminders.listOfOthers,
+    listReceiver: state.manageDebtReminders.listReceiver,
+    info: state.manageDebtReminders.info,
+    listDebtNotPaid: state.manageDebtReminders.listDebtNotPaid,
+    name: state.manageDebtReminders.name,
+    accountNumber: state.manageDebtReminders.accountNumber,
+    amount: state.manageDebtReminders.amount,
   };
 };
 
 const actionCreators = {
   getAllDebtReminders: manageDebtRemindersActions.getAllDebtReminders,
+  getListReceiver: manageDebtRemindersActions.getListReceiver,
   // requestResetPassword: memberActions.requestResetPassword
 };
 

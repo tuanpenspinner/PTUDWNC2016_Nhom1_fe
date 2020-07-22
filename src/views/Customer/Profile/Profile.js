@@ -32,7 +32,7 @@ class Profile extends Component {
       nameCustomer: '',
     };
   }
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const accessToken = localStorage.getItem('accessToken');
     const { saveProfile } = this.props;
     saveProfile(accessToken);
@@ -78,11 +78,10 @@ class Profile extends Component {
       );
     };
 
-   
     var checkingAcc = {
       id: 0,
       accountNumber: checkingAccount.accountNumber,
-      amount: parseInt(checkingAccount.amount).format(0, 3, '.', ',')+" đồng",
+      amount: parseInt(checkingAccount.amount).format(0, 3, '.', ',') + ' đồng',
       type: 'Tài khoản thanh toán',
     };
     usersData.push(checkingAcc);
