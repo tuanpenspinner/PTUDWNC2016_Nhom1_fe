@@ -67,8 +67,8 @@ class Transfer extends Component {
   }
 
   // chọn chuyển khoản nội bộ hay liên ngân hàng
-  handleSwitchChange = async (ischecked) => {
-    await this.setState({ switchPartnerBank: ischecked });
+  handleSwitchChange = (ischecked) => {
+    this.setState({ switchPartnerBank: ischecked });
   };
   // get infor người nhận khi nhập stk thanh toán
   handleCommitAccountNumber = (e) => {
@@ -152,12 +152,13 @@ class Transfer extends Component {
       receiver: accountNumberReceiver,
       payFee: payFee
     };
-    if (!this.switchPartnerBank) {
+    if (!this.state.switchPartnerBank) {
       body.bank_code = "TUB";
     }
     else {
       body.bank_code = this.state.partnerCode;
     }
+    console.log("body", body)
     axios.post(`${this.API.local}/interal-money-transfer`, body, {
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
@@ -257,10 +258,10 @@ class Transfer extends Component {
         '$&' + (s || ',')
       );
     };
-    
+
     var { amountCheckingAccount } = this.props;
-    amountCheckingAccount=parseInt(amountCheckingAccount).format(0, 3, '.', ',');
-    
+    amountCheckingAccount = parseInt(amountCheckingAccount).format(0, 3, '.', ',');
+
     const { newReceiver } = this.state;
     return (
       <div className="animated fadeIn">
