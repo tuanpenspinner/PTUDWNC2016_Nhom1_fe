@@ -35,6 +35,11 @@ import { manageDebtRemindersActions } from '../../../actions/customer/manageDebt
 import axios from 'axios';
 
 class DebtReminder extends Component {
+  API = {
+    partnerBankDetail:
+      'https://great-banking.herokuapp.com/api/partner-bank-detail',
+    local: 'http://localhost:3001/api',
+  };
   constructor(props) {
     super(props);
 
@@ -55,7 +60,17 @@ class DebtReminder extends Component {
         debt: null,
         content: null,
       },
-      payDebt: {},
+      payDebt: {
+        id: null,
+        bank_code: 'TUB',
+        amount: null,
+        content: null,
+        transferer: null,
+        nameTransferer: null,
+        receiver: null,
+        nameReceiver: null,
+        payFee: 'transferer',
+      },
       err: '',
     };
   }
@@ -103,6 +118,73 @@ class DebtReminder extends Component {
       newDetails1 = [...this.state.detailsPayDebt, index];
     }
     this.setState({ detailsPayDebt: newDetails1 });
+  };
+
+  payDebt = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const {
+      id,
+      amount,
+      content,
+      receiver,
+      nameReceiver,
+      payFee,
+    } = this.state.payDebt;
+    const body = {
+      bank_code: 'TUB',
+      amount,
+      content,
+      transferer: this.props.accountNumber,
+      nameTransferer: this.props.name,
+      receiver,
+      nameReceiver,
+      payFee,
+    };
+    if (receiver !== null)
+      try {
+        const ret1 = await axios.post(
+          `${this.API.local}/interal-money-transfer`,
+          body,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': accessToken,
+            },
+          }
+        );
+        const ret2 = await axios.put(
+          `${this.API.local}/debt-reminders/complete/${id}`,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': accessToken,
+            },
+          }
+        );
+        console.log(ret1.data);
+        alert(ret2.data.message);
+        const { getAllDebtReminders, getListReceiver } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
+        getAllDebtReminders(accessToken);
+        getListReceiver(accessToken);
+        this.setState({
+          payDebt: {
+            id: null,
+            bank_code: 'TUB',
+            amount: null,
+            content: null,
+            transferer: null,
+            nameTransferer: null,
+            receiver: null,
+            nameReceiver: null,
+            payFee: 'transferer',
+          },
+        });
+      } catch (e) {
+        alert('Thanh toán nợ không thành công!');
+      }
+    else alert('Bạn phải chọn nợ cần thành toán');
   };
 
   // hàm khi click button Chuyển tiền
@@ -226,15 +308,7 @@ class DebtReminder extends Component {
     // console.log('Mình tạo' + JSON.stringify(this.props.listOfMe));
     // console.log('Danh sách người nhân', this.props.listOfOthers);
     // console.log('Chua thanh toán', this.props.listDebtNotPaid);
-    Number.prototype.format = function (n, x, s, c) {
-      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
-        num = this.toFixed(Math.max(0, ~~n));
 
-      return (c ? num.replace('.', c) : num).replace(
-        new RegExp(re, 'g'),
-        '$&' + (s || ',')
-      );
-    };
     return (
       <div className="animated fadeIn">
         <Row>
@@ -768,8 +842,8 @@ class DebtReminder extends Component {
                             </Col>
                             <Col xs="12" md="8">
                               <Input
-                                placeholder="Số tài khoản của người nhận..."
                                 disabled
+                                value={this.state.payDebt.receiver}
                               />
                             </Col>
                           </FormGroup>
@@ -781,8 +855,8 @@ class DebtReminder extends Component {
                             </Col>
                             <Col xs="12" md="8">
                               <Input
-                                placeholder="Họ tên của người nhận..."
                                 disabled
+                                value={this.state.payDebt.nameReceiver}
                               />
                             </Col>
                           </FormGroup>
@@ -798,7 +872,7 @@ class DebtReminder extends Component {
                                 type="number"
                                 id="amountDebt"
                                 name="amountDebt"
-                                value={this.state.amountDebt}
+                                value={this.state.payDebt.amount}
                                 readOnly
                               />
                             </Col>
@@ -820,6 +894,7 @@ class DebtReminder extends Component {
                                   minHeight: '40px',
                                   maxHeight: '100px',
                                 }}
+                                value={this.state.payDebt.content}
                                 readOnly
                                 placeholder="Nội dung..."
                               />
@@ -832,7 +907,7 @@ class DebtReminder extends Component {
                           color="primary"
                           style={{ marginRight: '15px' }}
                           type="submit"
-                          onClick={this.toggleSmallPayDebt}
+                          onClick={this.payDebt}
                         >
                           Thanh toán nợ
                         </Button>
@@ -885,7 +960,7 @@ class DebtReminder extends Component {
                           fields={[
                             { key: 'id', _style: { width: '1%' } },
                             {
-                              key: 'name',
+                              key: 'nameCreator',
                               label: 'Họ và tên',
                             },
                             {
@@ -927,6 +1002,18 @@ class DebtReminder extends Component {
                                       color="primary"
                                       className="btn-pill"
                                       style={{ marginRight: 5 }}
+                                      onClick={() => {
+                                        this.setState({
+                                          payDebt: {
+                                            ...this.state.payDebt,
+                                            receiver: item.creator,
+                                            nameReceiver: item.nameCreator,
+                                            amount: item.debt,
+                                            content: item.content,
+                                            id: item._id,
+                                          },
+                                        });
+                                      }}
                                     >
                                       <i className="fa fa-send" />
                                     </Button>

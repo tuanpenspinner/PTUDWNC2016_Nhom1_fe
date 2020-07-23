@@ -46,7 +46,7 @@ class Transfer extends Component {
       nameReceiver: '',
       partnerCode: 'PPNBank',
       loadingBankDetail: false,
-      payFee: "transferer",
+      payFee: 'transferer',
       contentTransfer: '',
       accountNumberReceiver: '',
       errorTransfer: null,
@@ -55,7 +55,7 @@ class Transfer extends Component {
         accountNumber: '',
       },
       index: '',
-      transferAmount: null
+      transferAmount: null,
     };
     this.toggleSmall = this.toggleSmall.bind(this);
     this.toggle = this.toggle.bind(this);
@@ -80,34 +80,55 @@ class Transfer extends Component {
         bank_code: this.state.partnerCode,
         account_number: this.state.accountNumberReceiver,
       };
-      axios.post(`${this.API.local}/partner-bank-detail`, body, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*',
-          "access-token": localStorage.getItem('accessToken')
-        }
-      }).then((res) => {
-        console.log('result', res)
-        this.setState({ nameReceiver: res.data.name, errorTransfer: null, loadingBankDetail: false })
-      })
+      axios
+        .post(`${this.API.local}/partner-bank-detail`, body, {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': localStorage.getItem('accessToken'),
+          },
+        })
+        .then((res) => {
+          console.log('result', res);
+          this.setState({
+            nameReceiver: res.data.name,
+            errorTransfer: null,
+            loadingBankDetail: false,
+          });
+        })
         .catch((err) => {
-          console.log(err)
-          this.setState({ errorTransfer: "Không tìm thấy tài khoản ở ngân hàng đối tác", loadingBankDetail: false });
+          console.log(err);
+          this.setState({
+            errorTransfer: 'Không tìm thấy tài khoản ở ngân hàng đối tác',
+            loadingBankDetail: false,
+          });
         });
-    }
-    else {
-      axios.post(`${this.API.local}/interal-bank-detail`, { account_number: this.state.accountNumberReceiver }, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*',
-          "access-token": localStorage.getItem('accessToken')
-        }
-      }).then((res) => {
-        this.setState({ nameReceiver: res.data.name, errorTransfer: null, loadingBankDetail: false })
-      })
+    } else {
+      axios
+        .post(
+          `${this.API.local}/interal-bank-detail`,
+          { account_number: this.state.accountNumberReceiver },
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': localStorage.getItem('accessToken'),
+            },
+          }
+        )
+        .then((res) => {
+          this.setState({
+            nameReceiver: res.data.name,
+            errorTransfer: null,
+            loadingBankDetail: false,
+          });
+        })
         .catch((err) => {
-          console.log(err)
-          this.setState({ errorTransfer: "Không tìm thấy tài khoản!", loadingBankDetail: false });
+          console.log(err);
+          this.setState({
+            errorTransfer: 'Không tìm thấy tài khoản!',
+            loadingBankDetail: false,
+          });
         });
     }
   };
@@ -143,33 +164,39 @@ class Transfer extends Component {
   // hàm khi click button Chuyển tiền
   transfering = (e) => {
     // this.toggleSmall();
-    const { transferAmount, contentTransfer, payFee, accountNumberReceiver } = this.state
+    const {
+      transferAmount,
+      contentTransfer,
+      payFee,
+      accountNumberReceiver,
+    } = this.state;
     const body = {
       bank_code: '',
       amount: transferAmount,
       content: contentTransfer,
       transferer: this.props.checkingAccountNumber,
       receiver: accountNumberReceiver,
-      payFee: payFee
+      payFee: payFee,
     };
     if (!this.switchPartnerBank) {
-      body.bank_code = "TUB";
-    }
-    else {
+      body.bank_code = 'TUB';
+    } else {
       body.bank_code = this.state.partnerCode;
     }
-    axios.post(`${this.API.local}/interal-money-transfer`, body, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        'Access-Control-Allow-Origin': '*',
-        "access-token": localStorage.getItem('accessToken')
-      }
-    }).then((res) => {
-      // this.setState({ nameReceiver: res.data.name, errorTransfer: null, loadingBankDetail: false })
-      console.log("Chuyen tien thanh cong")
-    })
+    axios
+      .post(`${this.API.local}/interal-money-transfer`, body, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': localStorage.getItem('accessToken'),
+        },
+      })
+      .then((res) => {
+        // this.setState({ nameReceiver: res.data.name, errorTransfer: null, loadingBankDetail: false })
+        console.log('Chuyen tien thanh cong');
+      })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
         // this.setState({ errorTransfer: "Không tìm thấy tài khoản!", loadingBankDetail: false });
       });
   };
@@ -222,13 +249,14 @@ class Transfer extends Component {
       (receiver) => receiver.accountNumber === newReceiver.accountNumber
     );
     const ret = await axios.get(
-      `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        'Access-Control-Allow-Origin': '*',
-        "access-token": accessToken
+      `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+      {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
       }
-    }
     );
     if (i >= 0) {
       if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
@@ -257,10 +285,15 @@ class Transfer extends Component {
         '$&' + (s || ',')
       );
     };
-    
+
     var { amountCheckingAccount } = this.props;
-    amountCheckingAccount=parseInt(amountCheckingAccount).format(0, 3, '.', ',');
-    
+    amountCheckingAccount = parseInt(amountCheckingAccount).format(
+      0,
+      3,
+      '.',
+      ','
+    );
+
     const { newReceiver } = this.state;
     return (
       <div className="animated fadeIn">
@@ -282,10 +315,14 @@ class Transfer extends Component {
                           name="selectLg"
                           id="selectLg"
                           style={{ textJustify: 'right' }}
-                          onChange={e => this.setState({ partnerCode: e.target.value })}
+                          onChange={(e) =>
+                            this.setState({ partnerCode: e.target.value })
+                          }
                           disabled={this.state.switchPartnerBank === false}
                         >
-                          <option value="0" disabled>Chọn ngân hàng liên kết</option>
+                          <option value="0" disabled>
+                            Chọn ngân hàng liên kết
+                          </option>
                           <option value="PPNBank">PPN Bank</option>
                           <option value="local">Local PGP</option>
                         </Input>
@@ -356,7 +393,7 @@ class Transfer extends Component {
                           onChange={(e) => {
                             this.setState({
                               accountNumberReceiver: e.target.value,
-                              nameReceiver: ''
+                              nameReceiver: '',
                             });
                           }}
                         />
@@ -366,7 +403,9 @@ class Transfer extends Component {
                             color="primary"
                           >
                             <i
-                              className={`fa fa-refresh ${this.state.loadingBankDetail ? 'fa-spin' : ''}`}
+                              className={`fa fa-refresh ${
+                                this.state.loadingBankDetail ? 'fa-spin' : ''
+                              }`}
                               style={{ color: 'white' }}
                             />
                           </Button>
@@ -376,10 +415,15 @@ class Transfer extends Component {
                   </FormGroup>
                   {/* kết quả trả về khi nhập stk người nhận */}
                   <Collapse isOpen={this.state.collapse}>
-                    <FormGroup className={{ "d-none": !this.state.errorTransfer }} row>
+                    <FormGroup
+                      className={{ 'd-none': !this.state.errorTransfer }}
+                      row
+                    >
                       <Col md="4" />
                       <Col xs="12" md="8">
-                        <label style={{ color: 'red' }}>{this.state.errorTransfer}</label>
+                        <label style={{ color: 'red' }}>
+                          {this.state.errorTransfer}
+                        </label>
                       </Col>
                     </FormGroup>
                     <FormGroup row>
@@ -421,7 +465,9 @@ class Transfer extends Component {
                         type="number"
                         id="amount"
                         name="amount"
-                        onChange={e => this.setState({ transferAmount: e.target.value })}
+                        onChange={(e) =>
+                          this.setState({ transferAmount: e.target.value })
+                        }
                       />
                     </Col>
                   </FormGroup>
@@ -440,7 +486,9 @@ class Transfer extends Component {
                         rows="3"
                         style={{ minHeight: '40px', maxHeight: '100px' }}
                         placeholder="Nội dung..."
-                        onChange={e => this.setState({ contentTransfer: e.target.value })}
+                        onChange={(e) =>
+                          this.setState({ contentTransfer: e.target.value })
+                        }
                       />
                     </Col>
                   </FormGroup>
@@ -450,8 +498,17 @@ class Transfer extends Component {
                       <Label htmlFor="typePay">Hình thức trả phí</Label>
                     </Col>
                     <Col xs="12" md="8">
-                      <Input type="select" name="typePay" id="typePay" onChange={e => this.setState({ payFee: e.target.value })}>
-                        <option value="0" disabled>Chọn hình thức trả phí</option>
+                      <Input
+                        type="select"
+                        name="typePay"
+                        id="typePay"
+                        onChange={(e) =>
+                          this.setState({ payFee: e.target.value })
+                        }
+                      >
+                        <option value="0" disabled>
+                          Chọn hình thức trả phí
+                        </option>
                         <option value="transferer">Người gửi</option>
                         <option value="receiver">Người nhận</option>
                       </Input>
