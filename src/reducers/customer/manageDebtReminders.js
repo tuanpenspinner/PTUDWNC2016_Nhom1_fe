@@ -5,6 +5,11 @@ export const initialState = {
     listOfMe: [],
     listOfOthers: [],
   },
+  info: null,
+  listDebtNotPaid: [],
+  name: null,
+  amount:null,
+  accountNumber:null,
 };
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
 // const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };
@@ -16,7 +21,7 @@ function manageDebtReminders(state = initialState, action) {
       if (action.data.status === 'failed') {
         return st;
       } else {
-          //gans kết quả từ api vào biến của initialState
+        //gans kết quả từ api vào biến của initialState
         // if (action.data.listReminders.listOfMe.length > 0) {
         //   action.data.listReminders.listOfMe.map((item) => {
         //     st.allDebtReminders.listOfMe = [
@@ -33,11 +38,26 @@ function manageDebtReminders(state = initialState, action) {
         //     ];
         //   });
         // }
-        st.allDebtReminders.listOfOthers=action.data.listReminders.listOfOthers;
-        st.allDebtReminders.listOfMe=action.data.listReminders.listOfMe;
-        console.log('++++++++++++++++++++' + JSON.stringify(st));
+
+        st.listDebtNotPaid = action.data.listReminders.listOfOthers.filter(
+          (item) => {
+            return item.pay.isPaid === false;
+          }
+        );
+
+        st.allDebtReminders.listOfOthers =
+          action.data.listReminders.listOfOthers;
+        st.allDebtReminders.listOfMe = action.data.listReminders.listOfMe;
         return st;
       }
+    }
+    case customerConstants.debtReminder.GET_LIST_RECEIVER: {
+      const st = { ...state };
+      st.listReceiver = action.listReceiver;
+      st.name = action.name;
+      st.accountNumber = action.accountNumber;
+      st.amount=action.amount
+      return st;
     }
     default:
       return state;
