@@ -169,7 +169,8 @@ class HistoryOfCustomer extends Component {
                     return <td className="text-center">{index + 1}</td>;
                   },
                   payFeeBy: (item, index) => {
-                    if (item.payFeeBy === 'transfer') return <td>người gửi</td>;
+                    if (item.payFeeBy === 'transferer')
+                      return <td>người gửi</td>;
                     else return <td>người nhận</td>;
                   },
                   showdetail: (item, index) => {
@@ -237,7 +238,8 @@ class HistoryOfCustomer extends Component {
                     return <td className="text-center">{index + 1}</td>;
                   },
                   payFeeBy: (item, index) => {
-                    if (item.payFeeBy === 'transfer') return <td>người gửi</td>;
+                    if (item.payFeeBy === 'transferer')
+                      return <td>người gửi</td>;
                     else return <td>người nhận</td>;
                   },
                   showdetail: (item, index) => {
@@ -302,6 +304,14 @@ class HistoryOfCustomer extends Component {
                 scopedSlots={{
                   id: (item, index) => {
                     return <td className="text-center">{index + 1}</td>;
+                  },
+                  name: (item, index) => {
+                    if (
+                      item.creator ===
+                      this.props.customerChose.checkingAccount.accountNumber
+                    )
+                      return <td>{item.nameDebtor}</td>;
+                    else return <td>{item.nameCreator}</td>;
                   },
                   accountNumber: (item, index) => {
                     if (

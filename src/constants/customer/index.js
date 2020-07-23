@@ -14,9 +14,15 @@ const transfer = {
   GET_LIST_RECEIVERS: 'GET_LIST_RECEIVERS',
   UPDATE_LIST_RECEIVERS: 'UPDATE_LIST_RECEIVERS',
 };
+const historyDeal ={
+  GET_HISTORY_TRANSFER_CUSTOMER:'GET_HISTORY_TRANSFER_CUSTOMER', 
+  GET_HISTORY_RECEIVE_CUSTOMER:'GET_HISTORY_RECEIVE_CUSTOMER', 
+  GET_HISTORY_PAY_DEBT_CUSTOMER:'GET_HISTORY_PAY_DEBT_CUSTOMER', 
+};
 export const customerConstants = {
   authentication,
   info,
   debtReminder,
-  transfer
+  transfer,
+  historyDeal,
 };
