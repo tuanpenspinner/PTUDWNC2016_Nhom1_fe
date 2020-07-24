@@ -147,7 +147,7 @@ class HistoryOfCustomer extends Component {
                 pagination
                 fields={[
                   { key: 'id', _style: { width: '1%' } },
-                  { key: 'name', label: 'Tên người gửi' },
+                  // { key: 'name', label: 'Tên người gửi' },
                   { key: 'transfererAccountNumber', label: 'STK người gửi' },
                   { key: 'amount', label: 'Số tiền gửi' },
                   { key: 'time', label: 'Ngày giao dịch' },
@@ -216,7 +216,7 @@ class HistoryOfCustomer extends Component {
                 pagination
                 fields={[
                   { key: 'id', _style: { width: '1%' } },
-                  { key: 'name', label: 'Tên người nhận' },
+                  // { key: 'name', label: 'Tên người nhận' },
                   { key: 'receiverAccountNumber', label: 'STK người nhận' },
                   { key: 'amount', label: 'Số tiền gửi' },
                   { key: 'time', label: 'Ngày giao dịch' },
