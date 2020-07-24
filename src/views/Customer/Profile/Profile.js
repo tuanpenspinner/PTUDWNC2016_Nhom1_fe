@@ -202,7 +202,7 @@ class Profile extends Component {
           <Col xs="12" lg="8">
             <Card small className="">
               <CardHeader className="border-bottom">
-                <h6 className="m-0">Account number</h6>
+                <h6 className="m-0">Thông tin tài khoản</h6>
               </CardHeader>
               <CardBody>
                 {/* table thông tin tài khoản ngân hàng */}

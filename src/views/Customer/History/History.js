@@ -197,8 +197,8 @@ class History extends Component {
                     },
                     payFeeBy: (item, index) => {
                       if (item.payFeeBy === 'transferer')
-                        return <td>người gửi</td>;
-                      else return <td>người nhận</td>;
+                        return <td>Người gửi</td>;
+                      else return <td>Người nhận</td>;
                     },
                     showdetail: (item, index) => {
                       return (
@@ -286,8 +286,8 @@ class History extends Component {
                         item.creator ===
                         this.props.checkingAccount.accountNumber
                       )
-                        return <td>chủ tài khoản</td>;
-                      else return <td>đối tác</td>;
+                        return <td>Tôi</td>;
+                      else return <td>Người khác</td>;
                     },
                     showdetail: (item, index) => {
                       return (

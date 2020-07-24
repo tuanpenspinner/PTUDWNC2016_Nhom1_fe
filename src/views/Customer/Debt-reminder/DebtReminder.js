@@ -182,7 +182,8 @@ class DebtReminder extends Component {
           },
         }
       );
-      if (ret1.data.status)
+
+      if (ret1.data.message === 'Transfer money done')
         await axios.put(
           `${this.API.local}/debt-reminders/complete/${id}`,
           body,
@@ -236,6 +237,7 @@ class DebtReminder extends Component {
         },
       }
     );
+    console.log("ret huy no", ret.data)
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
@@ -496,7 +498,7 @@ class DebtReminder extends Component {
                       var content = null;
                       if (item.pay.isPaid) {
                         content = (
-                          <p>Ngày trả nợ:{' ' + item.pay.timePay + ' '}</p>
+                          <p>Ngày trả nợ:{' ' + (item.pay.timePay?.split("T")[0] || "Không xác định") + ' '}</p>
                         );
                       } else if (item.deleteReminder.isDeleted) {
                         content = (
@@ -619,7 +621,7 @@ class DebtReminder extends Component {
                       var content = null;
                       if (item.pay.isPaid) {
                         content = (
-                          <p>Ngày trả nợ:{' ' + item.pay.timePay + ' '}</p>
+                          <p>Ngày trả nợ:{' ' + (item.pay.timePay?.split("T")[0] || "Không xác định") + ' '}</p>
                         );
                       } else if (item.deleteReminder.isDeleted) {
                         content = (
