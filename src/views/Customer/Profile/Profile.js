@@ -42,16 +42,26 @@ class Profile extends Component {
   };
   changeNameCustomer = async () => {
     const { nameCustomer } = this.state;
-
+    const accessToken = localStorage.getItem('accessToken');
     const { username } = this.props;
     const ret = await axios.post(
       'http://localhost:3001/customers/updateNameCustomer',
+
       {
         username,
         name: nameCustomer,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
       }
     );
     if (ret.data.status) {
+      const { saveProfile } = this.props;
+      saveProfile(accessToken);
       alert('Đổi tên thành công');
     } else alert('Đổi tên thất bại');
   };

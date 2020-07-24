@@ -32,13 +32,16 @@ const getListReceiver = (accessToken) => {
         var name = data.data.customer.name;
         var amount = data.data.customer.checkingAccount.amount;
         var accountNumber = data.data.customer.checkingAccount.accountNumber;
-
+        var email = data.data.customer.email;
+        var username = data.data.customer.username;
         return dispatch({
           type: customerConstants.debtReminder.GET_LIST_RECEIVER,
           listReceiver,
           name,
           amount,
           accountNumber,
+          email,
+          username,
         });
       });
   };

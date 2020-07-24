@@ -8,8 +8,9 @@ export const initialState = {
   info: null,
   listDebtNotPaid: [],
   name: null,
-  amount:null,
-  accountNumber:null,
+  amount: null,
+  accountNumber: null,
+  email: null,
 };
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
 // const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };
@@ -41,7 +42,7 @@ function manageDebtReminders(state = initialState, action) {
 
         st.listDebtNotPaid = action.data.listReminders.listOfOthers.filter(
           (item) => {
-            return item.pay.isPaid === false;
+            return item.pay.isPaid === false && !item.deleteReminder.isDeleted
           }
         );
 
@@ -56,7 +57,9 @@ function manageDebtReminders(state = initialState, action) {
       st.listReceiver = action.listReceiver;
       st.name = action.name;
       st.accountNumber = action.accountNumber;
-      st.amount=action.amount
+      st.amount = action.amount;
+      st.email = action.email;
+      st.username = action.username;
       return st;
     }
     default:

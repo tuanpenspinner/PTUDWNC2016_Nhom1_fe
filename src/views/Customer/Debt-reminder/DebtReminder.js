@@ -72,6 +72,7 @@ class DebtReminder extends Component {
         payFee: 'transferer',
       },
       err: '',
+      OTP: null,
     };
   }
   UNSAFE_componentWillMount() {
@@ -121,6 +122,31 @@ class DebtReminder extends Component {
   };
 
   payDebt = async () => {
+    if (this.state.payDebt.receiver !== null) {
+      const { username, email } = this.props;
+      const body = {
+        username,
+        email,
+      };
+      const accessToken = localStorage.getItem('accessToken');
+      const ret = await axios.post(
+        'http://localhost:3001/customers/saveAndSendOTP',
+        body,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+      if (ret.data.status)
+        this.setState({
+          modal: true,
+        });
+    } else alert('Bạn phải chọn nợ cần thành toán');
+  };
+  confirmTransfer = async () => {
     const accessToken = localStorage.getItem('accessToken');
     const {
       id,
@@ -130,6 +156,8 @@ class DebtReminder extends Component {
       nameReceiver,
       payFee,
     } = this.state.payDebt;
+    const otp = this.state.OTP;
+
     const body = {
       bank_code: 'TUB',
       amount,
@@ -139,11 +167,24 @@ class DebtReminder extends Component {
       receiver,
       nameReceiver,
       payFee,
+      otp,
     };
-    if (receiver !== null)
-      try {
-        const ret1 = await axios.post(
-          `${this.API.local}/interal-money-transfer`,
+
+    try {
+      const ret1 = await axios.post(
+        `${this.API.local}/interal-money-transfer`,
+        body,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+      if (ret1.data.status)
+        await axios.put(
+          `${this.API.local}/debt-reminders/complete/${id}`,
           body,
           {
             headers: {
@@ -153,38 +194,53 @@ class DebtReminder extends Component {
             },
           }
         );
-        const ret2 = await axios.put(
-          `${this.API.local}/debt-reminders/complete/${id}`,
-          {
-            headers: {
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Access-Control-Allow-Origin': '*',
-              'access-token': accessToken,
-            },
-          }
-        );
-        console.log(ret1.data);
-        alert(ret2.data.message);
-        const { getAllDebtReminders, getListReceiver } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
-        getAllDebtReminders(accessToken);
-        getListReceiver(accessToken);
-        this.setState({
-          payDebt: {
-            id: null,
-            bank_code: 'TUB',
-            amount: null,
-            content: null,
-            transferer: null,
-            nameTransferer: null,
-            receiver: null,
-            nameReceiver: null,
-            payFee: 'transferer',
-          },
-        });
-      } catch (e) {
-        alert('Thanh toán nợ không thành công!');
+
+      const { getAllDebtReminders, getListReceiver } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
+      getAllDebtReminders(accessToken);
+      getListReceiver(accessToken);
+      this.setState({
+        payDebt: {
+          id: null,
+          bank_code: 'TUB',
+          amount: null,
+          content: null,
+          transferer: null,
+          nameTransferer: null,
+          receiver: null,
+          nameReceiver: null,
+          payFee: 'transferer',
+        },
+        modal: false,
+      });
+      alert('Thanh toán nợ thành công!');
+    } catch (e) {
+      console.log(e);
+      alert('Mã OTP chưa chính xác!');
+    }
+  };
+
+  cancelDebt = async (id) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const body = {
+      accountNumber: this.props.accountNumber,
+      name: this.props.name,
+    };
+    const ret = await axios.put(
+      `${this.API.local}/debt-reminders/cancel/${id}`,
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
       }
-    else alert('Bạn phải chọn nợ cần thành toán');
+    );
+    if (ret.data.status) {
+      const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
+      getAllDebtReminders(accessToken);
+      alert('Hủy thành công');
+    } else alert('Hủy thất bại!');
   };
 
   // hàm khi click button Chuyển tiền
@@ -381,14 +437,19 @@ class DebtReminder extends Component {
                   ]}
                   scopedSlots={{
                     id: (item, index) => {
-                      return <td className="text-center">{index + 1}</td>;
-                    },
-                    typePay: (item, index) => {
                       return (
-                        <td>
-                          {item.pay.isPaid === true ? 'Đã trả' : 'Chưa trả'}
+                        <td className="text-center" key={index}>
+                          {index + 1}
                         </td>
                       );
+                    },
+                    typePay: (item, index) => {
+                      var status = null;
+                      if (!item.deleteReminder.isDeleted) {
+                        if (item.pay.isPaid) status = 'Đã trả';
+                        else status = 'Chưa trả';
+                      } else status = 'Đã hủy';
+                      return <td>{status}</td>;
                     },
 
                     showdetail: (item, index) => {
@@ -417,9 +478,13 @@ class DebtReminder extends Component {
                               variant="outline"
                               shape="square"
                               size="sm"
-                              onClick={() => {
-                                //hủy nhắc nợ
-                              }}
+                              className={
+                                item.deleteReminder.isDeleted === true ||
+                                item.pay.isPaid === true
+                                  ? 'invisible'
+                                  : 'visible'
+                              }
+                              onClick={() => this.cancelDebt(item._id)}
                             >
                               Hủy
                             </Button>
@@ -428,17 +493,45 @@ class DebtReminder extends Component {
                       );
                     },
                     details: (item, index) => {
+                      var content = null;
+                      if (item.pay.isPaid) {
+                        content = (
+                          <p>Ngày trả nợ:{' ' + item.pay.timePay + ' '}</p>
+                        );
+                      } else if (item.deleteReminder.isDeleted) {
+                        content = (
+                          <div>
+                            <p>
+                              Ngày hủy:
+                              {' ' + item.deleteReminder.timeDelete + ' '}
+                            </p>
+                            <p>
+                              Người hủy:{' '}
+                              {' ' + item.deleteReminder.nameDelete + ' '}
+                            </p>
+                            <p>
+                              STK Người hủy:{' '}
+                              {' ' + item.deleteReminder.isDeleteBy + ' '}
+                            </p>
+                          </div>
+                        );
+                      } else {
+                        content = '';
+                      }
+
                       return (
                         <Collapse isOpen={this.state.details.includes(index)}>
                           <CardBody>
                             <p>
                               Số tiền :
                               {'  ' +
-                                parseInt(item.debt).format(0, 3, '.', ',')}
+                                parseInt(item.debt).format(0, 3, '.', ',') +
+                                ' '}
                               đồng
                             </p>
 
                             <p>Nội dung nhắc nợ :{'  ' + item.content}</p>
+                            {content}
                           </CardBody>
                         </Collapse>
                       );
@@ -474,11 +567,12 @@ class DebtReminder extends Component {
                       return <td className="text-center">{index + 1}</td>;
                     },
                     typePay: (item, index) => {
-                      return (
-                        <td>
-                          {item.pay.isPaid === true ? 'Đã trả' : 'Chưa trả'}
-                        </td>
-                      );
+                      var status = null;
+                      if (!item.deleteReminder.isDeleted) {
+                        if (item.pay.isPaid) status = 'Đã trả';
+                        else status = 'Chưa trả';
+                      } else status = 'Đã hủy';
+                      return <td>{status}</td>;
                     },
 
                     showdetail: (item, index) => {
@@ -507,9 +601,13 @@ class DebtReminder extends Component {
                               variant="outline"
                               shape="square"
                               size="sm"
-                              onClick={() => {
-                                //hủy nhắc nợ
-                              }}
+                              className={
+                                item.deleteReminder.isDeleted === true ||
+                                item.pay.isPaid === true
+                                  ? 'invisible'
+                                  : 'visible'
+                              }
+                              onClick={() => this.cancelDebt(item._id)}
                             >
                               Hủy
                             </Button>
@@ -518,6 +616,32 @@ class DebtReminder extends Component {
                       );
                     },
                     details: (item, index) => {
+                      var content = null;
+                      if (item.pay.isPaid) {
+                        content = (
+                          <p>Ngày trả nợ:{' ' + item.pay.timePay + ' '}</p>
+                        );
+                      } else if (item.deleteReminder.isDeleted) {
+                        content = (
+                          <div>
+                            <p>
+                              Ngày hủy:
+                              {' ' + item.deleteReminder.timeDelete + ' '}
+                            </p>
+                            <p>
+                              Người hủy:{' '}
+                              {' ' + item.deleteReminder.nameDelete + ' '}
+                            </p>
+                            <p>
+                              STK Người hủy:{' '}
+                              {' ' + item.deleteReminder.isDeleteBy + ' '}
+                            </p>
+                          </div>
+                        );
+                      } else {
+                        content = '';
+                      }
+
                       return (
                         <Collapse isOpen={this.state.details.includes(index)}>
                           <CardBody>
@@ -530,6 +654,7 @@ class DebtReminder extends Component {
                             </p>
 
                             <p>Nội dung nhắc nợ :{'  ' + item.content}</p>
+                            {content}
                           </CardBody>
                         </Collapse>
                       );
@@ -913,28 +1038,39 @@ class DebtReminder extends Component {
                         </Button>
                         <Button color="warning">Reset</Button>
                         <Modal
-                          isOpen={this.state.modalPayDebt}
-                          toggle={this.toggleSmallPayDebt}
+                          isOpen={this.state.modal}
+                          toggle={this.toggleSmall}
                           className="modal-sm"
                         >
-                          <ModalHeader toggle={this.toggleSmallPayDebt}>
+                          <ModalHeader toggle={this.toggleSmall}>
                             Xác nhận
                           </ModalHeader>
                           <ModalBody>
                             <Label>
-                              Bạn chắn chắn muốn thanh toán khoản nợ này?
+                              Vui lòng kiểm tra email và nhập mã code được gủi
+                              tại đây để hoàn tất chuyển khoản.
                             </Label>
+                            <Input
+                              type="text"
+                              placeholder="Nhập mã code..."
+                              name="OTP"
+                              onChange={(e) => {
+                                this.setState({
+                                  OTP: e.target.value,
+                                });
+                              }}
+                            />
                           </ModalBody>
                           <ModalFooter>
                             <Button
                               color="primary"
-                              onClick={this.comfirmPayDebt}
+                              onClick={this.confirmTransfer}
                             >
-                              Gửi
+                              Xác nhận
                             </Button>{' '}
                             <Button
                               color="secondary"
-                              onClick={this.toggleSmallPayDebt}
+                              onClick={this.toggleSmall}
                             >
                               Hủy
                             </Button>
@@ -1084,6 +1220,8 @@ const mapStateToProps = (state) => {
     name: state.manageDebtReminders.name,
     accountNumber: state.manageDebtReminders.accountNumber,
     amount: state.manageDebtReminders.amount,
+    email: state.manageDebtReminders.email,
+    username: state.manageDebtReminders.username,
   };
 };
 
