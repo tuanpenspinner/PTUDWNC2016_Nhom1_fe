@@ -90,13 +90,6 @@ class DebtReminder extends Component {
     });
   };
 
-  // đóng modal thanh toán nợ
-  toggleSmallPayDebt = async (e) => {
-    await this.setState({
-      modalPayDebt: !this.state.modalPayDebt,
-    });
-  };
-
   //hàm xử lí hiện detail trong list nhắc nợ
   toggleDetails = (index) => {
     const position = this.state.details.indexOf(index);
