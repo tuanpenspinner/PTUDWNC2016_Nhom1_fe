@@ -32,6 +32,7 @@ class Login extends Component {
       checkRole: 'customer',
       err: '',
       reCaptcha: true,
+      loading: false
     };
   }
   onChange = (value) => {
@@ -42,6 +43,7 @@ class Login extends Component {
 
   handleSubmit = async (e) => {
     e.preventDefault();
+    this.setState({loading: true});
     if (this.state.username === '' || this.state.password === '') {
       this.setState({ err: 'Vui lòng nhập username hoặc password còn trống!' });
     } else if (this.state.reCaptcha === null) {
@@ -69,6 +71,7 @@ class Login extends Component {
             });
           }
           if (st.isLogin === true) {
+            console.log('login tru3e')
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
             localStorage.setItem('role', st.role);
@@ -124,6 +127,7 @@ class Login extends Component {
           break;
       }
     }
+    this.setState({loading: false});
   };
   handleOptionChange = async (e) => {
     await this.setState({
@@ -197,6 +201,7 @@ class Login extends Component {
                             type="submit"
                           >
                             Login
+                            {this.state.loading && <i className="fa fa-spinner fa-spin ml-1" aria-hidden="true"/>}
                           </Button>
                         </Col>
                         <Col xs="6" className="text-right">
