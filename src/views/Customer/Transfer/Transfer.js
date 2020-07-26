@@ -46,6 +46,7 @@ class Transfer extends Component {
       nameReceiver: '',
       partnerCode: 'PPNBank',
       loadingBankDetail: false,
+      loadingTransfer: false,
       payFee: 'transferer',
       contentTransfer: '',
       accountNumberReceiver: '',
@@ -56,6 +57,7 @@ class Transfer extends Component {
       },
       index: '',
       transferAmount: null,
+      otp: null
     };
     this.toggleSmall = this.toggleSmall.bind(this);
     this.toggle = this.toggle.bind(this);
@@ -156,19 +158,56 @@ class Transfer extends Component {
   }
 
   // đóng modal
-  toggleSmall = async (e) => {
-    await this.setState({
+  toggleSmall = (e) => {
+    this.setState({
       modal: !this.state.modal,
     });
   };
+
+
   // hàm khi click button Chuyển tiền
-  transfering = (e) => {
-    // this.toggleSmall();
+  transfering = async (e) => {
+    const {
+      transferAmount,
+      accountNumberReceiver,
+      nameReceiver
+    } = this.state;
+    if (transferAmount && accountNumberReceiver && nameReceiver) {
+      const { username, email } = this.props;
+      const body = {
+        username,
+        email,
+      };
+      console.log("otppp usename", body)
+      const accessToken = localStorage.getItem('accessToken');
+      const ret = await axios.post(
+        'http://localhost:3001/customers/saveAndSendOTP',
+        body,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+      this.toggleSmall();
+
+    } else alert('Vui lòng điền đầy đủ thông tin chuyển tiền.');
+  };
+
+  // hàm xác nhận chuyển khoản trên modal
+  confirmTransfer = async () => {
+    this.state.loadingTransfer = true;
+    const accessToken = localStorage.getItem('accessToken');
+
     const {
       transferAmount,
       contentTransfer,
       payFee,
       accountNumberReceiver,
+      nameReceiver,
+      otp
     } = this.state;
     const body = {
       bank_code: '',
@@ -176,7 +215,10 @@ class Transfer extends Component {
       content: contentTransfer,
       transferer: this.props.checkingAccountNumber,
       receiver: accountNumberReceiver,
+      nameReceiver: nameReceiver,
+      nameTransferer: this.props.name,
       payFee: payFee,
+      otp
     };
     if (!this.state.switchPartnerBank) {
       body.bank_code = "TUB";
@@ -184,28 +226,29 @@ class Transfer extends Component {
     else {
       body.bank_code = this.state.partnerCode;
     }
-    axios
-      .post(`${this.API.local}/interal-money-transfer`, body, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*',
-          'access-token': localStorage.getItem('accessToken'),
-        },
-      })
-      .then((res) => {
-        // this.setState({ nameReceiver: res.data.name, errorTransfer: null, loadingBankDetail: false })
-        console.log('Chuyen tien thanh cong');
-      })
-      .catch((err) => {
-        console.log(err);
-        // this.setState({ errorTransfer: "Không tìm thấy tài khoản!", loadingBankDetail: false });
-      });
+
+    try {
+      await axios.post(
+        `${this.API.local}/interal-money-transfer`,
+        body,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+
+      alert('Chuyển tiền thành công!');
+      this.toggleSmall();
+    } catch (e) {
+      console.log(e);
+      alert('Mã OTP chưa chính xác!');
+    }
+    this.state.loadingTransfer = false;
   };
-  // hàm xác nhận chuyển khoản trên modal
-  comfirmTransfer = (e) => {
-    console.log(this.state);
-    this.toggleSmall();
-  };
+
   addReceiver = async () => {
     const accessToken = localStorage.getItem('accessToken');
     var newReceiver = this.state.newReceiver;
@@ -533,11 +576,18 @@ class Transfer extends Component {
                       Vui lòng kiểm tra email và nhập mã code được gủi tại đây
                       để hoàn tất chuyển khoản.
                     </Label>
-                    <Input type="text" placeholder="Nhập mã code..." />
+                    <Input type="text" placeholder="Nhập mã OTP code trong email"
+                           name="otp"
+                           onChange={(e) => {
+                             this.setState({
+                               otp: e.target.value,
+                             });
+                           }}/>
                   </ModalBody>
                   <ModalFooter>
-                    <Button color="primary" onClick={this.comfirmTransfer}>
+                    <Button color="primary" onClick={this.confirmTransfer}>
                       Xác nhận
+                      {this.state.loadingTransfer && <i className="fa fa-spinner fa-spin ml-1" aria-hidden="true"/>}
                     </Button>{' '}
                     <Button color="secondary" onClick={this.toggleSmall}>
                       Hủy
@@ -723,6 +773,9 @@ const mapStateToProps = (state) => {
     listReceivers: state.transferCustomer.listReceivers,
     checkingAccountNumber: state.transferCustomer.checkingAccountNumber,
     amountCheckingAccount: state.transferCustomer.amountCheckingAccount,
+    name: state.transferCustomer.name,
+    email: state.transferCustomer.email,
+    username: state.transferCustomer.username
   };
 };
 

@@ -255,11 +255,6 @@ class DebtReminder extends Component {
     this.toggleSmall();
   };
 
-  // hàm xác nhận thanh toán nợ trên modal
-  comfirmPayDebt = (e) => {
-    this.toggleSmallPayDebt();
-  };
-
   //click chọn tab
   // eslint-disable-next-line react/sort-comp
   toggle(tabPane, tab) {
