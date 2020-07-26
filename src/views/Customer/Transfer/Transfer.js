@@ -178,7 +178,6 @@ class Transfer extends Component {
         username,
         email,
       };
-      console.log("otppp usename", body)
       const accessToken = localStorage.getItem('accessToken');
       const ret = await axios.post(
         'http://localhost:3001/customers/saveAndSendOTP',

@@ -230,7 +230,6 @@ class DebtReminder extends Component {
         },
       }
     );
-    console.log("ret huy no", ret.data)
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
@@ -278,6 +277,7 @@ class DebtReminder extends Component {
           nameDebtor: ret.data.customer.name,
           err: '',
         },
+        err: null
       });
     } else {
       this.setState({
@@ -691,7 +691,7 @@ class DebtReminder extends Component {
                                 <Input
                                   placeholder="Số tài khoản của người nhận..."
                                   name="debtor"
-                                  onChange={this.onChangeNewDebt}
+                                  onChange={(e) => this.onChangeNewDebt(e)}
                                   value={this.state.newDebt.debtor}
                                 />
                                 <InputGroupAddon addonType="append">
@@ -711,14 +711,14 @@ class DebtReminder extends Component {
                           </FormGroup>
                           {/* kết quả trả về khi nhập stk người nhận */}
                           <Collapse isOpen={true}>
-                            <FormGroup row>
+                            {this.state.err && <FormGroup row>
                               <Col md="4" />
                               <Col xs="12" md="8">
                                 <label style={{ color: 'red' }}>
                                   {this.state.err}
                                 </label>
                               </Col>
-                            </FormGroup>
+                            </FormGroup>}
                             <FormGroup row>
                               <Col md="4" style={{ alignSelf: 'center' }}>
                                 <Label htmlFor="nameReceiver">
