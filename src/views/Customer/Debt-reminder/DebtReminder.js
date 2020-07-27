@@ -220,11 +220,14 @@ class DebtReminder extends Component {
     }
   };
 
-  cancelDebt = async (id) => {
+  cancelDebt = async (id, num, content, types) => {
     const accessToken = localStorage.getItem('accessToken');
     const body = {
       accountNumber: this.props.accountNumber,
       name: this.props.name,
+      accountNumberReceiver: num,
+      content,
+      types,
     };
     const ret = await axios.put(
       `${this.API.local}/debt-reminders/cancel/${id}`,
@@ -237,7 +240,7 @@ class DebtReminder extends Component {
         },
       }
     );
-    console.log("ret huy no", ret.data)
+    console.log('ret huy no', ret.data);
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
@@ -486,7 +489,14 @@ class DebtReminder extends Component {
                                   ? 'invisible'
                                   : 'visible'
                               }
-                              onClick={() => this.cancelDebt(item._id)}
+                              onClick={() =>
+                                this.cancelDebt(
+                                  item._id,
+                                  item.creator,
+                                  item.content,
+                                  1
+                                )
+                              }
                             >
                               Hủy
                             </Button>
@@ -498,7 +508,13 @@ class DebtReminder extends Component {
                       var content = null;
                       if (item.pay.isPaid) {
                         content = (
-                          <p>Ngày trả nợ:{' ' + (item.pay.timePay?.split("T")[0] || "Không xác định") + ' '}</p>
+                          <p>
+                            Ngày trả nợ:
+                            {' ' +
+                              (item.pay.timePay?.split('T')[0] ||
+                                'Không xác định') +
+                              ' '}
+                          </p>
                         );
                       } else if (item.deleteReminder.isDeleted) {
                         content = (
@@ -609,7 +625,14 @@ class DebtReminder extends Component {
                                   ? 'invisible'
                                   : 'visible'
                               }
-                              onClick={() => this.cancelDebt(item._id)}
+                              onClick={() =>
+                                this.cancelDebt(
+                                  item._id,
+                                  item.debtor,
+                                  item.content,
+                                  2
+                                )
+                              }
                             >
                               Hủy
                             </Button>
@@ -621,7 +644,13 @@ class DebtReminder extends Component {
                       var content = null;
                       if (item.pay.isPaid) {
                         content = (
-                          <p>Ngày trả nợ:{' ' + (item.pay.timePay?.split("T")[0] || "Không xác định") + ' '}</p>
+                          <p>
+                            Ngày trả nợ:
+                            {' ' +
+                              (item.pay.timePay?.split('T')[0] ||
+                                'Không xác định') +
+                              ' '}
+                          </p>
                         );
                       } else if (item.deleteReminder.isDeleted) {
                         content = (

@@ -1,6 +1,7 @@
 /* eslint-disable react/prefer-stateless-function */
 import React, { Component } from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import axios from 'axios';
 import {
   Badge,
   UncontrolledDropdown,
@@ -26,6 +27,8 @@ class DefaultHeader extends Component {
     super(props);
     this.state = {
       urlProfile: '',
+      accountNumber: '',
+      listNotification: [],
     };
   }
   componentWillMount() {
@@ -35,6 +38,39 @@ class DefaultHeader extends Component {
     } else if (role === 'employee') {
       this.setState({ urlProfile: '/employee/profile' });
     }
+  }
+  componentDidMount() {
+    const accessToken = localStorage.getItem('accessToken');
+    axios
+      .get('http://localhost:3001/customers/info', {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
+      })
+      .then((data) => {
+        this.setState({
+          accountNumber: data.data.customer.checkingAccount.accountNumber,
+        });
+        var accountNumber = this.state.accountNumber;
+        axios
+          .get(
+            `http://localhost:3001/customers/list-notification/${accountNumber}`,
+            {
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Access-Control-Allow-Origin': '*',
+                'access-token': accessToken,
+              },
+            }
+          )
+          .then((data) => {
+            this.setState({
+              listNotification: data.data.notifications,
+            });
+          });
+      });
   }
   logOut = () => {
     localStorage.removeItem('accessToken');
@@ -54,9 +90,36 @@ class DefaultHeader extends Component {
     //   return <Link to="/employee/profile"/>;
     // }
   };
+  onClick = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+  };
   render() {
     // eslint-disable-next-line
-    const { urlProfile } = this.state;
+    const { urlProfile, listNotification } = this.state;
+
+    const showNotification = () => {
+    if (listNotification !== undefined)
+        return listNotification.map((notification) => {
+          return (
+            <div>
+              <span className="avatar-status badge-success" />
+              <div>
+                <small className="text-muted float-right mt-1">
+                  {notification.time}
+                </small>
+              </div>
+              <div className="text-truncate font-weight-bold">
+                <span className="fa fa-exclamation text-danger" />{' '}
+                {notification.type}
+              </div>
+              <div className="small text-muted text-truncate">
+                {notification.content}
+              </div>
+            </div>
+          );
+        });
+      else return null;
+    };
 
     return (
       <>
@@ -71,14 +134,14 @@ class DefaultHeader extends Component {
           <AppSidebarToggler className="d-md-down-none" display="lg" />
         </div>
         <Nav className="ml-auto" navbar>
-          <UncontrolledDropdown nav direction="down">
+          <UncontrolledDropdown nav direction="down" onClick={this.onClick}>
             <DropdownToggle nav>
               <NavItem className="d-md-down-none">
                 <NavLink to="#" className="nav-link">
                   <i className="icon-bell" />
-                  <Badge pill color="danger">
+                  {/* <Badge pill color="danger">
                     5
-                  </Badge>
+                  </Badge> */}
                 </NavLink>
               </NavItem>
             </DropdownToggle>
@@ -87,24 +150,7 @@ class DefaultHeader extends Component {
                 <strong>Notification</strong>
               </DropdownItem>
               <DropdownItem>
-                <div className="message">
-                  <span className="avatar-status badge-success" />
-                  <div>
-                    <small className="text-muted float-right mt-1">
-                      Just now
-                    </small>
-                  </div>
-                  <div className="text-truncate font-weight-bold">
-                    <span className="fa fa-exclamation text-danger" /> Nhắc nợ
-                  </div>
-                  <div className="small text-muted text-truncate">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt...
-                  </div>
-                </div>
-              </DropdownItem>
-              <DropdownItem onClick={(e) => {}}>
-                <i className="fa fa-ellipsis-h" /> Xem thêm
+                <div className="message">{showNotification()}</div>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
