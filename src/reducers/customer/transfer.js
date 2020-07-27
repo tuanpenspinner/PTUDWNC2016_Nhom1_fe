@@ -4,6 +4,7 @@ export const initialState = {
   listReceivers: [],
   checkingAccountNumber: null,
   amountCheckingAccount: null,
+  name: null
 };
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
 // const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };
@@ -23,6 +24,9 @@ function transfer(state = initialState, action) {
       st.listReceivers = listReceivers;
       st.checkingAccountNumber =
         action.data.customer.checkingAccount.accountNumber;
+      st.name = action.data.customer.name;
+      st.email = action.data.customer.email;
+      st.username = action.data.customer.username;
       st.amountCheckingAccount = action.data.customer.checkingAccount.amount;
       st.isLogin = action.data.status;
       return st;

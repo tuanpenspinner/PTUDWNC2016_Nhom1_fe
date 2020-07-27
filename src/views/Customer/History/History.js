@@ -106,7 +106,7 @@ class History extends Component {
                   pagination
                   fields={[
                     { key: 'id', _style: { width: '1%' } },
-                    { key: 'name', label: 'Tên người nhận' },
+                    { key: 'receiverName', label: 'Tên người nhận' },
                     { key: 'receiverAccountNumber', label: 'STK người nhận' },
                     { key: 'amount', label: 'Số tiền gửi' },
                     { key: 'time', label: 'Ngày giao dịch' },
@@ -129,8 +129,8 @@ class History extends Component {
                     },
                     payFeeBy: (item, index) => {
                       if (item.payFeeBy === 'transferer')
-                        return <td>người gửi</td>;
-                      else return <td>người nhận</td>;
+                        return <td>Người gửi</td>;
+                      else return <td>Người nhận</td>;
                     },
                     showdetail: (item, index) => {
                       return (
@@ -174,7 +174,7 @@ class History extends Component {
                   pagination
                   fields={[
                     { key: 'id', _style: { width: '1%' } },
-                    { key: 'name', label: 'Tên người gửi' },
+                    { key: 'transfererName', label: 'Tên người gửi' },
                     { key: 'transfererAccountNumber', label: 'STK người gửi' },
                     { key: 'amount', label: 'Số tiền gửi' },
                     { key: 'time', label: 'Ngày giao dịch' },

@@ -90,13 +90,6 @@ class DebtReminder extends Component {
     });
   };
 
-  // đóng modal thanh toán nợ
-  toggleSmallPayDebt = async (e) => {
-    await this.setState({
-      modalPayDebt: !this.state.modalPayDebt,
-    });
-  };
-
   //hàm xử lí hiện detail trong list nhắc nợ
   toggleDetails = (index) => {
     const position = this.state.details.indexOf(index);
@@ -240,7 +233,10 @@ class DebtReminder extends Component {
         },
       }
     );
+<<<<<<< HEAD
     console.log('ret huy no', ret.data);
+=======
+>>>>>>> 3f6e0df298d8cc3303046735fe18889c958cccb5
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
@@ -256,11 +252,6 @@ class DebtReminder extends Component {
   // hàm xác nhận tạo nhắc nợ trên modal
   comfirmSend = (e) => {
     this.toggleSmall();
-  };
-
-  // hàm xác nhận thanh toán nợ trên modal
-  comfirmPayDebt = (e) => {
-    this.toggleSmallPayDebt();
   };
 
   //click chọn tab
@@ -293,6 +284,7 @@ class DebtReminder extends Component {
           nameDebtor: ret.data.customer.name,
           err: '',
         },
+        err: null
       });
     } else {
       this.setState({
@@ -732,7 +724,7 @@ class DebtReminder extends Component {
                                 <Input
                                   placeholder="Số tài khoản của người nhận..."
                                   name="debtor"
-                                  onChange={this.onChangeNewDebt}
+                                  onChange={(e) => this.onChangeNewDebt(e)}
                                   value={this.state.newDebt.debtor}
                                 />
                                 <InputGroupAddon addonType="append">
@@ -752,14 +744,14 @@ class DebtReminder extends Component {
                           </FormGroup>
                           {/* kết quả trả về khi nhập stk người nhận */}
                           <Collapse isOpen={true}>
-                            <FormGroup row>
+                            {this.state.err && <FormGroup row>
                               <Col md="4" />
                               <Col xs="12" md="8">
                                 <label style={{ color: 'red' }}>
                                   {this.state.err}
                                 </label>
                               </Col>
-                            </FormGroup>
+                            </FormGroup>}
                             <FormGroup row>
                               <Col md="4" style={{ alignSelf: 'center' }}>
                                 <Label htmlFor="nameReceiver">
