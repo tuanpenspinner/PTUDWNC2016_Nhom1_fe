@@ -13,7 +13,12 @@ const employeeManage = {
   LOAD_LIST_EMPLOYEE: 'LOAD_LIST_EMPLOYEE',
   TOGGLE_DETAILS: 'TOGGLE_DETAILS',
 };
+
+const statistic = {
+  GET_TRANSACTION_HISTORY: 'GET_TRANSACTION_HISTORY',
+};
 export const administratorConstants = {
   authentication,
   employeeManage,
+  statistic,
 };

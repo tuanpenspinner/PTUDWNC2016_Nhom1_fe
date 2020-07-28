@@ -1,10 +1,10 @@
 /* eslint-disable react/prefer-stateless-function */
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   Button,
   Card,
   CardBody,
-  ListGroup,
   Col,
   Row,
   Form,
@@ -13,11 +13,12 @@ import {
   FormGroup,
   Collapse,
   Label,
-  ListGroupItem,
 } from 'reactstrap';
 import CDataTable from '../../components/table/CDataTable';
 import CanvasJSReact from '../../components/chart/canvasjs.react';
 import CanvasJSStockReact from '../../components/chart/canvasjs.stock.react';
+import { statisticAdminActions } from '../../../actions/admin/statistic';
+
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJS1 = CanvasJSStockReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -42,6 +43,12 @@ class Statistic extends Component {
     }
     this.setState({ detailsHistory: newDetails });
   };
+
+  UNSAFE_componentWillMount() {
+    const { getTransactionHistory } = this.props;
+    const accessToken = localStorage.getItem('accessToken');
+    getTransactionHistory(accessToken);
+  }
   componentDidMount() {
     fetch('https://canvasjs.com/data/gallery/stock-chart/grocery-sales.json')
       .then((res) => res.json())
@@ -207,7 +214,7 @@ class Statistic extends Component {
                 options={optionsAllPartners}
               ></CanvasJSStockChart>
             </Col>
-            <Row>
+            <Row style={{ marginTop: '20px' }}>
               <Col>
                 {/* biểu đồ thống kê chuyển khoản của từng đối tác theo tháng */}
                 <CanvasJSChart options={optionsTransferPieChart} />
@@ -224,30 +231,85 @@ class Statistic extends Component {
             Danh sách giao dịch
           </CardHeader>
           <CardBody>
-            <Row style={{ flexDirection: 'row-reverse', marginBottom: '20px' }}>
-              <Col xs="7" md="3" xl="3">
-                <Input
-                  type="select"
-                  name="partner"
-                  id="partner"
-                  //onChange={(e) => this.setState({ payFee: e.target.value })}
-                >
-                  <option value="0">Tất cả</option>
-                  <option value="PNNBank">PNN Bank</option>
-                  <option value="LocalBank">Local Bank</option>
-                </Input>
-              </Col>
-              <Label style={{ alignSelf: 'center' }} htmlFor="typePay">
-                Đối tác ngân hàng
-              </Label>
-            </Row>
+            <Form>
+              <FormGroup row style={{}}>
+                <Col>
+                  <div className="d-flex flex-FormGroup row">
+                    <div
+                      style={{
+                        alignSelf: 'center',
+                        width: '70px',
+                        marginLeft: '15px',
+                        marginTop: '5px',
+                      }}
+                    >
+                      <Label htmlFor="partner">Đối tác</Label>
+                    </div>
+                    <div style={{ width: '170px' }}>
+                      <Input
+                        type="select"
+                        name="partner"
+                        id="partner"
+                        //onChange={(e) => this.setState({ payFee: e.target.value })}
+                      >
+                        <option value="0">Tất cả</option>
+                        <option value="PNNBank">PNN Bank</option>
+                        <option value="LocalBank">Local Bank</option>
+                      </Input>
+                    </div>
+                  </div>
+                </Col>
+                <Col>
+                  <div className="d-flex flex-row" style={{ marginTop: '5px' }}>
+                    <div
+                      style={{
+                        alignSelf: 'center',
+                        width: '70px',
+                      }}
+                    >
+                      <Label htmlFor="startDate">Từ ngày</Label>
+                    </div>
+
+                    <div style={{ width: '170px' }}>
+                      <Input
+                        type="date"
+                        name="startDate"
+                        id="startDate"
+                        placeholder="date placeholder"
+                      />
+                    </div>
+                  </div>
+                </Col>
+                <Col>
+                  <div className="d-flex flex-row" style={{ marginTop: '5px' }}>
+                    <div
+                      style={{
+                        alignSelf: 'center',
+                        width: '70px',
+                      }}
+                    >
+                      <Label htmlFor="endDate">đến</Label>
+                    </div>
+                    <div style={{ width: '170px' }}>
+                      <Input
+                        type="date"
+                        name="endDate"
+                        id="endDate"
+                        placeholder="date placeholder"
+                      />
+                    </div>
+                  </div>
+                </Col>
+              </FormGroup>
+            </Form>
             <CDataTable
-              items={[]}
-              columnFilter
+              items={this.props.transactionHistory}
+              //columnFilter
               itemsPerPage={10}
               hover
               border
               sorter
+              columnFilter
               pagination
               fields={[
                 { key: 'id', _style: { width: '1%' } },
@@ -255,11 +317,14 @@ class Statistic extends Component {
                 { key: 'transfererAccountNumber', label: 'STK người gửi' },
                 { key: 'receiverAccountNumber', label: 'STK người nhận' },
                 { key: 'amount', filter: false, label: 'Số tiền gửi' },
-                { key: 'time', filter: false, label: 'Ngày giao dịch' },
+                { key: 'time', label: 'Ngày giao dịch' },
                 {
-                  key: 'payFeeBy',
-                  label: 'Người trả phí',
-                  filter: false,
+                  key: 'partner',
+                  label: 'Đối tác',
+                },
+                {
+                  key: 'type',
+                  label: 'Loại giao dịch',
                 },
                 {
                   key: 'showdetail',
@@ -272,6 +337,18 @@ class Statistic extends Component {
               scopedSlots={{
                 id: (item, index) => {
                   return <td className="text-center">{index + 1}</td>;
+                },
+                partner: (item, index) => {
+                  return <td>{item.type.bankCode}</td>;
+                },
+                type: (item, index) => {
+                  return (
+                    <td>
+                      {item.type.name === 'transfer'
+                        ? 'Chuyển tiền'
+                        : 'Nhận tiền'}
+                    </td>
+                  );
                 },
                 showdetail: (item, index) => {
                   return (
@@ -298,18 +375,35 @@ class Statistic extends Component {
                       isOpen={this.state.detailsHistory.includes(index)}
                     >
                       <CardBody>
+                        <p>Tên người chuyển khoản: {item.transfererName}</p>
+                        <p>Tên người nhận: {item.receiverName}</p>
+                        <p>
+                          Người trả phí:{' '}
+                          {item.payFeeBy === 'transferer'
+                            ? 'Người gửi'
+                            : 'Người nhận'}
+                        </p>
                         <p>Nội dung chuyển tiền: {item.content}</p>
                       </CardBody>
                     </Collapse>
                   );
                 },
               }}
-            />
+            ></CDataTable>
           </CardBody>
         </Card>
       </div>
     );
   }
 }
+const mapStateToProps = (state) => {
+  return {
+    transactionHistory: state.revenueStatistics.transactionHistory,
+  };
+};
 
-export default Statistic;
+const actionCreators = {
+  getTransactionHistory: statisticAdminActions.getTransactionHistory,
+};
+
+export default connect(mapStateToProps, actionCreators)(Statistic);
