@@ -18,6 +18,7 @@ import CDataTable from '../../components/table/CDataTable';
 import CanvasJSReact from '../../components/chart/canvasjs.react';
 import CanvasJSStockReact from '../../components/chart/canvasjs.stock.react';
 import { statisticAdminActions } from '../../../actions/admin/statistic';
+import { element } from 'prop-types';
 
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJS1 = CanvasJSStockReact.CanvasJS;
@@ -30,6 +31,10 @@ class Statistic extends Component {
       dataPointsTransfer: [],
       dataPointsReceive: [],
       detailsHistory: [],
+      transactionHistory: [],
+      startDate: null,
+      endDate: null,
+      partner: 'all',
     };
   }
   //hàm xử lí hiện detail
@@ -43,17 +48,39 @@ class Statistic extends Component {
     }
     this.setState({ detailsHistory: newDetails });
   };
-
-  UNSAFE_componentWillMount() {
+  getDateInString = (stringTime) => {
+    var date = new Date(stringTime);
+    var dateString = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split('T')[0];
+    return dateString;
+  };
+  componentWillMount = async () => {
     const { getTransactionHistory } = this.props;
     const accessToken = localStorage.getItem('accessToken');
-    getTransactionHistory(accessToken);
-  }
+    await getTransactionHistory(accessToken); //lấy lịch sử giao dịch
+    const { transactionHistory } = this.props;
+    this.setState({ transactionHistory: transactionHistory });
+    if (transactionHistory.length > 0) {
+      this.setState({
+        endDate: this.getDateInString(transactionHistory[0].time),
+      });
+      this.setState({
+        startDate: this.getDateInString(
+          transactionHistory[transactionHistory.length - 1].time
+        ),
+      });
+    } else {
+      this.setState({
+        endDate: this.getDateInString(new Date()),
+        startDate: this.getDateInString(new Date()),
+      });
+    }
+  };
   componentDidMount() {
     fetch('https://canvasjs.com/data/gallery/stock-chart/grocery-sales.json')
       .then((res) => res.json())
       .then((out) => {
-        console.log(out);
         const _dataPointsTransfer = [];
         const _dataPointsReceive = [];
         for (var i = 0; i < out.length; i++) {
@@ -70,6 +97,29 @@ class Statistic extends Component {
         this.setState({ dataPointsReceive: _dataPointsReceive });
       })
       .catch((err) => console.error(err));
+  }
+  handleGetTransactionHistoryByDate(startDate, endDate) {
+    const _startDate = new Date(startDate);
+    const _endDate = new Date(endDate);
+    let newTransactionHistory = [];
+    if (this.props.transactionHistory.length > 0)
+      this.props.transactionHistory.map((item) => {
+        if (
+          this.state.partner === 'all' ||
+          this.state.partner === item.type.bankCode
+        ) {
+          const timeOfItem = new Date(
+            this.getDateInString(item.time)
+          ).getTime();
+          if (
+            timeOfItem >= _startDate.getTime() &&
+            timeOfItem <= _endDate.getTime()
+          ) {
+            newTransactionHistory = [...newTransactionHistory, item];
+          }
+        }
+      });
+    this.setState({ transactionHistory: newTransactionHistory });
   }
   render() {
     const optionsTransferPieChart = {
@@ -234,12 +284,11 @@ class Statistic extends Component {
             <Form>
               <FormGroup row style={{}}>
                 <Col>
-                  <div className="d-flex flex-FormGroup row">
+                  <div className="d-flex flex-row">
                     <div
                       style={{
                         alignSelf: 'center',
-                        width: '70px',
-                        marginLeft: '15px',
+                        width: '60px',
                         marginTop: '5px',
                       }}
                     >
@@ -250,10 +299,19 @@ class Statistic extends Component {
                         type="select"
                         name="partner"
                         id="partner"
-                        //onChange={(e) => this.setState({ payFee: e.target.value })}
+                        onChange={async (e) => {
+                          await this.setState({
+                            detailsHistory: [],
+                            partner: e.target.value,
+                          });
+                          this.handleGetTransactionHistoryByDate(
+                            this.state.startDate,
+                            this.state.endDate
+                          );
+                        }}
                       >
-                        <option value="0">Tất cả</option>
-                        <option value="PNNBank">PNN Bank</option>
+                        <option value="all">Tất cả</option>
+                        <option value="PPNBank">PPN Bank</option>
                         <option value="LocalBank">Local Bank</option>
                       </Input>
                     </div>
@@ -264,7 +322,7 @@ class Statistic extends Component {
                     <div
                       style={{
                         alignSelf: 'center',
-                        width: '70px',
+                        width: '60px',
                       }}
                     >
                       <Label htmlFor="startDate">Từ ngày</Label>
@@ -275,6 +333,22 @@ class Statistic extends Component {
                         type="date"
                         name="startDate"
                         id="startDate"
+                        value={this.state.startDate}
+                        onChange={(e) => {
+                          this.setState({ detailsHistory: [] });
+                          if (
+                            new Date(e.target.value).getTime() >
+                            new Date(this.state.endDate).getTime()
+                          ) {
+                            alert('Ngày bắt đầu phải nhỏ hơn ngày kết thúc!');
+                          } else {
+                            this.setState({ startDate: e.target.value });
+                            this.handleGetTransactionHistoryByDate(
+                              e.target.value,
+                              this.state.endDate
+                            );
+                          }
+                        }}
                         placeholder="date placeholder"
                       />
                     </div>
@@ -285,7 +359,7 @@ class Statistic extends Component {
                     <div
                       style={{
                         alignSelf: 'center',
-                        width: '70px',
+                        width: '60px',
                       }}
                     >
                       <Label htmlFor="endDate">đến</Label>
@@ -295,21 +369,72 @@ class Statistic extends Component {
                         type="date"
                         name="endDate"
                         id="endDate"
+                        value={this.state.endDate}
+                        onChange={(e) => {
+                          this.setState({ detailsHistory: [] });
+                          if (
+                            new Date(this.state.startDate).getTime() >
+                            new Date(e.target.value).getTime()
+                          ) {
+                            alert('Ngày bắt đầu phải nhỏ hơn ngày kết thúc!');
+                          } else {
+                            this.setState({ endDate: e.target.value });
+                            this.handleGetTransactionHistoryByDate(
+                              this.state.startDate,
+                              e.target.value
+                            );
+                          }
+                        }}
                         placeholder="date placeholder"
                       />
                     </div>
                   </div>
                 </Col>
+                <Col>
+                  <div
+                    className="d-flex flex-row"
+                    style={{ paddingLeft: '60px', marginTop: '5px' }}
+                  >
+                    <Button
+                      color="primary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const { transactionHistory } = this.props;
+                        if (transactionHistory.length > 0) {
+                          const _end = this.getDateInString(
+                            transactionHistory[0].time
+                          );
+                          const _start = this.getDateInString(
+                            transactionHistory[transactionHistory.length - 1]
+                              .time
+                          );
+                          this.setState({
+                            endDate: _end,
+                            startDate: _start,
+                            detailsHistory: [],
+                          });
+                          this.handleGetTransactionHistoryByDate(_start, _end);
+                        } else {
+                          this.setState({
+                            endDate: this.getDateInString(new Date()),
+                            startDate: this.getDateInString(new Date()),
+                          });
+                        }
+                      }}
+                    >
+                      Reset thời gian truy vấn
+                    </Button>
+                  </div>
+                </Col>
               </FormGroup>
             </Form>
             <CDataTable
-              items={this.props.transactionHistory}
+              items={this.state.transactionHistory}
               //columnFilter
               itemsPerPage={10}
               hover
               border
               sorter
-              columnFilter
               pagination
               fields={[
                 { key: 'id', _style: { width: '1%' } },
