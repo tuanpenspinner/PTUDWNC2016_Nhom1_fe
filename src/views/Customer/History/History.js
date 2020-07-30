@@ -58,6 +58,9 @@ class History extends Component {
     });
   }
   render() {
+    var historyReceive = [...this.props.historyReceive].reverse();
+    var historyTransfer = [...this.props.historyTransfer].reverse();
+    var historyPayDebt = [...this.props.historyPayDebt].reverse();
     return (
       <div className="animated fadeIn">
         <Row>
@@ -98,7 +101,7 @@ class History extends Component {
               {/*tab content lịch sử chuyển khoản */}
               <TabPane tabId="1">
                 <CDataTable
-                  items={this.props.historyTransfer}
+                  items={historyTransfer}
                   columnFilter
                   itemsPerPage={5}
                   hover
@@ -166,7 +169,7 @@ class History extends Component {
               {/*tab content lịch sử nhận tiền */}
               <TabPane tabId="2">
                 <CDataTable
-                  items={this.props.historyReceive}
+                  items={historyReceive}
                   columnFilter
                   itemsPerPage={5}
                   hover
@@ -234,7 +237,7 @@ class History extends Component {
               {/*tab content lịch sử thanh toán nhắc nợ */}
               <TabPane tabId="3">
                 <CDataTable
-                  items={this.props.historyPayDebt}
+                  items={historyPayDebt}
                   columnFilter
                   itemsPerPage={5}
                   hover

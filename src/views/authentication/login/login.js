@@ -32,7 +32,7 @@ class Login extends Component {
       checkRole: 'customer',
       err: '',
       reCaptcha: true,
-      loading: false
+      loading: false,
     };
   }
   onChange = (value) => {
@@ -40,10 +40,21 @@ class Login extends Component {
       reCaptcha: value,
     });
   };
+  UNSAFE_componentWillMount() {
+    const role = localStorage.getItem('role');
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (accessToken) {
+      if (role === 'customer') window.location.href = '/customer/transfer';
+      else if (role === 'employee')
+        window.location.href = '/employee/manage-customer';
+      else window.location.href = '/administrator/manage-employee';
+    }
+  }
 
   handleSubmit = async (e) => {
     e.preventDefault();
-    this.setState({loading: true});
+    this.setState({ loading: true });
     if (this.state.username === '' || this.state.password === '') {
       this.setState({ err: 'Vui lòng nhập username hoặc password còn trống!' });
     } else if (this.state.reCaptcha === null) {
@@ -71,7 +82,7 @@ class Login extends Component {
             });
           }
           if (st.isLogin === true) {
-            console.log('login tru3e')
+            console.log('login tru3e');
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
             localStorage.setItem('role', st.role);
@@ -108,7 +119,7 @@ class Login extends Component {
             this.state.checkRole
           );
           const st = this.props;
-          console.log(st)
+          console.log(st);
           if (st.accessToken === 'err') {
             this.setState({ err: 'Email hoặc mật khẩu không chính xác !' });
             window.grecaptcha.reset();
@@ -127,7 +138,7 @@ class Login extends Component {
           break;
       }
     }
-    this.setState({loading: false});
+    this.setState({ loading: false });
   };
   handleOptionChange = async (e) => {
     await this.setState({
@@ -137,6 +148,7 @@ class Login extends Component {
   };
   render() {
     const { username, password, err } = this.state;
+    
     return (
       <div className="app flex-row align-items-center">
         <Container>
@@ -201,7 +213,12 @@ class Login extends Component {
                             type="submit"
                           >
                             Login
-                            {this.state.loading && <i className="fa fa-spinner fa-spin ml-1" aria-hidden="true"/>}
+                            {this.state.loading && (
+                              <i
+                                className="fa fa-spinner fa-spin ml-1"
+                                aria-hidden="true"
+                              />
+                            )}
                           </Button>
                         </Col>
                         <Col xs="6" className="text-right">

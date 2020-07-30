@@ -96,10 +96,11 @@ class DefaultHeader extends Component {
   render() {
     // eslint-disable-next-line
     const { urlProfile, listNotification } = this.state;
+    const role = localStorage.getItem('role');
 
     const showNotification = () => {
-    if (listNotification !== undefined)
-        return listNotification.map((notification) => {
+      if (listNotification !== undefined)
+        return listNotification.reverse().map((notification) => {
           return (
             <div>
               <span className="avatar-status badge-success" />
@@ -134,7 +135,12 @@ class DefaultHeader extends Component {
           <AppSidebarToggler className="d-md-down-none" display="lg" />
         </div>
         <Nav className="ml-auto" navbar>
-          <UncontrolledDropdown nav direction="down" onClick={this.onClick}>
+          <UncontrolledDropdown
+            nav
+            direction="down"
+            className={role === 'customer' ? 'visible' : 'invisible'}
+            onClick={this.onClick}
+          >
             <DropdownToggle nav>
               <NavItem className="d-md-down-none">
                 <NavLink to="#" className="nav-link">
@@ -150,7 +156,9 @@ class DefaultHeader extends Component {
                 <strong>Notification</strong>
               </DropdownItem>
               <DropdownItem>
-                <div className="message">{showNotification()}</div>
+                <div className="message" style={{ width: 300, height: 200,overflow: "auto"}}>
+                  {role === 'customer' ? showNotification() : ''}
+                </div>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>

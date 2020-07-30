@@ -73,6 +73,7 @@ class DebtReminder extends Component {
       },
       err: '',
       OTP: null,
+      loadingBankDetail: false,
     };
   }
   UNSAFE_componentWillMount() {
@@ -233,10 +234,6 @@ class DebtReminder extends Component {
         },
       }
     );
-<<<<<<< HEAD
-    console.log('ret huy no', ret.data);
-=======
->>>>>>> 3f6e0df298d8cc3303046735fe18889c958cccb5
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
@@ -265,7 +262,9 @@ class DebtReminder extends Component {
   }
 
   //Tìm tên người nhận theo SKT
-  findNameDebtor = async () => {
+  findNameDebtor = async (e) => {
+    this.setState({ nameDebtor: '', loadingBankDetail: true });
+    e.preventDefault();
     const accessToken = localStorage.getItem('accessToken');
     const ret = await axios.get(
       `http://localhost:3001/customers/nameCustomer/${this.state.newDebt.debtor}`,
@@ -283,12 +282,14 @@ class DebtReminder extends Component {
           ...this.state.newDebt,
           nameDebtor: ret.data.customer.name,
           err: '',
+          loadingBankDetail: false,
         },
-        err: null
+        err: null,
       });
     } else {
       this.setState({
         err: 'Không tìm thấy tài khoản!',
+        loadingBankDetail: false,
       });
     }
   };
@@ -358,7 +359,10 @@ class DebtReminder extends Component {
         '$&' + (s || ',')
       );
     };
-    // console.log('Mình tạo' + JSON.stringify(this.props.listOfMe));
+
+    const listOfMe = [...this.props.listOfMe].reverse();
+    const listOfOthers = [...this.props.listOfOthers].reverse();
+
     // console.log('Danh sách người nhân', this.props.listOfOthers);
     // console.log('Chua thanh toán', this.props.listDebtNotPaid);
 
@@ -411,7 +415,7 @@ class DebtReminder extends Component {
             <TabContent activeTab={this.state.activeTab[0]}>
               <TabPane tabId="1">
                 <CDataTable
-                  items={this.props.listOfOthers}
+                  items={listOfOthers}
                   columnFilter
                   tableFilter
                   itemsPerPage={5}
@@ -551,7 +555,7 @@ class DebtReminder extends Component {
               </TabPane>
               <TabPane tabId="2">
                 <CDataTable
-                  items={this.props.listOfMe}
+                  items={listOfMe}
                   columnFilter
                   tableFilter
                   itemsPerPage={5}
@@ -729,12 +733,15 @@ class DebtReminder extends Component {
                                 />
                                 <InputGroupAddon addonType="append">
                                   <Button
-                                    onClick={this.handleCommitAccountNumber}
                                     color="primary"
                                     onClick={this.findNameDebtor}
                                   >
                                     <i
-                                      className="fa fa-refresh"
+                                      className={`fa fa-refresh ${
+                                        this.state.loadingBankDetail
+                                          ? 'fa-spin'
+                                          : ''
+                                      }`}
                                       style={{ color: 'white' }}
                                     />
                                   </Button>
@@ -744,14 +751,16 @@ class DebtReminder extends Component {
                           </FormGroup>
                           {/* kết quả trả về khi nhập stk người nhận */}
                           <Collapse isOpen={true}>
-                            {this.state.err && <FormGroup row>
-                              <Col md="4" />
-                              <Col xs="12" md="8">
-                                <label style={{ color: 'red' }}>
-                                  {this.state.err}
-                                </label>
-                              </Col>
-                            </FormGroup>}
+                            {this.state.err && (
+                              <FormGroup row>
+                                <Col md="4" />
+                                <Col xs="12" md="8">
+                                  <label style={{ color: 'red' }}>
+                                    {this.state.err}
+                                  </label>
+                                </Col>
+                              </FormGroup>
+                            )}
                             <FormGroup row>
                               <Col md="4" style={{ alignSelf: 'center' }}>
                                 <Label htmlFor="nameReceiver">
