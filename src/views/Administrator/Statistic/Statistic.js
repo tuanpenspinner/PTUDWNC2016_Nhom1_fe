@@ -30,6 +30,11 @@ class Statistic extends Component {
     this.state = {
       dataPointsTransfer: [],
       dataPointsReceive: [],
+      dataPointsSpline: null,
+      dataPieChartConvertFromSpline: {
+        transferData: { PPNBank: 0, LocalBank: 0 },
+        receiveData: { PPNBank: 0, LocalBank: 0 },
+      },
       detailsHistory: [],
       transactionHistory: [],
       startDate: null,
@@ -62,6 +67,7 @@ class Statistic extends Component {
     const { transactionHistory } = this.props;
     this.setState({ transactionHistory: transactionHistory });
     if (transactionHistory.length > 0) {
+      //set thời gian bắt đầu và kết thúc ở table
       this.setState({
         endDate: this.getDateInString(transactionHistory[0].time),
       });
@@ -70,6 +76,33 @@ class Statistic extends Component {
           transactionHistory[transactionHistory.length - 1].time
         ),
       });
+      //lấy data nạp vào biểu đồ
+      const res = this.statisticDataTransactionHistory();
+      let _dataPointsTransfer = [];
+      let _dataPointsReceive = [];
+      if (res)
+        for (var i = 0; i < res.partnerLocalBank.length; i++) {
+          _dataPointsTransfer.push({
+            x: new Date(res.partnerLocalBank[i].date),
+            y:
+              Number(res.partnerLocalBank[i].transferAmount) +
+              Number(res.partnerPPNBank[i].transferAmount),
+          });
+          _dataPointsReceive.push({
+            x: new Date(res.partnerLocalBank[i].date),
+            y:
+              Number(res.partnerLocalBank[i].receiveAmount) +
+              Number(res.partnerPPNBank[i].receiveAmount),
+          });
+        }
+      console.log(res);
+      this.setState({ dataPointsSpline: { ...res } });
+      this.setState({ dataPointsTransfer: _dataPointsTransfer });
+      this.setState({ dataPointsReceive: _dataPointsReceive });
+      this.handleGetDataPieChartWithInputField(
+        new Date(this.state.startDate),
+        new Date(this.state.endDate)
+      );
     } else {
       this.setState({
         endDate: this.getDateInString(new Date()),
@@ -77,27 +110,163 @@ class Statistic extends Component {
       });
     }
   };
-  componentDidMount() {
-    fetch('https://canvasjs.com/data/gallery/stock-chart/grocery-sales.json')
-      .then((res) => res.json())
-      .then((out) => {
-        const _dataPointsTransfer = [];
-        const _dataPointsReceive = [];
-        for (var i = 0; i < out.length; i++) {
-          _dataPointsTransfer.push({
-            x: new Date(out[i].date),
-            y: Number(out[i].sale),
-          });
-          _dataPointsReceive.push({
-            x: new Date(out[i].date),
-            y: Number(out[out.length - i - 1].sale),
-          });
-        }
-        this.setState({ dataPointsTransfer: _dataPointsTransfer });
-        this.setState({ dataPointsReceive: _dataPointsReceive });
-      })
-      .catch((err) => console.error(err));
+//chèn object đầy data biểu đồ
+  insertArray(array) {
+    const indexArray = [...array];
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    let newArray = [];
+    let currentMonth = parseInt(
+      indexArray[indexArray.length - 1].date.slice(
+        indexArray[indexArray.length - 1].date.indexOf('-') + 1,
+        indexArray[indexArray.length - 1].date.lastIndexOf('-')
+      )
+    );
+    let currentYear = new Date(
+      indexArray[indexArray.length - 1].date
+    ).getFullYear();
+    let _index = indexArray.length - 1;
+    while (
+      !(
+        currentMonth ===
+          parseInt(
+            indexArray[0].date.slice(
+              indexArray[0].date.indexOf('-') + 1,
+              indexArray[0].date.lastIndexOf('-')
+            )
+          ) && currentYear === new Date(indexArray[0].date).getFullYear()
+      )
+    ) {
+      if (
+        currentMonth ===
+          parseInt(
+            indexArray[_index].date.slice(
+              indexArray[_index].date.indexOf('-') + 1,
+              indexArray[_index].date.lastIndexOf('-')
+            )
+          ) &&
+        currentYear === new Date(indexArray[_index].date).getFullYear()
+      ) {
+        _index = _index - 1;
+        newArray = [...newArray, indexArray[_index + 1]];
+      } else {
+        newArray = [
+          ...newArray,
+          {
+            date:
+              currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
+            transferAmount: 0,
+            receiveAmount: 0,
+          },
+        ];
+      }
+      if (currentMonth === 12) {
+        currentYear = currentYear + 1;
+        currentMonth = 1;
+      } else currentMonth = currentMonth + 1;
+    }
+    newArray = [...newArray, indexArray[0]];
+    return newArray;
   }
+  //parse data API theo từng tháng
+  statisticDataTransactionHistory = () => {
+    let partnerPPNBank = [];
+    let partnerLocalBank = [];
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const { transactionHistory } = this.props;
+    if (transactionHistory && transactionHistory.length > 0) {
+      let currentMonth = new Date(transactionHistory[0].time).getMonth() + 1;
+      let currentYear = new Date(transactionHistory[0].time).getFullYear();
+      partnerLocalBank = [
+        ...partnerLocalBank,
+        {
+          date: currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
+          transferAmount: 0,
+          receiveAmount: 0,
+        },
+      ];
+      partnerPPNBank = [
+        ...partnerPPNBank,
+        {
+          date: currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
+          transferAmount: 0,
+          receiveAmount: 0,
+        },
+      ];
+      transactionHistory.map((item) => {
+        if (currentYear !== new Date(item.time).getFullYear()) {
+          currentMonth = new Date(item.time).getMonth() + 1;
+          currentYear = new Date(item.time).getFullYear();
+          partnerLocalBank = [
+            ...partnerLocalBank,
+            {
+              date: currentYear + '-' + currentMonth + '-31',
+              transferAmount: 0,
+              receiveAmount: 0,
+            },
+          ];
+          partnerPPNBank = [
+            ...partnerPPNBank,
+            {
+              date: currentYear + '-' + currentMonth + '-31',
+              transferAmount: 0,
+              receiveAmount: 0,
+            },
+          ];
+        } else if (currentMonth !== new Date(item.time).getMonth() + 1) {
+          currentMonth = new Date(item.time).getMonth() + 1;
+          partnerLocalBank = [
+            ...partnerLocalBank,
+            {
+              date:
+                currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
+              transferAmount: 0,
+              receiveAmount: 0,
+            },
+          ];
+          partnerPPNBank = [
+            ...partnerPPNBank,
+            {
+              date:
+                currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
+              transferAmount: 0,
+              receiveAmount: 0,
+            },
+          ];
+        }
+
+        if (
+          new Date(item.time).getMonth() + 1 === currentMonth &&
+          new Date(item.time).getFullYear() === currentYear
+        ) {
+          if (item.type.bankCode === 'PPNBank') {
+            if (item.type.name === 'receive') {
+              partnerPPNBank[partnerPPNBank.length - 1].receiveAmount =
+                partnerPPNBank[partnerPPNBank.length - 1].receiveAmount +
+                parseInt(item.amount, 10);
+            } else {
+              partnerPPNBank[partnerPPNBank.length - 1].transferAmount =
+                partnerPPNBank[partnerPPNBank.length - 1].transferAmount +
+                parseInt(item.amount, 10);
+            }
+          } else {
+            if (item.type.name === 'receive') {
+              partnerLocalBank[partnerLocalBank.length - 1].receiveAmount =
+                partnerLocalBank[partnerLocalBank.length - 1].receiveAmount +
+                parseInt(item.amount, 10);
+            } else {
+              partnerLocalBank[partnerLocalBank.length - 1].transferAmount =
+                partnerLocalBank[partnerLocalBank.length - 1].transferAmount +
+                parseInt(item.amount, 10);
+            }
+          }
+        }
+      });
+      partnerPPNBank = this.insertArray(partnerPPNBank);
+      partnerLocalBank = this.insertArray(partnerLocalBank);
+    }
+    return { partnerLocalBank, partnerPPNBank };
+  };
+  //xử lí thay đổi filter ở table
   handleGetTransactionHistoryByDate(startDate, endDate) {
     const _startDate = new Date(startDate);
     const _endDate = new Date(endDate);
@@ -121,71 +290,45 @@ class Statistic extends Component {
       });
     this.setState({ transactionHistory: newTransactionHistory });
   }
+  //xử lí khi thời gian thay đổi ở biểu đồ
+  handleGetDataPieChartWithInputField(startDate, endDate) {
+    console.log(startDate + '=' + endDate);
+    const data = this.state.dataPointsSpline;
+    const transferData = { PPNBank: 0, LocalBank: 0 };
+    const receiveData = { PPNBank: 0, LocalBank: 0 };
+    if (data && data.partnerLocalBank.length > 0) {
+      data.partnerLocalBank.map((item) => {
+        if (
+          new Date(item.date).getTime() >=
+            new Date(this.getDateInString(startDate)).getTime() &&
+          new Date(item.date).getTime() <=
+            new Date(this.getDateInString(endDate)).getTime()
+        ) {
+          transferData.LocalBank =
+            transferData.LocalBank + Number(item.transferAmount);
+          receiveData.LocalBank =
+            receiveData.LocalBank + Number(item.receiveAmount);
+        }
+      });
+      data.partnerPPNBank.map((item) => {
+        if (
+          new Date(item.date).getTime() >=
+            new Date(this.getDateInString(startDate)).getTime() &&
+          new Date(item.date).getTime() <=
+            new Date(this.getDateInString(endDate)).getTime()
+        ) {
+          transferData.PPNBank =
+            transferData.PPNBank + Number(item.transferAmount);
+          receiveData.PPNBank =
+            receiveData.PPNBank + Number(item.receiveAmount);
+        }
+      });
+    }
+    this.setState({
+      dataPieChartConvertFromSpline: { transferData, receiveData },
+    });
+  }
   render() {
-    const optionsTransferPieChart = {
-      animationEnabled: true,
-      title: {
-        text: 'Cơ cấu chuyển tiền đến từng đối tác',
-        fontFamily: 'roboto',
-        fontWeight: 'normal',
-      },
-      // subtitles: [
-      //   {
-      //     text: '71% Positive',
-      //     verticalAlign: 'center',
-      //     fontSize: 24,
-      //     dockInsidePlotArea: true,
-      //   },
-      // ],
-      data: [
-        {
-          type: 'doughnut',
-          showInLegend: true,
-          indexLabel: '{name}: {y}',
-          yValueFormatString: '#,###',
-          toolTipContent: '{name}: #percent%',
-          dataPoints: [
-            { name: 'Unsatisfied', y: 5 },
-            { name: 'Very Unsatisfied', y: 31 },
-            { name: 'Very Satisfied', y: 40 },
-            { name: 'Satisfied', y: 17 },
-            { name: 'Neutral', y: 7 },
-          ],
-        },
-      ],
-    };
-    const optionsReceivePieChart = {
-      animationEnabled: true,
-      title: {
-        text: 'Cơ cấu nhận tiền từ từng đối tác',
-        fontFamily: 'roboto',
-      },
-      // subtitles: [
-      //   {
-      //     text: '71% Positive',
-      //     verticalAlign: 'center',
-      //     fontSize: 24,
-      //     dockInsidePlotArea: true,
-      //   },
-      // ],
-      data: [
-        {
-          type: 'doughnut',
-          showInLegend: true,
-          indexLabel: '{name}: {y}',
-          yValueFormatString: '#,###',
-          toolTipContent: '{name}: #percent%',
-          dataPoints: [
-            { name: 'Unsatisfied', y: 21 },
-            { name: 'Very Unsatisfied', y: 331 },
-            { name: 'Very Satisfied', y: 140 },
-            { name: 'Satisfied', y: 67 },
-            { name: 'Neutral', y: 35 },
-          ],
-        },
-      ],
-    };
-
     const optionsAllPartners = {
       // exportEnabled: true,
       animationEnabled: true,
@@ -214,11 +357,11 @@ class Statistic extends Component {
           axisY: {
             title: 'Số tiền giao dịch',
             titleFontFamily: 'Roboto',
-            suffix: 'M',
+            suffix: 'VND',
             crosshair: {
               enabled: true,
               snapToDataPoint: true,
-              valueFormatString: '#,###.00M',
+              valueFormatString: '#,###.00VND',
             },
           },
           data: [
@@ -227,7 +370,8 @@ class Statistic extends Component {
               name: 'Transfer',
               showInLegend: true,
               xValueFormatString: 'MMM YYYY',
-              yValueFormatString: '#,###.##M',
+              yValueFormatString:
+                this.state.dataPointsTransfer.y > 0 ? '#,###.## VND' : '0 VND',
               dataPoints: this.state.dataPointsTransfer,
             },
             {
@@ -235,25 +379,135 @@ class Statistic extends Component {
               name: 'Receive',
               showInLegend: true,
               xValueFormatString: 'MMM YYYY',
-              yValueFormatString: '#,###.##M',
+              yValueFormatString:
+                this.state.dataPointsReceive.y > 0 ? '#,###.## VND' : '0 VND',
               dataPoints: this.state.dataPointsReceive,
             },
           ],
         },
       ],
+      rangeChanged: (e) => {
+        this.handleGetDataPieChartWithInputField(
+          new Date(e.minimum),
+          new Date(e.maximum)
+        );
+      },
       navigator: {
         slider: {
           minimum: new Date(2010, 0, 1, 0, 0, 0, 0),
-          maximum: new Date(2020, 0, 1, 0, 0, 0, 0),
+          maximum: new Date(this.state.endDate),
         },
       },
       rangeSelector: {
         inputFields: {
-          startValue: new Date('2018-06-01'), //Change it to new Date("2018-04-01")
-          endValue: Date.now(),
+          startValue: new Date(this.state.startDate),
+          endValue: new Date(this.state.endDate),
         },
       },
     };
+
+    const optionsTransferPieChart = {
+      animationEnabled: true,
+      title: {
+        text: 'Cơ cấu nhận tiền từ từng đối tác',
+        fontFamily: 'roboto',
+      },
+      data: [
+        {
+          type: 'doughnut',
+          showInLegend: true,
+
+          //legendText: this.state.dataPieChartConvertFromSpline.transferData.PPNBank> 0 ? '{name}:{y}' : '{name}: 0',
+          dataPoints: [
+            {
+              name: 'PPN Bank',
+              yValueFormatString: '#,### VND',
+
+              y: this.state.dataPieChartConvertFromSpline.transferData.PPNBank,
+              indexLabel: '{name}: #percent%',
+              legendText:
+                this.state.dataPieChartConvertFromSpline.transferData.PPNBank >
+                0
+                  ? '{name}:{y}'
+                  : '{name}: 0 VND',
+            },
+            {
+              name: 'Local Bank',
+              y: this.state.dataPieChartConvertFromSpline.transferData
+                .LocalBank,
+              indexLabel: '{name}: #percent%',
+              yValueFormatString: '#,### VND',
+              legendText:
+                this.state.dataPieChartConvertFromSpline.transferData
+                  .LocalBank > 0
+                  ? '{name}:{y}'
+                  : '{name}: 0 VND',
+            },
+            {
+              name: 'empty',
+              legendText: '{name}',
+              toolTipContent: '0',
+              y:
+                this.state.dataPieChartConvertFromSpline.transferData
+                  .LocalBank +
+                  this.state.dataPieChartConvertFromSpline.transferData
+                    .PPNBank >
+                0
+                  ? 0
+                  : 1,
+            },
+          ],
+        },
+      ],
+    };
+    const optionsReceivePieChart = {
+      animationEnabled: true,
+      title: {
+        text: 'Cơ cấu nhận tiền từ từng đối tác',
+        fontFamily: 'roboto',
+      },
+      data: [
+        {
+          type: 'doughnut',
+          showInLegend: true,
+          legendText: '{name}:{y}',
+          yValueFormatString: '#,### VND',
+          dataPoints: [
+            {
+              name: 'PPN Bank',
+              y: this.state.dataPieChartConvertFromSpline.receiveData.PPNBank,
+              indexLabel: '{name}: #percent%',
+              legendText:
+                this.state.dataPieChartConvertFromSpline.receiveData.PPNBank > 0
+                  ? '{name}:{y}'
+                  : '{name}: 0 VND',
+            },
+            {
+              name: 'Local Bank',
+              y: this.state.dataPieChartConvertFromSpline.receiveData.LocalBank,
+              indexLabel: '{name}: #percent%',
+              legendText:
+                this.state.dataPieChartConvertFromSpline.receiveData.LocalBank >
+                0
+                  ? '{name}:{y}'
+                  : '{name}: 0 VND',
+            },
+            {
+              name: 'empty',
+              legendText: '{name}',
+              toolTipContent: '0',
+              y:
+                this.state.dataPieChartConvertFromSpline.receiveData.LocalBank +
+                  this.state.dataPieChartConvertFromSpline.receiveData.PPNBank >
+                0
+                  ? 0
+                  : 1,
+            },
+          ],
+        },
+      ],
+    };
+
     return (
       <div className="animated fadeIn">
         <Card>
