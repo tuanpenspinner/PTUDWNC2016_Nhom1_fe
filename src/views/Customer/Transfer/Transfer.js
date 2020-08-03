@@ -47,10 +47,10 @@ class Transfer extends Component {
       partnerCode: 'PPNBank',
       loadingBankDetail: false,
       loadingTransfer: false,
+      errorTransfer: null,
       payFee: 'transferer',
       contentTransfer: '',
       accountNumberReceiver: '',
-      errorTransfer: null,
       newReceiver: {
         name: '',
         accountNumber: '',
@@ -68,6 +68,19 @@ class Transfer extends Component {
     const { getListReceivers } = this.props;
     getListReceivers(accessToken);
   }
+
+  reset = () => {
+    this.setState({
+      contentTransfer: '',
+      accountNumberReceiver: '',
+      nameReceiver: '',
+      transferAmount: null,
+      otp: null,
+      loadingBankDetail: false,
+      loadingTransfer: false,
+      errorTransfer: null,
+    })
+  };
 
   // chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = (ischecked) => {
@@ -677,20 +690,6 @@ class Transfer extends Component {
                         />
                       </Col>
                     </FormGroup>
-                    {/* <FormGroup row>
-                      <Col md="4" style={{ alignSelf: 'center' }}>
-                        <Label htmlFor="emailReceiver">Email người nhận</Label>
-                      </Col>
-                      <Col xs="12" md="8">
-                        <Input
-                          type="text"
-                          id="emailReceiver"
-                          name="emailReceiver"
-                          value="nva@gmail.com"
-                          disabled
-                        />
-                      </Col>
-                    </FormGroup> */}
                   </Collapse>
                   {/* số tiền cần chuyển */}
                   <FormGroup row>
@@ -765,7 +764,7 @@ class Transfer extends Component {
                 >
                   Chuyển tiền
                 </Button>
-                <Button color="warning">Reset</Button>
+                <Button color="warning" onClick={this.reset}>Đặt lại</Button>
                 <Modal
                   isOpen={this.state.modal}
                   toggle={this.toggleSmall}
