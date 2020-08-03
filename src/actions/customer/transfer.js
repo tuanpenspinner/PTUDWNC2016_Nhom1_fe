@@ -19,7 +19,6 @@ const getListReceivers = (accessToken) => {
         });
       })
       .catch((e) => {
-
         localStorage.removeItem('accessToken');
         localStorage.removeItem('role');
         localStorage.removeItem('refreshToken');

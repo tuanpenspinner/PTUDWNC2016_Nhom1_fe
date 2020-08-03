@@ -54,6 +54,7 @@ class Transfer extends Component {
       newReceiver: {
         name: '',
         accountNumber: '',
+        bankCode: '',
       },
       index: '',
       transferAmount: null,
@@ -70,7 +71,19 @@ class Transfer extends Component {
 
   // chọn chuyển khoản nội bộ hay liên ngân hàng
   handleSwitchChange = (ischecked) => {
-    this.setState({ switchPartnerBank: ischecked });
+    this.setState({
+      switchPartnerBank: ischecked,
+      nameReceiver: '',
+      contentTransfer: '',
+      accountNumberReceiver: '',
+      payFee: 'transferer',
+      transferAmount: '',
+      newReceiver: {
+        name: '',
+        accountNumber: '',
+        bankCode: '',
+      },
+    });
   };
   // get infor người nhận khi nhập stk thanh toán
   handleCommitAccountNumber = (e) => {
@@ -229,6 +242,7 @@ class Transfer extends Component {
       });
 
       alert('Chuyển tiền thành công!');
+      this.saveReceiverAfterTransfer();
 
       const { getListReceivers } = this.props;
       getListReceivers(accessToken);
@@ -239,37 +253,164 @@ class Transfer extends Component {
     }
     this.state.loadingTransfer = false;
   };
+  saveReceiverAfterTransfer = async () => {
+    const { nameReceiver, accountNumberReceiver } = this.state;
+    const accessToken = localStorage.getItem('accessToken');
+    var newReceiver = {
+      name: nameReceiver,
+      accountNumber: accountNumberReceiver,
+      bankCode: '',
+    };
+    const { partnerCode, switchPartnerBank } = this.state;
+    var { listReceivers } = this.props;
+    var found = '';
+    if (switchPartnerBank) {
+      listReceivers = listReceivers.filter(
+        (receiver) => receiver.bankCode === partnerCode
+      );
+      found = listReceivers.find(
+        (receiver) => receiver.accountNumber === newReceiver.accountNumber
+      );
+    } else {
+      listReceivers = listReceivers.filter(
+        (receiver) => receiver.bankCode === 'TUB'
+      );
+      found = listReceivers.find(
+        (receiver) => receiver.accountNumber === newReceiver.accountNumber
+      );
+    }
+
+    if (!found) {
+      if (!switchPartnerBank) {
+        const ret = await axios.get(
+          `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': accessToken,
+            },
+          }
+        );
+        if (ret.data.status) {
+          if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+          const { updateListReceivers } = this.props;
+          listReceivers = this.props.listReceivers;
+          newReceiver.bankCode = 'TUB';
+
+          listReceivers.push(newReceiver);
+          updateListReceivers(listReceivers, accessToken);
+        }
+      } else {
+        try {
+          const body = {
+            bank_code: this.state.partnerCode,
+            account_number: this.state.accountNumberReceiver,
+          };
+
+          const ret = await axios.post(
+            `${this.API.local}/partner-bank-detail`,
+            body,
+            {
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Access-Control-Allow-Origin': '*',
+                'access-token': localStorage.getItem('accessToken'),
+              },
+            }
+          );
+
+          if (!newReceiver.name) newReceiver.name = ret.data.name;
+          const { updateListReceivers } = this.props;
+          listReceivers = this.props.listReceivers;
+          newReceiver.bankCode = this.state.partnerCode;
+
+          listReceivers.push(newReceiver);
+          updateListReceivers(listReceivers, accessToken);
+        } catch (e) {}
+      }
+    }
+  };
 
   addReceiver = async () => {
     const accessToken = localStorage.getItem('accessToken');
     var newReceiver = this.state.newReceiver;
+    const { partnerCode, switchPartnerBank } = this.state;
     if (newReceiver.accountNumber === '')
       alert('Không được để trống số tài khoản!');
     var { listReceivers } = this.props;
-    const found = listReceivers.find(
-      (receiver) => receiver.accountNumber === newReceiver.accountNumber
-    );
+    var found = '';
+    if (switchPartnerBank) {
+      listReceivers = listReceivers.filter(
+        (receiver) => receiver.bankCode === partnerCode
+      );
+      found = listReceivers.find(
+        (receiver) => receiver.accountNumber === newReceiver.accountNumber
+      );
+    } else {
+      listReceivers = listReceivers.filter(
+        (receiver) => receiver.bankCode === 'TUB'
+      );
+      found = listReceivers.find(
+        (receiver) => receiver.accountNumber === newReceiver.accountNumber
+      );
+    }
 
     if (found) alert('Số tài khoản đã được thêm trước đó');
     else {
-      const ret = await axios.get(
-        `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
-        {
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Access-Control-Allow-Origin': '*',
-            'access-token': accessToken,
-          },
+      if (!switchPartnerBank) {
+        const ret = await axios.get(
+          `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': accessToken,
+            },
+          }
+        );
+        if (ret.data.status) {
+          if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+          const { updateListReceivers } = this.props;
+          listReceivers = this.props.listReceivers;
+          newReceiver.bankCode = 'TUB';
+
+          listReceivers.push(newReceiver);
+          updateListReceivers(listReceivers, accessToken);
+          alert('Thêm người gửi thành công vào danh sách!');
+        } else {
+          alert('Số tài khoản không tồn tại trong hệ thống!');
         }
-      );
-      if (ret.data.status) {
-        if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
-        const { updateListReceivers } = this.props;
-        listReceivers.push(newReceiver);
-        updateListReceivers(listReceivers, accessToken);
-        alert('Thêm người gửi thành công vào danh sách!');
       } else {
-        alert('Số tài khoản không tồn tại trong hệ thống!');
+        try {
+          const body = {
+            bank_code: this.state.partnerCode,
+            account_number: this.state.newReceiver.accountNumber,
+          };
+
+          const ret = await axios.post(
+            `${this.API.local}/partner-bank-detail`,
+            body,
+            {
+              headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Access-Control-Allow-Origin': '*',
+                'access-token': localStorage.getItem('accessToken'),
+              },
+            }
+          );
+
+          if (!newReceiver.name) newReceiver.name = ret.data.name;
+          const { updateListReceivers } = this.props;
+          listReceivers = this.props.listReceivers;
+          newReceiver.bankCode = this.state.partnerCode;
+
+          listReceivers.push(newReceiver);
+          updateListReceivers(listReceivers, accessToken);
+          alert('Thêm người gửi thành công vào danh sách!');
+        } catch (e) {
+          alert('Số tài khoản không tồn tại trong hệ thống!');
+        }
       }
     }
   };
@@ -283,29 +424,67 @@ class Transfer extends Component {
     const i = listReceivers.findIndex(
       (receiver) => receiver.accountNumber === newReceiver.accountNumber
     );
-    const ret = await axios.get(
-      `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
-      {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*',
-          'access-token': accessToken,
-        },
-      }
-    );
-    if (i >= 0) {
-      if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
-      listReceivers[i] = newReceiver;
-      updateListReceivers(listReceivers, accessToken);
-      alert('Sửa người gửi thành công vào danh sách!');
-    } else {
-      if (ret.data.status) {
+    if (!this.state.switchPartnerBank) {
+      const ret = await axios.get(
+        `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      );
+      newReceiver.bankCode = 'TUB';
+      if (i >= 0) {
         if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
-
-        listReceivers.push(newReceiver);
+        listReceivers[i] = newReceiver;
         updateListReceivers(listReceivers, accessToken);
         alert('Sửa người gửi thành công vào danh sách!');
       } else {
+        if (ret.data.status) {
+          if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+
+          listReceivers.push(newReceiver);
+          updateListReceivers(listReceivers, accessToken);
+          alert('Thêm thành công vào danh sách!');
+        } else {
+          alert('Số tài khoản không tồn tại trong hệ thống!');
+        }
+      }
+    } else {
+      try {
+        const body = {
+          bank_code: this.state.partnerCode,
+          account_number: this.state.newReceiver.accountNumber,
+        };
+
+        const ret = await axios.post(
+          `${this.API.local}/partner-bank-detail`,
+          body,
+          {
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': '*',
+              'access-token': localStorage.getItem('accessToken'),
+            },
+          }
+        );
+        newReceiver.bankCode = this.state.partnerCode;
+        if (i >= 0) {
+          if (!newReceiver.name) newReceiver.name = ret.data.customer.name;
+          listReceivers[i] = newReceiver;
+
+          updateListReceivers(listReceivers, accessToken);
+          alert('Sửa người gửi thành công vào danh sách!');
+        } else {
+          if (!newReceiver.name) newReceiver.name = ret.data.name;
+
+          listReceivers.push(newReceiver);
+          updateListReceivers(listReceivers, accessToken);
+          alert('Thêm người gửi thành công vào danh sách!');
+        }
+      } catch (e) {
         alert('Số tài khoản không tồn tại trong hệ thống!');
       }
     }
@@ -329,7 +508,16 @@ class Transfer extends Component {
       ','
     );
 
-    const { newReceiver } = this.state;
+    const { newReceiver, switchPartnerBank, partnerCode } = this.state;
+    var { listReceivers } = this.props;
+    if (switchPartnerBank)
+      listReceivers = listReceivers.filter(
+        (receiver) => receiver.bankCode === partnerCode
+      );
+    else
+      listReceivers = listReceivers.filter(
+        (receiver) => receiver.bankCode === 'TUB'
+      );
     return (
       <div className="animated fadeIn">
         <Row>
@@ -514,6 +702,7 @@ class Transfer extends Component {
                         type="number"
                         id="amount"
                         name="amount"
+                        value={this.state.transferAmount}
                         onChange={(e) =>
                           this.setState({ transferAmount: e.target.value })
                         }
@@ -535,6 +724,7 @@ class Transfer extends Component {
                         rows="3"
                         style={{ minHeight: '40px', maxHeight: '100px' }}
                         placeholder="Nội dung..."
+                        value={this.state.contentTransfer}
                         onChange={(e) =>
                           this.setState({ contentTransfer: e.target.value })
                         }
@@ -554,6 +744,7 @@ class Transfer extends Component {
                         onChange={(e) =>
                           this.setState({ payFee: e.target.value })
                         }
+                        value={this.state.payFee}
                       >
                         <option value="0" disabled>
                           Chọn hình thức trả phí
@@ -690,7 +881,7 @@ class Transfer extends Component {
                   }}
                 />
                 <CDataTable
-                  items={this.props.listReceivers}
+                  items={listReceivers}
                   tableFilter
                   itemsPerPage={8}
                   hover
@@ -733,9 +924,10 @@ class Transfer extends Component {
                                   'accessToken'
                                 );
                                 var { listReceivers } = this.props;
-                                listReceivers.splice(index, 1);
+                                listReceivers.splice(parseInt(item.id) - 1, 1);
                                 const { updateListReceivers } = this.props;
                                 alert('Xóa thành công');
+
                                 updateListReceivers(listReceivers, accessToken);
                               }}
                             >
