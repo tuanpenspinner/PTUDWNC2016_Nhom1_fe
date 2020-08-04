@@ -234,10 +234,6 @@ class DebtReminder extends Component {
         },
       }
     );
-<<<<<<< HEAD
-=======
-
->>>>>>> f85aba0ea816636d50b7cd9e19033da9609f3b12
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
