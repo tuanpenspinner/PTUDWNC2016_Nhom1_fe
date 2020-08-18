@@ -134,7 +134,7 @@ class Transfer extends Component {
     } else {
       axios
         .post(
-          `${this.API.local}/interal-bank-detail`,
+          `${this.API.local}/internal-bank-detail`,
           { account_number: this.state.accountNumberReceiver },
           {
             headers: {
@@ -246,7 +246,7 @@ class Transfer extends Component {
     }
 
     try {
-      await axios.post(`${this.API.local}/interal-money-transfer`, body, {
+      await axios.post(`${this.API.local}/internal-money-transfer`, body, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -560,7 +560,7 @@ class Transfer extends Component {
                             Chọn ngân hàng liên kết
                           </option>
                           <option value="PPNBank">PPN Bank</option>
-                          <option value="local">Local PGP</option>
+                          <option value="tckbank">TCK Bank</option>
                         </Input>
                       </Col>
                       <Col style={{ alignSelf: 'center' }}>

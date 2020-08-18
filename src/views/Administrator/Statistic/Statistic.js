@@ -32,8 +32,8 @@ class Statistic extends Component {
       dataPointsReceive: [],
       dataPointsSpline: null,
       dataPieChartConvertFromSpline: {
-        transferData: { PPNBank: 0, LocalBank: 0 },
-        receiveData: { PPNBank: 0, LocalBank: 0 },
+        transferData: { PPNBank: 0, TCKBank: 0 },
+        receiveData: { PPNBank: 0, TCKBank: 0 },
       },
       detailsHistory: [],
       transactionHistory: [],
@@ -89,17 +89,17 @@ class Statistic extends Component {
       let _dataPointsTransfer = [];
       let _dataPointsReceive = [];
       if (res)
-        for (var i = 0; i < res.partnerLocalBank.length; i++) {
+        for (var i = 0; i < res.partnerTCKBank.length; i++) {
           _dataPointsTransfer.push({
-            x: new Date(res.partnerLocalBank[i].date),
+            x: new Date(res.partnerTCKBank[i].date),
             y:
-              Number(res.partnerLocalBank[i].transferAmount) +
+              Number(res.partnerTCKBank[i].transferAmount) +
               Number(res.partnerPPNBank[i].transferAmount),
           });
           _dataPointsReceive.push({
-            x: new Date(res.partnerLocalBank[i].date),
+            x: new Date(res.partnerTCKBank[i].date),
             y:
-              Number(res.partnerLocalBank[i].receiveAmount) +
+              Number(res.partnerTCKBank[i].receiveAmount) +
               Number(res.partnerPPNBank[i].receiveAmount),
           });
         }
@@ -178,14 +178,14 @@ class Statistic extends Component {
   //parse data API theo từng tháng
   statisticDataTransactionHistory = () => {
     let partnerPPNBank = [];
-    let partnerLocalBank = [];
+    let partnerTCKBank = [];
     const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     const { transactionHistory } = this.props;
     if (transactionHistory && transactionHistory.length > 0) {
       let currentMonth = new Date(transactionHistory[0].time).getMonth() + 1;
       let currentYear = new Date(transactionHistory[0].time).getFullYear();
-      partnerLocalBank = [
-        ...partnerLocalBank,
+      partnerTCKBank = [
+        ...partnerTCKBank,
         {
           date: currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
           transferAmount: 0,
@@ -204,8 +204,8 @@ class Statistic extends Component {
         if (currentYear !== new Date(item.time).getFullYear()) {
           currentMonth = new Date(item.time).getMonth() + 1;
           currentYear = new Date(item.time).getFullYear();
-          partnerLocalBank = [
-            ...partnerLocalBank,
+          partnerTCKBank = [
+            ...partnerTCKBank,
             {
               date: currentYear + '-' + currentMonth + '-31',
               transferAmount: 0,
@@ -222,8 +222,8 @@ class Statistic extends Component {
           ];
         } else if (currentMonth !== new Date(item.time).getMonth() + 1) {
           currentMonth = new Date(item.time).getMonth() + 1;
-          partnerLocalBank = [
-            ...partnerLocalBank,
+          partnerTCKBank = [
+            ...partnerTCKBank,
             {
               date:
                 currentYear + '-' + currentMonth + '-' + days[currentMonth - 1],
@@ -258,21 +258,21 @@ class Statistic extends Component {
             }
           } else {
             if (item.type.name === 'receive') {
-              partnerLocalBank[partnerLocalBank.length - 1].receiveAmount =
-                partnerLocalBank[partnerLocalBank.length - 1].receiveAmount +
+              partnerTCKBank[partnerTCKBank.length - 1].receiveAmount =
+                partnerTCKBank[partnerTCKBank.length - 1].receiveAmount +
                 parseInt(item.amount, 10);
             } else {
-              partnerLocalBank[partnerLocalBank.length - 1].transferAmount =
-                partnerLocalBank[partnerLocalBank.length - 1].transferAmount +
+              partnerTCKBank[partnerTCKBank.length - 1].transferAmount =
+                partnerTCKBank[partnerTCKBank.length - 1].transferAmount +
                 parseInt(item.amount, 10);
             }
           }
         }
       });
       partnerPPNBank = this.insertArray(partnerPPNBank);
-      partnerLocalBank = this.insertArray(partnerLocalBank);
+      partnerTCKBank = this.insertArray(partnerTCKBank);
     }
-    return { partnerLocalBank, partnerPPNBank };
+    return { partnerTCKBank, partnerPPNBank };
   };
   //xử lí thay đổi filter ở table
   handleGetTransactionHistoryByDate(startDate, endDate) {
@@ -302,20 +302,20 @@ class Statistic extends Component {
   handleGetDataPieChartWithInputField(startDate, endDate) {
     console.log(startDate + '=' + endDate);
     const data = this.state.dataPointsSpline;
-    const transferData = { PPNBank: 0, LocalBank: 0 };
-    const receiveData = { PPNBank: 0, LocalBank: 0 };
-    if (data && data.partnerLocalBank.length > 0) {
-      data.partnerLocalBank.map((item) => {
+    const transferData = { PPNBank: 0, TCKBank: 0 };
+    const receiveData = { PPNBank: 0, TCKBank: 0 };
+    if (data && data.partnerTCKBank.length > 0) {
+      data.partnerTCKBank.map((item) => {
         if (
           new Date(item.date).getTime() >=
             new Date(this.getDateInString(startDate)).getTime() &&
           new Date(item.date).getTime() <=
             new Date(this.getDateInString(endDate)).getTime()
         ) {
-          transferData.LocalBank =
-            transferData.LocalBank + Number(item.transferAmount);
-          receiveData.LocalBank =
-            receiveData.LocalBank + Number(item.receiveAmount);
+          transferData.TCKBank =
+            transferData.TCKBank + Number(item.transferAmount);
+          receiveData.TCKBank =
+            receiveData.TCKBank + Number(item.receiveAmount);
         }
       });
       data.partnerPPNBank.map((item) => {
@@ -442,12 +442,12 @@ class Statistic extends Component {
             {
               name: 'Local Bank',
               y: this.state.dataPieChartConvertFromSpline.transferData
-                .LocalBank,
+                .TCKBank,
               indexLabel: '{name}: #percent%',
               yValueFormatString: '#,### VND',
               legendText:
                 this.state.dataPieChartConvertFromSpline.transferData
-                  .LocalBank > 0
+                  .TCKBank > 0
                   ? '{name}:{y}'
                   : '{name}: 0 VND',
             },
@@ -457,7 +457,7 @@ class Statistic extends Component {
               toolTipContent: '0',
               y:
                 this.state.dataPieChartConvertFromSpline.transferData
-                  .LocalBank +
+                  .TCKBank +
                   this.state.dataPieChartConvertFromSpline.transferData
                     .PPNBank >
                 0
@@ -492,10 +492,10 @@ class Statistic extends Component {
             },
             {
               name: 'Local Bank',
-              y: this.state.dataPieChartConvertFromSpline.receiveData.LocalBank,
+              y: this.state.dataPieChartConvertFromSpline.receiveData.TCKBank,
               indexLabel: '{name}: #percent%',
               legendText:
-                this.state.dataPieChartConvertFromSpline.receiveData.LocalBank >
+                this.state.dataPieChartConvertFromSpline.receiveData.TCKBank >
                 0
                   ? '{name}:{y}'
                   : '{name}: 0 VND',
@@ -505,7 +505,7 @@ class Statistic extends Component {
               legendText: '{name}',
               toolTipContent: '0',
               y:
-                this.state.dataPieChartConvertFromSpline.receiveData.LocalBank +
+                this.state.dataPieChartConvertFromSpline.receiveData.TCKBank +
                   this.state.dataPieChartConvertFromSpline.receiveData.PPNBank >
                 0
                   ? 0
@@ -574,7 +574,7 @@ class Statistic extends Component {
                       >
                         <option value="all">Tất cả</option>
                         <option value="PPNBank">PPN Bank</option>
-                        <option value="LocalBank">Local Bank</option>
+                        <option value="TCKBank">Local Bank</option>
                       </Input>
                     </div>
                   </div>
