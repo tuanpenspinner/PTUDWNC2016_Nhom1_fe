@@ -65,7 +65,15 @@ class Statistic extends Component {
     const accessToken = localStorage.getItem('accessToken');
     await getTransactionHistory(accessToken); //lấy lịch sử giao dịch
     const { transactionHistory } = this.props;
-    this.setState({ transactionHistory: transactionHistory });
+    let _transactionHistory = [];
+    if (transactionHistory.length > 0) {
+      transactionHistory.map((item) => {
+        let _item = { ...item };
+        _item._time = new Date(item.time).getTime();
+        _transactionHistory = [..._transactionHistory, _item];
+      });
+    }
+    this.setState({ transactionHistory: _transactionHistory });
     if (transactionHistory.length > 0) {
       //set thời gian bắt đầu và kết thúc ở table
       this.setState({
@@ -110,7 +118,7 @@ class Statistic extends Component {
       });
     }
   };
-//chèn object đầy data biểu đồ
+  //chèn object đầy data biểu đồ
   insertArray(array) {
     const indexArray = [...array];
     const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -614,6 +622,7 @@ class Statistic extends Component {
                       style={{
                         alignSelf: 'center',
                         width: '60px',
+                        marginTop: '5px'
                       }}
                     >
                       <Label htmlFor="endDate">đến</Label>
@@ -696,7 +705,7 @@ class Statistic extends Component {
                 { key: 'transfererAccountNumber', label: 'STK người gửi' },
                 { key: 'receiverAccountNumber', label: 'STK người nhận' },
                 { key: 'amount', filter: false, label: 'Số tiền gửi' },
-                { key: 'time', label: 'Ngày giao dịch' },
+                { key: '_time', label: 'Ngày giao dịch' },
                 {
                   key: 'partner',
                   label: 'Đối tác',
@@ -716,6 +725,9 @@ class Statistic extends Component {
               scopedSlots={{
                 id: (item, index) => {
                   return <td className="text-center">{index + 1}</td>;
+                },
+                _time:  (item, index) => {
+                  return <td>{item.time}</td>;
                 },
                 partner: (item, index) => {
                   return <td>{item.type.bankCode}</td>;
