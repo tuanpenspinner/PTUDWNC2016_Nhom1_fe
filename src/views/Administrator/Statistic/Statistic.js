@@ -440,7 +440,7 @@ class Statistic extends Component {
                   : '{name}: 0 VND',
             },
             {
-              name: 'Local Bank',
+              name: 'TCK Bank',
               y: this.state.dataPieChartConvertFromSpline.transferData
                 .TCKBank,
               indexLabel: '{name}: #percent%',
@@ -491,7 +491,7 @@ class Statistic extends Component {
                   : '{name}: 0 VND',
             },
             {
-              name: 'Local Bank',
+              name: 'TCK Bank',
               y: this.state.dataPieChartConvertFromSpline.receiveData.TCKBank,
               indexLabel: '{name}: #percent%',
               legendText:
@@ -574,7 +574,7 @@ class Statistic extends Component {
                       >
                         <option value="all">Tất cả</option>
                         <option value="PPNBank">PPN Bank</option>
-                        <option value="TCKBank">Local Bank</option>
+                        <option value="tckbank">TCK Bank</option>
                       </Input>
                     </div>
                   </div>

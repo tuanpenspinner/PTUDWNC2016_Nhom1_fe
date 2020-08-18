@@ -157,7 +157,20 @@ class FormAddEmployee extends Component {
           >
             Tạo tài khoản
           </Button>
-          <Button color="warning">Reset</Button>
+          <Button
+            color="warning"
+            onClick={(e) => {
+              e.preventDefault();
+              this.setState({
+                name: '',
+                phone: '',
+                email: '',
+                username: '',
+              });
+            }}
+          >
+            Reset
+          </Button>
         </Row>
       </Form>
     );
