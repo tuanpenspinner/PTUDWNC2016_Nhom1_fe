@@ -28,8 +28,10 @@ import {
 import { connect } from 'react-redux';
 import CDataTable from '../../components/table/CDataTable';
 import { transferCustomerActions } from '../../../actions/customer/transfer';
+
 import axios from 'axios';
 import connector from '../../../constants/connector';
+
 class Transfer extends Component {
   API = {
     partnerBankDetail:
@@ -65,8 +67,9 @@ class Transfer extends Component {
   }
   UNSAFE_componentWillMount() {
     const accessToken = localStorage.getItem('accessToken');
-    const { getListReceivers } = this.props;
+    const { getListReceivers, connectSocketIoHost } = this.props;
     getListReceivers(accessToken);
+ 
   }
 
   reset = () => {
@@ -79,7 +82,7 @@ class Transfer extends Component {
       loadingBankDetail: false,
       loadingTransfer: false,
       errorTransfer: null,
-    })
+    });
   };
 
   // chọn chuyển khoản nội bộ hay liên ngân hàng
@@ -764,7 +767,9 @@ class Transfer extends Component {
                 >
                   Chuyển tiền
                 </Button>
-                <Button color="warning" onClick={this.reset}>Đặt lại</Button>
+                <Button color="warning" onClick={this.reset}>
+                  Đặt lại
+                </Button>
                 <Modal
                   isOpen={this.state.modal}
                   toggle={this.toggleSmall}
@@ -991,6 +996,7 @@ const mapStateToProps = (state) => {
 const actionCreators = {
   getListReceivers: transferCustomerActions.getListReceivers,
   updateListReceivers: transferCustomerActions.updateListReceivers,
+ 
   // requestResetPassword: memberActions.requestResetPassword
 };
 

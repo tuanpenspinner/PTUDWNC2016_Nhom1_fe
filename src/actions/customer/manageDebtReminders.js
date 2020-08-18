@@ -14,6 +14,12 @@ const getAllDebtReminders = (accessToken) => {
           type: customerConstants.debtReminder.GET_ALL_DEBT_REMINDERS,
           data: resultData,
         });
+      })
+      .catch((e) => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('role');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       });
   };
 };
@@ -46,8 +52,16 @@ const getListReceiver = (accessToken) => {
       });
   };
 };
+const connectSocketIoHost = () => {
+  return (dispatch) => {
+    return dispatch({
+      type: customerConstants.debtReminder.CONNECT_SOCKET_IO_HOST,
+    });
+  };
+};
 
 export const manageDebtRemindersActions = {
   getAllDebtReminders,
   getListReceiver,
+  connectSocketIoHost,
 };

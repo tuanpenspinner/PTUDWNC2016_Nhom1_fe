@@ -12,10 +12,11 @@ import {
   NavItem,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
-
+import { connect } from 'react-redux';
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import logo from '../../assets/img/brand/logo_transparent.png';
 import sygnet from '../../assets/img/brand/user.png';
+import { manageDebtRemindersActions } from '../../actions/customer/manageDebtReminders';
 const propTypes = {
   children: PropTypes.node,
 };
@@ -39,7 +40,25 @@ class DefaultHeader extends Component {
       this.setState({ urlProfile: '/employee/profile' });
     }
   }
-  componentDidMount() {
+  componentDidMount = () => {
+    this.loadNotify();
+    const { connectSocketIoHost } = this.props;
+    connectSocketIoHost();
+    console.log('Kết nối socket!');
+    const { socket } = this.props;
+
+    if (socket !== null)
+      socket.on('notify', (data) => {
+        console.log('Tải lại thông báo!');
+      });
+  };
+  logOut = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
+    window.location.href = '/';
+  };
+  loadNotify = () => {
     const accessToken = localStorage.getItem('accessToken');
     axios
       .get('http://localhost:3001/customers/info', {
@@ -71,12 +90,6 @@ class DefaultHeader extends Component {
             });
           });
       });
-  }
-  logOut = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role');
-    window.location.href = '/';
   };
 
   handleClickProfile = () => {
@@ -93,11 +106,17 @@ class DefaultHeader extends Component {
   onClick = async () => {
     const accessToken = localStorage.getItem('accessToken');
   };
+
   render() {
     // eslint-disable-next-line
     const { urlProfile, listNotification } = this.state;
     const role = localStorage.getItem('role');
-
+    const { socket } = this.props;
+    if (socket !== null)
+      socket.on('notify', (data) => {
+        console.log("Load thông báo!")
+        this.loadNotify();
+      });
     const showNotification = () => {
       if (listNotification !== undefined)
         return listNotification.reverse().map((notification) => {
@@ -156,7 +175,10 @@ class DefaultHeader extends Component {
                 <strong>Notification</strong>
               </DropdownItem>
               <DropdownItem>
-                <div className="message" style={{ width: 300, height: 200,overflow: "auto"}}>
+                <div
+                  className="message"
+                  style={{ width: 700, height: 200, overflow: 'auto' }}
+                >
                   {role === 'customer' ? showNotification() : ''}
                 </div>
               </DropdownItem>
@@ -196,5 +218,14 @@ class DefaultHeader extends Component {
 
 DefaultHeader.propTypes = propTypes;
 DefaultHeader.defaultProps = defaultProps;
+const mapStateToProps = (state) => {
+  return {
+    socket: state.manageDebtReminders.socket,
+  };
+};
+const actionCreators = {
+  connectSocketIoHost: manageDebtRemindersActions.connectSocketIoHost,
+  // requestResetPassword: memberActions.requestResetPassword
+};
 
-export default DefaultHeader;
+export default connect(mapStateToProps, actionCreators)(DefaultHeader);
