@@ -83,6 +83,7 @@ class DebtReminder extends Component {
     getAllDebtReminders(accessToken);
     getListReceiver(accessToken);
   }
+  componentDidMount() {}
 
   // đóng modal tạo nhắc nợ
   toggleSmall = async (e) => {
@@ -207,6 +208,8 @@ class DebtReminder extends Component {
         },
         modal: false,
       });
+      const { socket } = this.props;
+      socket.emit('notify', true);
       alert('Thanh toán nợ thành công!');
     } catch (e) {
       console.log(e);
@@ -234,13 +237,11 @@ class DebtReminder extends Component {
         },
       }
     );
-<<<<<<< HEAD
-=======
-
->>>>>>> f85aba0ea816636d50b7cd9e19033da9609f3b12
     if (ret.data.status) {
       const { getAllDebtReminders } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
+      const { socket } = this.props;
+      socket.emit('notify', true);
       alert('Hủy thành công');
     } else alert('Hủy thất bại!');
   };
@@ -328,6 +329,8 @@ class DebtReminder extends Component {
       const { getAllDebtReminders, getListReceiver } = this.props; //test lấy tất cả nhắc nợ, f12 để xem kết quả
       getAllDebtReminders(accessToken);
       getListReceiver(accessToken);
+      const { socket } = this.props;
+      socket.emit('notify', true);
       alert(ret.data.message);
     } catch (e) {
       alert('Thêm thất bại!');
@@ -1258,6 +1261,7 @@ const mapStateToProps = (state) => {
     amount: state.manageDebtReminders.amount,
     email: state.manageDebtReminders.email,
     username: state.manageDebtReminders.username,
+    socket: state.manageDebtReminders.socket,
   };
 };
 

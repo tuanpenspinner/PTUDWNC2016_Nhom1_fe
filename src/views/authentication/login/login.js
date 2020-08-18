@@ -31,7 +31,7 @@ class Login extends Component {
       password: '',
       checkRole: 'customer',
       err: '',
-      reCaptcha: true,
+      reCaptcha: null,
       loading: false,
     };
   }

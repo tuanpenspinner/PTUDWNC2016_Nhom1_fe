@@ -1,5 +1,5 @@
 import { customerConstants } from '../../constants/customer';
-
+import openSocket from 'socket.io-client';
 export const initialState = {
   allDebtReminders: {
     listOfMe: [],
@@ -11,12 +11,25 @@ export const initialState = {
   amount: null,
   accountNumber: null,
   email: null,
+  socket: null,
 };
 // let inforLogin = JSON.parse(localStorage.getItem("inforLogin"));
 // const initiateState = inforLogin ? { loggedIn: true, inforLogin } : { loggingIn: false, inforLogin: { accesstoken: 'null' } };
 
 function manageDebtReminders(state = initialState, action) {
   switch (action.type) {
+    case customerConstants.debtReminder.CONNECT_SOCKET_IO_HOST: {
+      const options = {
+        rememberUpgrade: true,
+        transports: ['websocket'],
+        secure: true,
+        rejectUnauthorized: false,
+      };
+      const socket = openSocket('http://localhost:3001', options);
+      const st = { ...state };
+      st.socket = socket;
+      return { ...st };
+    }
     case customerConstants.debtReminder.GET_ALL_DEBT_REMINDERS: {
       const st = { ...state };
       if (action.data.status === 'failed') {
@@ -42,7 +55,7 @@ function manageDebtReminders(state = initialState, action) {
 
         st.listDebtNotPaid = action.data.listReminders.listOfOthers.filter(
           (item) => {
-            return item.pay.isPaid === false && !item.deleteReminder.isDeleted
+            return item.pay.isPaid === false && !item.deleteReminder.isDeleted;
           }
         );
 
