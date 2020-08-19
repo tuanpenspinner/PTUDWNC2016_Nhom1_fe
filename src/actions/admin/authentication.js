@@ -2,7 +2,7 @@ import { administratorConstants } from '../../constants/administrator';
 
 const login = (username, password, role) => {
   return (dispatch) => {
-    return fetch('http://localhost:3001/administrator/login', {
+    return fetch('https://great-banking.herokuapp.com/administrator/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

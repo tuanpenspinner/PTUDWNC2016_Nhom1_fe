@@ -76,7 +76,7 @@ class AddCustomer extends Component {
         refreshToken: null,
       };
       const ret = await axios.post(
-        'http://localhost:3001/customers/register',
+        'https://great-banking.herokuapp.com/customers/register',
         newCustomer,
         {
           headers: {

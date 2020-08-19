@@ -42,7 +42,7 @@ class RowEmployee extends Component {
     const { name, phone, email, username } = this.state;
     const accessToken = localStorage.getItem('accessToken');
     const result = await axios.post(
-      'http://localhost:3001/administrator/update-employee',
+      'https://great-banking.herokuapp.com/administrator/update-employee',
       { name, phone, email, username },
       {
         headers: {

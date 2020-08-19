@@ -38,8 +38,7 @@ class DefaultHeader extends Component {
       this.setState({ urlProfile: '/customer/profile' });
     } else if (role === 'employee') {
       this.setState({ urlProfile: '/employee/profile' });
-    }
-    else {
+    } else {
       this.setState({ urlProfile: '/administrator/profile' });
     }
   }
@@ -64,7 +63,7 @@ class DefaultHeader extends Component {
   loadNotify = () => {
     const accessToken = localStorage.getItem('accessToken');
     axios
-      .get('http://localhost:3001/customers/info', {
+      .get('https://great-banking.herokuapp.com/customers/info', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -78,7 +77,7 @@ class DefaultHeader extends Component {
         var accountNumber = this.state.accountNumber;
         axios
           .get(
-            `http://localhost:3001/customers/list-notification/${accountNumber}`,
+            `https://great-banking.herokuapp.com/customers/list-notification/${accountNumber}`,
             {
               headers: {
                 'Content-Type': 'application/json;charset=UTF-8',
@@ -117,7 +116,7 @@ class DefaultHeader extends Component {
     const { socket } = this.props;
     if (socket !== null)
       socket.on('notify', (data) => {
-        console.log("Load thông báo!")
+        console.log('Load thông báo!');
         this.loadNotify();
       });
     const showNotification = () => {

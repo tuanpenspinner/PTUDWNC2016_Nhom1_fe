@@ -2,7 +2,7 @@ import { employeeConstants } from '../../constants/employee';
 
 const login = (username, password, role) => {
   return (dispatch) => {
-    return fetch('http://localhost:3001/employees/login', {
+    return fetch('https://great-banking.herokuapp.com/employees/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -11,7 +11,11 @@ const login = (username, password, role) => {
       body: JSON.stringify({ username, password }),
     }).then((response) =>
       response.json().then((data) => {
-        dispatch({ type: employeeConstants.authentication.LOGIN_EMP, data ,role});
+        dispatch({
+          type: employeeConstants.authentication.LOGIN_EMP,
+          data,
+          role,
+        });
       })
     );
   };

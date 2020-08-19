@@ -36,7 +36,7 @@ class Transfer extends Component {
   API = {
     partnerBankDetail:
       'https://great-banking.herokuapp.com/api/partner-bank-detail',
-    local: 'http://localhost:3001/api',
+    local: 'https://great-banking.herokuapp.com/api',
   };
   constructor(props) {
     super(props);
@@ -69,7 +69,6 @@ class Transfer extends Component {
     const accessToken = localStorage.getItem('accessToken');
     const { getListReceivers, connectSocketIoHost } = this.props;
     getListReceivers(accessToken);
- 
   }
 
   reset = () => {
@@ -204,7 +203,7 @@ class Transfer extends Component {
       };
       const accessToken = localStorage.getItem('accessToken');
       const ret = await axios.post(
-        'http://localhost:3001/customers/saveAndSendOTP',
+        'https://great-banking.herokuapp.com/customers/saveAndSendOTP',
         body,
         {
           headers: {
@@ -299,7 +298,7 @@ class Transfer extends Component {
     if (!found) {
       if (!switchPartnerBank) {
         const ret = await axios.get(
-          `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+          `https://great-banking.herokuapp.com/customers/nameCustomer/${newReceiver.accountNumber}`,
           {
             headers: {
               'Content-Type': 'application/json;charset=UTF-8',
@@ -376,7 +375,7 @@ class Transfer extends Component {
     else {
       if (!switchPartnerBank) {
         const ret = await axios.get(
-          `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+          `https://great-banking.herokuapp.com/customers/nameCustomer/${newReceiver.accountNumber}`,
           {
             headers: {
               'Content-Type': 'application/json;charset=UTF-8',
@@ -442,7 +441,7 @@ class Transfer extends Component {
     );
     if (!this.state.switchPartnerBank) {
       const ret = await axios.get(
-        `http://localhost:3001/customers/nameCustomer/${newReceiver.accountNumber}`,
+        `https://great-banking.herokuapp.com/customers/nameCustomer/${newReceiver.accountNumber}`,
         {
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -996,7 +995,7 @@ const mapStateToProps = (state) => {
 const actionCreators = {
   getListReceivers: transferCustomerActions.getListReceivers,
   updateListReceivers: transferCustomerActions.updateListReceivers,
- 
+
   // requestResetPassword: memberActions.requestResetPassword
 };
 

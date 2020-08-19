@@ -2,7 +2,7 @@ import { customerConstants } from '../../constants/customer';
 
 const login = (username, password, role) => {
   return (dispatch) => {
-    return fetch('http://localhost:3001/customers/login', {
+    return fetch('https://great-banking.herokuapp.com/customers/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -11,7 +11,7 @@ const login = (username, password, role) => {
       body: JSON.stringify({ username, password }),
     }).then((response) =>
       response.json().then((data) => {
-        dispatch({ type: customerConstants.authentication.LOGIN, data,role });
+        dispatch({ type: customerConstants.authentication.LOGIN, data, role });
       })
     );
   };
