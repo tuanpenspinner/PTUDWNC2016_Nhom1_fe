@@ -68,7 +68,7 @@ class Transfer extends Component {
     const accessToken = localStorage.getItem('accessToken');
     const { getListReceivers, connectSocketIoHost } = this.props;
     getListReceivers(accessToken);
- 
+
   }
 
   reset = () => {
@@ -251,13 +251,14 @@ class Transfer extends Component {
 
     this.state.loadingTransfer = true;
     try {
-      await axios.post(`${this.API.local}/internal-money-transfer`, body, {
+      const res = await axios.post(`${this.API.local}/internal-money-transfer`, body, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
           'access-token': accessToken,
         },
       });
+      console.log("ress", res);
 
       alert('Chuyển tiền thành công!');
       this.saveReceiverAfterTransfer();
@@ -266,10 +267,8 @@ class Transfer extends Component {
       getListReceivers(accessToken);
       this.toggleSmall();
     } catch (e) {
-      if (e.message === 'Tài khoản người gửi không đủ tiền.') alert('Tài khoản người gửi không đủ tiền.')
-      else {
-        alert('Mã OTP chưa chính xác!');
-      }
+      console.log("errr nek", e);
+        alert('Mã OTP chưa chính xác hoặc tài khoản không đủ tiền!');
     }
     this.state.loadingTransfer = false;
   };
