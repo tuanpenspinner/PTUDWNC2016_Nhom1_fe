@@ -150,7 +150,7 @@ class HistoryOfCustomer extends Component {
                   // { key: 'name', label: 'Tên người gửi' },
                   { key: 'transfererAccountNumber', label: 'STK người gửi' },
                   { key: 'amount', label: 'Số tiền gửi' },
-                  { key: 'time', label: 'Ngày giao dịch' },
+                  { key: '_time', label: 'Ngày giao dịch' },
                   {
                     key: 'payFeeBy',
                     label: 'Người trả phí',
@@ -172,6 +172,9 @@ class HistoryOfCustomer extends Component {
                     if (item.payFeeBy === 'transferer')
                       return <td>người gửi</td>;
                     else return <td>người nhận</td>;
+                  },
+                  _time: (item, index) => {
+                    return <td>{item.time}</td>;
                   },
                   showdetail: (item, index) => {
                     return (
@@ -219,7 +222,7 @@ class HistoryOfCustomer extends Component {
                   // { key: 'name', label: 'Tên người nhận' },
                   { key: 'receiverAccountNumber', label: 'STK người nhận' },
                   { key: 'amount', label: 'Số tiền gửi' },
-                  { key: 'time', label: 'Ngày giao dịch' },
+                  { key: '_time', label: 'Ngày giao dịch' },
                   {
                     key: 'payFeeBy',
                     label: 'Người trả phí',
@@ -241,6 +244,9 @@ class HistoryOfCustomer extends Component {
                     if (item.payFeeBy === 'transferer')
                       return <td>người gửi</td>;
                     else return <td>người nhận</td>;
+                  },
+                  _time: (item, index) => {
+                    return <td>{item.time}</td>;
                   },
                   showdetail: (item, index) => {
                     return (

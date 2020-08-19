@@ -75,8 +75,8 @@ class CustomerManage extends Component {
         return (
           <p>
             + Số tài khoản: {savingAccount.accountNumber}
-          
-            &nbsp;&nbsp;&nbsp;&nbsp; Số dư: {  parseInt(savingAccount.amount).format(0, 3, '.', ',')} đồng
+            &nbsp;&nbsp;&nbsp;&nbsp; Số dư:{' '}
+            {parseInt(savingAccount.amount).format(0, 3, '.', ',')} đồng
           </p>
         );
       });
@@ -202,8 +202,8 @@ class CustomerManage extends Component {
                               shape="square"
                               size="sm"
                               onClick={() => {
-                                this.toggle(0, '2');
                                 this.setState({ customerChose: item });
+                                this.toggle(0, '2');
                                 const accessToken = localStorage.getItem(
                                   'accessToken'
                                 );
