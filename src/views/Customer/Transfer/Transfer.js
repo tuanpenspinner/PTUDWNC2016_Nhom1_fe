@@ -69,7 +69,7 @@ class Transfer extends Component {
     const accessToken = localStorage.getItem('accessToken');
     const { getListReceivers, connectSocketIoHost } = this.props;
     getListReceivers(accessToken);
- 
+
   }
 
   reset = () => {
@@ -77,7 +77,6 @@ class Transfer extends Component {
       contentTransfer: '',
       accountNumberReceiver: '',
       nameReceiver: '',
-      transferAmount: null,
       otp: null,
       loadingBankDetail: false,
       loadingTransfer: false,
@@ -220,7 +219,6 @@ class Transfer extends Component {
 
   // hàm xác nhận chuyển khoản trên modal
   confirmTransfer = async () => {
-    this.state.loadingTransfer = true;
     const accessToken = localStorage.getItem('accessToken');
 
     const {
@@ -231,6 +229,10 @@ class Transfer extends Component {
       nameReceiver,
       otp,
     } = this.state;
+    if (!otp) {
+      alert("Vui lòng nhập OTP đã được gửi email của bạn");
+      return;
+    }
     const body = {
       bank_code: '',
       amount: transferAmount,
@@ -248,6 +250,7 @@ class Transfer extends Component {
       body.bank_code = this.state.partnerCode;
     }
 
+    this.state.loadingTransfer = true;
     try {
       await axios.post(`${this.API.local}/internal-money-transfer`, body, {
         headers: {
@@ -264,8 +267,10 @@ class Transfer extends Component {
       getListReceivers(accessToken);
       this.toggleSmall();
     } catch (e) {
-      console.log(e);
-      alert('Mã OTP chưa chính xác!');
+      if (e.message === 'Tài khoản người gửi không đủ tiền.') alert('Tài khoản người gửi không đủ tiền.')
+      else {
+        alert('Mã OTP chưa chính xác!');
+      }
     }
     this.state.loadingTransfer = false;
   };
@@ -996,7 +1001,7 @@ const mapStateToProps = (state) => {
 const actionCreators = {
   getListReceivers: transferCustomerActions.getListReceivers,
   updateListReceivers: transferCustomerActions.updateListReceivers,
- 
+
   // requestResetPassword: memberActions.requestResetPassword
 };
 
