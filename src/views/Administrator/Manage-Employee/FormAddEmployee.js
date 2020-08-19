@@ -45,7 +45,7 @@ class FormAddEmployee extends Component {
     else {
       axios
         .post(
-          'https://great-banking.herokuapp.com/administrator/register-employee',
+          'http://localhost:3001/administrator/register-employee',
           newEmployee,
           {
             headers: {

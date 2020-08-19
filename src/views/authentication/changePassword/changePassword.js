@@ -54,7 +54,7 @@ class ChangePassword extends Component {
           newPassword,
         };
         const result = await axios.post(
-          'https://great-banking.herokuapp.com/customers/changePassword',
+          'http://localhost:3001/customers/changePassword',
           entity,
           {
             headers: {

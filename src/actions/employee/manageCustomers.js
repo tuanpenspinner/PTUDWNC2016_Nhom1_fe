@@ -3,7 +3,7 @@ import axios from 'axios';
 const getListAccounts = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/employees/account-customers', {
+      .get('http://localhost:3001/employees/account-customers', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -30,7 +30,7 @@ const moneyRecharge = (accessToken, username, accountNumber, amount, type) => {
   return (dispatch) => {
     return axios
       .post(
-        'https://great-banking.herokuapp.com/employees/money-recharge',
+        'http://localhost:3001/employees/money-recharge',
         {
           username: username,
           accountNumber: accountNumber,
@@ -62,7 +62,7 @@ const getHistoryDeal = (accessToken, customer) => {
   return (dispatch) => {
     return axios
       .get(
-        `https://great-banking.herokuapp.com/employees/historyDealOfCustomer/${customer.username}`,
+        `http://localhost:3001/employees/historyDealOfCustomer/${customer.username}`,
         {
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',

@@ -4,7 +4,7 @@ import axios from 'axios';
 const getHistoryTransfer = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/customers/historyTransfer', {
+      .get('http://localhost:3001/customers/historyTransfer', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -26,7 +26,7 @@ const getHistoryTransfer = (accessToken) => {
 const getHistoryReceive = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/customers/historyReceive', {
+      .get('http://localhost:3001/customers/historyReceive', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -45,7 +45,7 @@ const getHistoryReceive = (accessToken) => {
 const getHistoryPayDebt = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/customers/historyPayDebt', {
+      .get('http://localhost:3001/customers/historyPayDebt', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',

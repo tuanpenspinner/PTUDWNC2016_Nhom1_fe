@@ -45,7 +45,7 @@ class Profile extends Component {
     const accessToken = localStorage.getItem('accessToken');
     const { username } = this.props;
     const ret = await axios.post(
-      'https://great-banking.herokuapp.com/customers/updateNameCustomer',
+      'http://localhost:3001/customers/updateNameCustomer',
 
       {
         username,

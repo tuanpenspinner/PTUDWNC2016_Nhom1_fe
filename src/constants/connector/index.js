@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_URL = 'https://great-banking.herokuapp.com/api';
+const API_URL = 'http://localhost:3001/api';
 
 const connector = axios.create({
   baseURL: API_URL,

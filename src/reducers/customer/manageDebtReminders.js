@@ -25,7 +25,7 @@ function manageDebtReminders(state = initialState, action) {
         secure: true,
         rejectUnauthorized: false,
       };
-      const socket = openSocket('https://great-banking.herokuapp.com', options);
+      const socket = openSocket('http://localhost:3001', options);
       const st = { ...state };
       st.socket = socket;
       return { ...st };

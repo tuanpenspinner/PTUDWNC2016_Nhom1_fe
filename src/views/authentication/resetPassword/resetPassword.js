@@ -50,7 +50,7 @@ class ResetPassword extends Component {
   generateOTP = async () => {
     const { email, username } = this.state;
     const checkEmail = await axios.post(
-      'https://great-banking.herokuapp.com/customers/saveAndSendOTP',
+      'http://localhost:3001/customers/saveAndSendOTP',
       { email, username }
     );
     if (!checkEmail.data.status)
@@ -66,7 +66,7 @@ class ResetPassword extends Component {
     const { username, OTP, newPassword, confirmPassword } = this.state;
     if (newPassword === confirmPassword) {
       const resetPassword = await axios.post(
-        'https://great-banking.herokuapp.com/customers/otpValidateAndResetPassword',
+        'http://localhost:3001/customers/otpValidateAndResetPassword',
         {
           OTP,
           newPassword,

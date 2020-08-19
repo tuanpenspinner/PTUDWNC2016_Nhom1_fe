@@ -36,9 +36,8 @@ import axios from 'axios';
 
 class DebtReminder extends Component {
   API = {
-    partnerBankDetail:
-      'https://great-banking.herokuapp.com/api/partner-bank-detail',
-    local: 'https://great-banking.herokuapp.com/api',
+    partnerBankDetail: 'http://localhost:3001/api/partner-bank-detail',
+    local: 'http://localhost:3001/api',
   };
   constructor(props) {
     super(props);
@@ -125,7 +124,7 @@ class DebtReminder extends Component {
       };
       const accessToken = localStorage.getItem('accessToken');
       const ret = await axios.post(
-        'https://great-banking.herokuapp.com/customers/saveAndSendOTP',
+        'http://localhost:3001/customers/saveAndSendOTP',
         body,
         {
           headers: {
@@ -272,7 +271,7 @@ class DebtReminder extends Component {
     e.preventDefault();
     const accessToken = localStorage.getItem('accessToken');
     const ret = await axios.get(
-      `https://great-banking.herokuapp.com/customers/nameCustomer/${this.state.newDebt.debtor}`,
+      `http://localhost:3001/customers/nameCustomer/${this.state.newDebt.debtor}`,
       {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
@@ -316,7 +315,7 @@ class DebtReminder extends Component {
     };
     try {
       const ret = await axios.post(
-        `https://great-banking.herokuapp.com/api/debt-reminders`,
+        `http://localhost:3001/api/debt-reminders`,
         newDebt,
         {
           headers: {
