@@ -3,7 +3,7 @@ import axios from 'axios';
 const saveProfile = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/employees/info/profile', {
+      .get('http://localhost:3001/employees/info/profile', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -29,7 +29,7 @@ const updateProfile = (accessToken, name, email, phone) => {
   return (dispatch) => {
     return axios
       .post(
-        'https://great-banking.herokuapp.com/employees/updateInfoPersonal',
+        'http://localhost:3001/employees/updateInfoPersonal',
         {
           name: name,
           phone: phone,

@@ -63,7 +63,7 @@ class DefaultHeader extends Component {
   loadNotify = () => {
     const accessToken = localStorage.getItem('accessToken');
     axios
-      .get('https://great-banking.herokuapp.com/customers/info', {
+      .get('http://localhost:3001/customers/info', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -77,7 +77,7 @@ class DefaultHeader extends Component {
         var accountNumber = this.state.accountNumber;
         axios
           .get(
-            `https://great-banking.herokuapp.com/customers/list-notification/${accountNumber}`,
+            `http://localhost:3001/customers/list-notification/${accountNumber}`,
             {
               headers: {
                 'Content-Type': 'application/json;charset=UTF-8',

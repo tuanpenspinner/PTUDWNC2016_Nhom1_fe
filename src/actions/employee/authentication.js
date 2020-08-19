@@ -2,7 +2,7 @@ import { employeeConstants } from '../../constants/employee';
 
 const login = (username, password, role) => {
   return (dispatch) => {
-    return fetch('https://great-banking.herokuapp.com/employees/login', {
+    return fetch('http://localhost:3001/employees/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

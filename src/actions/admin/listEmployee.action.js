@@ -3,7 +3,7 @@ import axios from 'axios';
 const loadListEmployee = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/administrator/list-employee', {
+      .get('http://localhost:3001/administrator/list-employee', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',

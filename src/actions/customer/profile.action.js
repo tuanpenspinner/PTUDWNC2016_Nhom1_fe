@@ -3,7 +3,7 @@ import axios from 'axios';
 const saveProfile = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('https://great-banking.herokuapp.com/customers/info', {
+      .get('http://localhost:3001/customers/info', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
