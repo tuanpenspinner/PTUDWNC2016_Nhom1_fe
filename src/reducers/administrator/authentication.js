@@ -4,6 +4,7 @@ export const initialState = {
   username: '',
   email: '',
   name: '',
+  phone: '',
   accessToken: '',
   refreshToken: '',
   isLogin: false,
@@ -22,7 +23,7 @@ function authentication(state = initialState, action) {
         st.username = action.data.admin.username;
         st.name = action.data.admin.name;
         st.email = action.data.admin.email;
-
+        st.phone = action.data.admin.phone;
         try {
           st.accessToken = action.data.accessToken;
           st.refreshToken = action.data.refreshToken;

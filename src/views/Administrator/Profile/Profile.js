@@ -18,18 +18,28 @@ class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: 'Sierra Brooks',
-      // eslint-disable-next-line global-require
+      name: '',
+      username: '',
+      email: '',
+      phone: '',
       avatar: require('../../../assets/img/brand/user.png'),
     };
   }
-
+  componentWillMount = async () => {
+    const info = JSON.parse(localStorage.getItem('info'));
+    this.setState({
+      username: info.username,
+      name: info.name,
+      email: info.email,
+      phone: info.phone,
+    });
+  };
   handleUpdate = (e) => {
     e.preventDefault();
   };
 
   render() {
-    const { name, avatar } = this.state;
+    const { name, avatar, username, email, phone } = this.state;
 
     return (
       <div className="animated fadeIn">
@@ -50,7 +60,7 @@ class Profile extends Component {
                 </div>
                 <div style={{}}>
                   <strong className="text-muted" style={{}}>
-                    username
+                    {username}
                   </strong>
                 </div>
               </CardHeader>
@@ -66,6 +76,7 @@ class Profile extends Component {
                         type="text"
                         placeholder="Họ và tên"
                         // autoComplete="username"
+                        value={name}
                         name="name"
                         autoFocus
                         onChange={(event) => {
@@ -79,9 +90,9 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Email"
-                        // autoComplete="username"
                         name="email"
                         autoFocus
+                        value={email}
                         onChange={(event) => {
                           // this.setState({ err: '' });
                           // this.setState({ username: event.target.value });
@@ -95,7 +106,7 @@ class Profile extends Component {
                       <Input
                         type="text"
                         placeholder="Số điện thoại"
-                        // autoComplete="username"
+                        value={phone}
                         name="phone"
                         autoFocus
                         onChange={(event) => {

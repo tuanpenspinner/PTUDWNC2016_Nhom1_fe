@@ -39,6 +39,9 @@ class DefaultHeader extends Component {
     } else if (role === 'employee') {
       this.setState({ urlProfile: '/employee/profile' });
     }
+    else {
+      this.setState({ urlProfile: '/administrator/profile' });
+    }
   }
   componentDidMount = () => {
     this.loadNotify();

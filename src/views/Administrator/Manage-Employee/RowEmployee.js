@@ -20,15 +20,23 @@ class RowEmployee extends Component {
   };
   removeEmployee = async () => {
     const { item } = this.props;
+    const accessToken = localStorage.getItem('accessToken');
     const result = await axios.post(
       'http://localhost:3001/administrator/delete-employee',
       {
         username: item.username,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*',
+          'access-token': accessToken,
+        },
       }
     );
     const { loadListEmployee } = this.props;
-    loadListEmployee();
-    alert(`Xóa tài khoản nhân viên ${item.username} thành công!`)
+    loadListEmployee(accessToken);
+    alert(`Xóa tài khoản nhân viên ${item.username} thành công!`);
   };
   render() {
     const { index } = this.props;

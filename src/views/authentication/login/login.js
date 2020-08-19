@@ -131,6 +131,15 @@ class Login extends Component {
             localStorage.setItem('accessToken', st.accessToken);
             localStorage.setItem('refreshToken', st.refreshToken);
             localStorage.setItem('role', st.role);
+            localStorage.setItem(
+              'info',
+              JSON.stringify({
+                username: st.username,
+                name: st.name,
+                email: st.email,
+                phone: st.phone,
+              })
+            );
             window.location.href = './administrator/manage-employee';
           }
           break;
@@ -148,7 +157,7 @@ class Login extends Component {
   };
   render() {
     const { username, password, err } = this.state;
-    
+
     return (
       <div className="app flex-row align-items-center">
         <Container>
@@ -326,6 +335,7 @@ const mapStateToProps = (state) => {
       username: state.authenticationAdmin.username,
       name: state.authenticationAdmin.name,
       email: state.authenticationAdmin.email,
+      phone: state.authenticationAdmin.phone,
       isLogin: state.authenticationAdmin.isLogin,
       accessToken: state.authenticationAdmin.accessToken,
       refreshToken: state.authenticationAdmin.refreshToken,
