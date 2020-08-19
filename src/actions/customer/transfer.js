@@ -3,7 +3,7 @@ import axios from 'axios';
 const getListReceivers = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('http://localhost:3001/customers/info', {
+      .get('https://great-banking.herokuapp.com/customers/info', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
@@ -30,7 +30,7 @@ const updateListReceivers = (listReceivers, accessToken) => {
   return (dispatch) => {
     return axios
       .post(
-        'http://localhost:3001/customers/updateListReceivers',
+        'https://great-banking.herokuapp.com/customers/updateListReceivers',
         {
           listReceivers,
         },

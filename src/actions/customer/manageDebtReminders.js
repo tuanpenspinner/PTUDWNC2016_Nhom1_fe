@@ -3,7 +3,7 @@ import axios from 'axios';
 const getAllDebtReminders = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('http://localhost:3001/api/debt-reminders', {
+      .get('https://great-banking.herokuapp.com/api/debt-reminders', {
         headers: {
           'access-token': accessToken,
         },
@@ -26,7 +26,7 @@ const getAllDebtReminders = (accessToken) => {
 const getListReceiver = (accessToken) => {
   return (dispatch) => {
     axios
-      .get('http://localhost:3001/customers/info', {
+      .get('https://great-banking.herokuapp.com/customers/info', {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',

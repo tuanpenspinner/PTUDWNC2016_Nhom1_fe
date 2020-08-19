@@ -3,13 +3,16 @@ import axios from 'axios';
 const getTransactionHistory = (accessToken) => {
   return (dispatch) => {
     return axios
-      .get('http://localhost:3001/administrator/transaction-history', {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*',
-          'access-token': accessToken,
-        },
-      })
+      .get(
+        'https://great-banking.herokuapp.com/administrator/transaction-history',
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'access-token': accessToken,
+          },
+        }
+      )
       .then((data) => {
         const transactionHistory = data.data;
         return dispatch({
